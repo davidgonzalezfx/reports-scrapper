@@ -7,5 +7,6 @@ env/
 
 /dist
 /build
+/reports
 
 .DS_STORE

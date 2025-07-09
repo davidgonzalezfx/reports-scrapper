@@ -146,12 +146,14 @@ def convert_csv_to_xlsx(csv_path):
     df.to_excel(xlsx_path, index=False)
     print(f'Converted {csv_path} to {xlsx_path}')
 
-def get_selected_date_filter():
+def get_config():
     if os.path.exists(CONFIG_FILE):
         with open(CONFIG_FILE, 'r') as f:
-            config = json.load(f)
-            return config.get('date_filter', 'Today')
-    return 'Today'
+            return json.load(f)
+    return {
+        "date_filter": "Today", 
+        "tabs": {tab["name"]: True for tab in TABS}
+    }
 
 def login_and_download_reports():
     with sync_playwright() as p:
@@ -168,13 +170,15 @@ def login_and_download_reports():
         if not navigate_to_reports(page):
             browser.close()
             return
-        # Student Usage tab (default, select date filter from config)
-        selected_filter = get_selected_date_filter()
-        print(f'\n--- Downloading Student Usage Report with date filter: {selected_filter} ---')
-        select_date_filter(page, selected_filter)
-        download_report(page)
-        # Other tabs
-        for tab in TABS[1:]:
+        config = get_config()
+        selected_filter = config.get('date_filter', 'Today')
+        selected_tabs = config.get('tabs', {tab["name"]: True for tab in TABS})
+
+        for tab in TABS:
+            if not selected_tabs.get(tab["name"], True):
+                print(f"\n--- Skipping {tab['name']} Report (not selected) ---")
+                continue
+                
             print(f"\n--- Downloading {tab['name']} Report ---")
             if not switch_tab(page, tab['name']):
                 continue

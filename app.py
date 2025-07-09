@@ -7,21 +7,28 @@ import json
 REPORTS_DIR = 'reports'
 CONFIG_FILE = 'scraper_config.json'
 DATE_FILTERS = ["Today", "Last 7 Days", "Last 30 Days", "Last 90 Days", "Last Year"]
+TABS = [
+    {"name": "Student Usage", "default": True},
+    {"name": "Skill", "default": True},
+    {"name": "Assignment", "default": True},
+    {"name": "Assessment", "default": True},
+    {"name": "Level Up Progress", "default": True},
+]
 
 app = Flask(__name__)
 
 # Track scraper status
 download_in_progress = False
 
-def save_config(date_filter):
+def save_config(config_data):
     with open(CONFIG_FILE, 'w') as f:
-        json.dump({"date_filter": date_filter}, f)
+        json.dump(config_data, f)
 
 def load_config():
     if os.path.exists(CONFIG_FILE):
         with open(CONFIG_FILE, 'r') as f:
             return json.load(f)
-    return {"date_filter": DATE_FILTERS[0]}
+    return {"date_filter": DATE_FILTERS[0], "tabs": {tab["name"]: tab["default"] for tab in TABS}}
 
 def run_scraper():
     global download_in_progress
@@ -35,6 +42,8 @@ def index():
     files.sort(reverse=True)
     config = load_config()
     selected_filter = config.get('date_filter', DATE_FILTERS[0])
+    selected_tabs = config.get('tabs', {tab["name"]: tab["default"] for tab in TABS})
+    
     return render_template_string('''
     <!DOCTYPE html>
     <html lang="en">
@@ -54,7 +63,7 @@ def index():
       <div class="container">
         <h1 class="mb-4">Available Reports</h1>
         <form id="filter-form" class="mb-4" method="post" action="/set-filter">
-          <div class="row g-2 align-items-center">
+          <div class="row g-2 align-items-center mb-3">
             <div class="col-auto">
               <label for="date_filter" class="col-form-label">Date Filter:</label>
             </div>
@@ -65,11 +74,36 @@ def index():
                 {% endfor %}
               </select>
             </div>
+          </div>
+          
+          <div class="row g-2 mb-3">
+            <div class="col-12">
+              <label class="form-label">Select Tabs to Download:</label>
+            </div>
+            <div class="col-12">
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="select-all" onchange="toggleAll(this.checked)">
+                <label class="form-check-label" for="select-all">Select All</label>
+              </div>
+            </div>
+            {% for tab in tabs %}
             <div class="col-auto">
-              <button type="submit" class="btn btn-secondary">Set Filter</button>
+              <div class="form-check">
+                <input class="form-check-input tab-checkbox" type="checkbox" id="tab-{{ loop.index }}" name="tabs" 
+                       value="{{ tab.name }}" {% if selected_tabs.get(tab.name, tab.default) %}checked{% endif %}>
+                <label class="form-check-label" for="tab-{{ loop.index }}">{{ tab.name }}</label>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          
+          <div class="row">
+            <div class="col-auto">
+              <button type="submit" class="btn btn-secondary">Save Settings</button>
             </div>
           </div>
         </form>
+        
         <table class="table table-striped table-hover">
           <thead class="table-dark">
             <tr><th>Report File</th><th>Download</th></tr>
@@ -90,7 +124,14 @@ def index():
           </div>
         </form>
       </div>
+      
       <script>
+        function toggleAll(checked) {
+          document.querySelectorAll('.tab-checkbox').forEach(checkbox => {
+            checkbox.checked = checked;
+          });
+        }
+        
         const form = document.getElementById('scrape-form');
         const btn = document.getElementById('scrape-btn');
         const spinner = document.querySelector('.spinner-border');
@@ -119,12 +160,24 @@ def index():
       </script>
     </body>
     </html>
-    ''', files=files, download_in_progress=download_in_progress, date_filters=DATE_FILTERS, selected_filter=selected_filter)
+    ''', files=files, download_in_progress=download_in_progress, 
+        date_filters=DATE_FILTERS, selected_filter=selected_filter,
+        tabs=TABS, selected_tabs=selected_tabs)
 
 @app.route('/set-filter', methods=['POST'])
 def set_filter():
+    config = load_config()
+    
+    # Update date filter
     date_filter = request.form.get('date_filter', DATE_FILTERS[0])
-    save_config(date_filter)
+    config['date_filter'] = date_filter
+    
+    # Update tabs selection
+    selected_tabs = request.form.getlist('tabs')
+    tabs_config = {tab["name"]: (tab["name"] in selected_tabs) for tab in TABS}
+    config['tabs'] = tabs_config
+    
+    save_config(config)
     return redirect(url_for('index'))
 
 @app.route('/download/<filename>')
