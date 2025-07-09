@@ -14,7 +14,11 @@ This project scrapes reports from a website, converts them to XLSX, and serves t
    pip install -r requirements.txt
    playwright install
    ```
-2. Configure your credentials in `scraper.py` (to be added).
+2. Configure your credentials in a `.env` file
+   ```bash
+   SCRAPER_USERNAME=your_username
+   SCRAPER_PASSWORD=your_password
+   ```
 
 ## Usage
 
