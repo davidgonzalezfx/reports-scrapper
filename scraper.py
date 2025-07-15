@@ -4,6 +4,7 @@ import pandas as pd
 from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeoutError
 from dotenv import load_dotenv
 import json
+import argparse
 
 load_dotenv()
 
@@ -12,6 +13,8 @@ LOGIN_URL = 'https://accounts.learninga-z.com/ng/member/login?siteAbbr=rp'
 USERNAME = os.getenv('SCRAPER_USERNAME', 'your_username')
 PASSWORD = os.getenv('SCRAPER_PASSWORD', 'your_password')
 CONFIG_FILE = 'scraper_config.json'
+
+USERS_FILE = 'users.json'
 
 TABS = [
     {"name": "Student Usage" },
@@ -23,14 +26,20 @@ TABS = [
 
 os.makedirs(REPORTS_DIR, exist_ok=True)
 
-def login(page):
+def load_users(users_file=USERS_FILE):
+    if os.path.exists(users_file):
+        with open(users_file, 'r') as f:
+            return json.load(f)
+    return []
+
+def login(page, username, password):
     print('Navigating to login page...')
     page.goto(LOGIN_URL)
     try:
         print('Filling in username...')
-        page.fill('input#username', USERNAME)
+        page.fill('input#username', username)
         print('Filling in password...')
-        page.fill('input#password', PASSWORD)
+        page.fill('input#password', password)
         print('Waiting for login button to be enabled...')
         page.wait_for_selector('button#memberLoginSubmitButton:not([disabled])', timeout=10000)
         print('Clicking login button...')
@@ -155,7 +164,7 @@ def get_config():
         "tabs": {tab["name"]: True for tab in TABS}
     }
 
-def login_and_download_reports():
+def login_and_download_reports_for_user(username, password):
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
         context = browser.new_context(
@@ -164,7 +173,8 @@ def login_and_download_reports():
             viewport={'width': 1280, 'height': 800}
         )
         page = context.new_page()
-        if not login(page):
+        print(f'\n==== Running for user: {username} ====')
+        if not login(page, username, password):
             browser.close()
             return
         if not navigate_to_reports(page):
@@ -186,7 +196,15 @@ def login_and_download_reports():
         browser.close()
 
 def main():
-    login_and_download_reports()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--users', type=str, default=USERS_FILE, help='Path to users.json')
+    args = parser.parse_args()
+    users = load_users(args.users)
+    for user in users:
+        username = user.get('username')
+        password = user.get('password')
+        if username and password:
+            login_and_download_reports_for_user(username, password)
 
 if __name__ == '__main__':
     main() 
