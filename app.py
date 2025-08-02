@@ -142,6 +142,40 @@ def save_users_route():
     save_users(users)
     return jsonify({'status': 'ok'})
 
+@app.route('/upload-users', methods=['POST'])
+def upload_users():
+    if 'users_file' not in request.files:
+        return jsonify({'error': 'No file uploaded'}), 400
+    
+    file = request.files['users_file']
+    if file.filename == '':
+        return jsonify({'error': 'No file selected'}), 400
+    
+    if not file.filename.endswith('.json'):
+        return jsonify({'error': 'File must be a JSON file'}), 400
+    
+    try:
+        # Read and parse the uploaded JSON
+        file_content = file.read().decode('utf-8')
+        users_data = json.loads(file_content)
+        
+        # Validate the JSON structure
+        if not isinstance(users_data, list):
+            return jsonify({'error': 'JSON file must contain an array of users'}), 400
+        
+        for user in users_data:
+            if not isinstance(user, dict) or 'username' not in user or 'password' not in user:
+                return jsonify({'error': 'Each user must have username and password fields'}), 400
+        
+        # Save the new users configuration
+        save_users(users_data)
+        return jsonify({'status': 'ok', 'message': f'Successfully uploaded {len(users_data)} users'})
+        
+    except json.JSONDecodeError:
+        return jsonify({'error': 'Invalid JSON file format'}), 400
+    except Exception as e:
+        return jsonify({'error': f'Error processing file: {str(e)}'}), 500
+
 if __name__ == '__main__':
     os.makedirs(REPORTS_DIR, exist_ok=True)
     # Delete all files in the reports directory
