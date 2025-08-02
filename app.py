@@ -1,8 +1,11 @@
-from flask import Flask, render_template, send_from_directory, redirect, url_for, request, jsonify
+from flask import Flask, render_template, send_from_directory, redirect, url_for, request, jsonify, send_file
 import os
 import subprocess
 import threading
 import json
+import zipfile
+import tempfile
+from datetime import datetime
 USERS_FILE = 'users.json'
 
 REPORTS_DIR = 'reports'
@@ -79,6 +82,41 @@ def set_filter():
 @app.route('/download/<filename>')
 def download(filename):
     return send_from_directory(REPORTS_DIR, filename, as_attachment=True)
+
+@app.route('/download-all-zip')
+def download_all_zip():
+    files = [f for f in os.listdir(REPORTS_DIR) if f.endswith('.xlsx')]
+    
+    if not files:
+        return jsonify({'error': 'No files available for download'}), 404
+    
+    # Create a temporary zip file
+    temp_zip = tempfile.NamedTemporaryFile(delete=False, suffix='.zip')
+    
+    try:
+        with zipfile.ZipFile(temp_zip.name, 'w', zipfile.ZIP_DEFLATED) as zipf:
+            for file in files:
+                file_path = os.path.join(REPORTS_DIR, file)
+                zipf.write(file_path, file)
+        
+        # Generate timestamp for filename
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        zip_filename = f'reports_{timestamp}.zip'
+        
+        return send_file(
+            temp_zip.name,
+            as_attachment=True,
+            download_name=zip_filename,
+            mimetype='application/zip'
+        )
+    finally:
+        # Clean up temp file after sending
+        def cleanup():
+            try:
+                os.unlink(temp_zip.name)
+            except:
+                pass
+        threading.Thread(target=cleanup).start()
 
 @app.route('/scrape', methods=['POST'])
 def scrape():
