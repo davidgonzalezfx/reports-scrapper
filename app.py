@@ -3,15 +3,14 @@
 from flask import Flask, render_template, send_from_directory, redirect, url_for, request, jsonify, send_file
 import os
 import threading
-import json
-import zipfile
-import tempfile
 import logging
 import webbrowser
 import time
 from datetime import datetime
 from typing import Dict, List, Any, Optional
 from waitress import serve
+
+from utils import load_json, save_json, validate_filename, validate_user_data, get_report_files
 
 # Constants
 USERS_FILE = 'users.json'
@@ -60,83 +59,36 @@ class AppState:
 app_state = AppState()
 
 def save_config(config_data: Dict[str, Any]) -> None:
-    """Save configuration data to file.
-    
-    Args:
-        config_data: Configuration dictionary to save
-        
-    Raises:
-        OSError: If file cannot be written
-        json.JSONDecodeError: If data cannot be serialized
-    """
-    try:
-        with open(CONFIG_FILE, 'w', encoding='utf-8') as f:
-            json.dump(config_data, f, indent=2)
-        logger.info("Configuration saved successfully")
-    except (OSError, json.JSONDecodeError) as e:
-        logger.error(f"Failed to save configuration: {e}")
-        raise
+    """Save configuration data to file."""
+    if not save_json(config_data, CONFIG_FILE):
+        raise OSError("Failed to save configuration")
+    logger.info("Configuration saved successfully")
 
 def load_config() -> Dict[str, Any]:
-    """Load configuration from file with fallback to defaults.
-    
-    Returns:
-        Configuration dictionary
-    """
+    """Load configuration from file with fallback to defaults."""
     default_config = {
         "date_filter": DATE_FILTERS[0], 
         "tabs": {tab["name"]: tab["default"] for tab in TABS}
     }
     
-    if not os.path.exists(CONFIG_FILE):
-        logger.info("Configuration file not found, using defaults")
-        return default_config
-        
-    try:
-        with open(CONFIG_FILE, 'r', encoding='utf-8') as f:
-            config = json.load(f)
+    config = load_json(CONFIG_FILE, default_config)
+    if config == default_config:
+        logger.info("Using default configuration")
+    else:
         logger.info("Configuration loaded successfully")
-        return config
-    except (OSError, json.JSONDecodeError) as e:
-        logger.error(f"Failed to load configuration: {e}, using defaults")
-        return default_config
+    return config
 
 def load_users() -> List[Dict[str, str]]:
-    """Load users from file with fallback to empty list.
-    
-    Returns:
-        List of user dictionaries
-    """
-    if not os.path.exists(USERS_FILE):
-        logger.info("Users file not found, returning empty list")
-        return []
-        
-    try:
-        with open(USERS_FILE, 'r', encoding='utf-8') as f:
-            users = json.load(f)
-        logger.info(f"Loaded {len(users)} users successfully")
-        return users
-    except (OSError, json.JSONDecodeError) as e:
-        logger.error(f"Failed to load users: {e}, returning empty list")
-        return []
+    """Load users from file with fallback to empty list."""
+    users = load_json(USERS_FILE, [])
+    logger.info(f"Loaded {len(users)} users successfully")
+    return users
 
 def save_users(users: List[Dict[str, str]]) -> None:
-    """Save users to file.
-    
-    Args:
-        users: List of user dictionaries to save
-        
-    Raises:
-        OSError: If file cannot be written
-        json.JSONDecodeError: If data cannot be serialized
-    """
-    try:
-        with open(USERS_FILE, 'w', encoding='utf-8') as f:
-            json.dump(users, f, indent=2)
-        logger.info(f"Saved {len(users)} users successfully")
-    except (OSError, json.JSONDecodeError) as e:
-        logger.error(f"Failed to save users: {e}")
-        raise
+    """Save users to file."""
+    if not save_json(users, USERS_FILE):
+        raise OSError("Failed to save users")
+    logger.info(f"Saved {len(users)} users successfully")
 
 def run_scraper() -> None:
     """Execute the scraper directly by importing and calling the scraper module."""
@@ -169,12 +121,52 @@ def run_scraper() -> None:
         app_state.set_download_status(False)
         logger.info("Scraper process finished")
 
+def parse_file_info(filename: str) -> Dict[str, str]:
+    """Parse user and report information from filename.
+    
+    Args:
+        filename: The filename to parse (format: username_originalfilename.xlsx)
+        
+    Returns:
+        Dictionary with user, report_name, and original filename
+    """
+    try:
+        name_without_ext = filename.rsplit('.', 1)[0]
+        parts = name_without_ext.split('_', 1)
+        
+        if len(parts) == 2:
+            username, report_name = parts
+            
+            # Check if this is a legacy file (starts with known report type)
+            legacy_prefixes = ['Student Usage', 'Skill', 'Assignment', 'Assessment', 'Level Up Progress']
+            if any(name_without_ext.startswith(prefix) for prefix in legacy_prefixes):
+                return {'user': 'Unknown', 'report_name': name_without_ext, 'filename': filename}
+            
+            return {'user': username, 'report_name': report_name, 'filename': filename}
+        
+        # Single part or no underscore - treat as legacy
+        return {'user': 'Unknown', 'report_name': name_without_ext, 'filename': filename}
+        
+    except Exception as e:
+        logger.warning(f"Error parsing filename {filename}: {e}")
+        return {'user': 'Unknown', 'report_name': filename.rsplit('.', 1)[0], 'filename': filename}
+
 @app.route('/', methods=['GET'])
 def index():
     """Main page displaying reports and configuration."""
     try:
-        files = [f for f in os.listdir(REPORTS_DIR) if f.endswith('.xlsx')]
-        files.sort(reverse=True)
+        raw_files = get_report_files(REPORTS_DIR)
+        
+        # Parse file information for better display
+        files_with_info = [parse_file_info(f) for f in raw_files]
+        
+        # Group files by user for better organization
+        files_by_user = {}
+        for file_info in files_with_info:
+            user = file_info['user']
+            if user not in files_by_user:
+                files_by_user[user] = []
+            files_by_user[user].append(file_info)
         
         config = load_config()
         selected_filter = config.get('date_filter', DATE_FILTERS[0])
@@ -183,7 +175,9 @@ def index():
         
         return render_template(
             'scrapper.html', 
-            files=files, 
+            files=raw_files,  # Keep for backward compatibility
+            files_with_info=files_with_info,
+            files_by_user=files_by_user,
             download_in_progress=app_state.get_download_status(),
             date_filters=DATE_FILTERS, 
             selected_filter=selected_filter,
@@ -230,7 +224,7 @@ def download(filename: str):
     """
     try:
         # Security check: ensure filename doesn't contain path traversal
-        if '..' in filename or '/' in filename or '\\' in filename:
+        if not validate_filename(filename):
             logger.warning(f"Potentially malicious filename requested: {filename}")
             return jsonify({'error': 'Invalid filename'}), 400
             
@@ -249,14 +243,17 @@ def download(filename: str):
 @app.route('/download-all-zip')
 def download_all_zip():
     """Create and download a zip file containing all reports."""
+    import tempfile
+    import zipfile
+    
     try:
-        files = [f for f in os.listdir(REPORTS_DIR) if f.endswith('.xlsx')]
+        files = get_report_files(REPORTS_DIR)
         
         if not files:
             logger.info("No files available for zip download")
             return jsonify({'error': 'No files available for download'}), 404
         
-        # Create a temporary zip file
+        # Create a temporary zip file (using original approach)
         temp_zip = tempfile.NamedTemporaryFile(delete=False, suffix='.zip')
         
         try:
@@ -341,7 +338,7 @@ def save_users_route():
             return jsonify({'error': 'Users must be a list'}), 400
             
         for user in users:
-            if not isinstance(user, dict) or 'username' not in user or 'password' not in user:
+            if not validate_user_data(user):
                 return jsonify({'error': 'Each user must have username and password fields'}), 400
         
         save_users(users)
@@ -368,14 +365,18 @@ def upload_users():
         
         # Read and parse the uploaded JSON
         file_content = file.read().decode('utf-8')
-        users_data = json.loads(file_content)
+        try:
+            import json
+            users_data = json.loads(file_content)
+        except json.JSONDecodeError:
+            return jsonify({'error': 'Invalid JSON file format'}), 400
         
         # Validate the JSON structure
         if not isinstance(users_data, list):
             return jsonify({'error': 'JSON file must contain an array of users'}), 400
         
         for user in users_data:
-            if not isinstance(user, dict) or 'username' not in user or 'password' not in user:
+            if not validate_user_data(user):
                 return jsonify({'error': 'Each user must have username and password fields'}), 400
         
         # Save the new users configuration
@@ -443,7 +444,7 @@ if __name__ == '__main__':
     BROWSER_HOST = 'localhost'  # Browser should connect to localhost
     AUTO_OPEN_BROWSER = os.getenv('AUTO_OPEN_BROWSER', 'true').lower() == 'true'
     
-    cleanup_reports_directory()
+    # cleanup_reports_directory()
     logger.info("Starting Flask application")
     logger.info(f"Server will be available at http://{BROWSER_HOST}:{PORT}")
     

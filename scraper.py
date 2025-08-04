@@ -62,18 +62,10 @@ def load_users(users_file: str = USERS_FILE) -> List[Dict[str, str]]:
     Returns:
         List of user dictionaries with username and password
     """
-    if not os.path.exists(users_file):
-        logger.warning(f"Users file not found: {users_file}")
-        return []
-        
-    try:
-        with open(users_file, 'r', encoding='utf-8') as f:
-            users = json.load(f)
-        logger.info(f"Loaded {len(users)} users from {users_file}")
-        return users
-    except (json.JSONDecodeError, OSError) as e:
-        logger.error(f"Failed to load users from {users_file}: {e}")
-        return []
+    from utils import load_json
+    users = load_json(users_file, [])
+    logger.info(f"Loaded {len(users)} users from {users_file}")
+    return users
 
 def login(page, username: str, password: str) -> bool:
     """Perform login to the educational platform.
@@ -215,11 +207,12 @@ def select_date_filter(page, label: str) -> bool:
         logger.error(f"Error selecting date filter '{label}': {e}")
         return False
 
-def download_report(page) -> bool:
+def download_report(page, username: str) -> bool:
     """Download the current report as CSV and convert to XLSX.
     
     Args:
         page: Playwright page object
+        username: Username to include in filename for user differentiation
         
     Returns:
         True if download successful, False otherwise
@@ -244,15 +237,21 @@ def download_report(page) -> bool:
             page.click('#report-menu-options-0-csv-report-download-btn')
             
         download = download_info.value
-        filename = download.suggested_filename
-        csv_path = os.path.join(REPORTS_DIR, filename)
+        original_filename = download.suggested_filename
+        
+        # Create user-specific filename by prepending username
+        user_filename = f"{username}_{original_filename}"
+        csv_path = os.path.join(REPORTS_DIR, user_filename)
         
         download.save_as(csv_path)
-        logger.info(f"Downloaded CSV report: {filename}")
+        logger.info(f"Downloaded CSV report: {user_filename}")
         
         # Convert CSV to XLSX
-        convert_csv_to_xlsx(csv_path)
-        return True
+        from utils import convert_csv_to_xlsx as utils_convert
+        if utils_convert(csv_path):
+            return True
+        else:
+            return False
         
     except PlaywrightTimeoutError as e:
         logger.error(f"Timeout during report download: {e}")
@@ -301,36 +300,6 @@ def switch_tab(page, tab_name: str) -> bool:
         logger.error(f"Error switching to tab '{tab_name}': {e}")
         return False
 
-def convert_csv_to_xlsx(csv_path: str) -> Optional[str]:
-    """Convert CSV file to XLSX format.
-    
-    Args:
-        csv_path: Path to the CSV file
-        
-    Returns:
-        Path to the created XLSX file, or None if conversion failed
-    """
-    try:
-        xlsx_path = csv_path.replace('.csv', '.xlsx')
-        
-        logger.debug(f"Converting {csv_path} to XLSX")
-        df = pd.read_csv(csv_path)
-        df.to_excel(xlsx_path, index=False)
-        
-        logger.info(f"Successfully converted CSV to XLSX: {os.path.basename(xlsx_path)}")
-        
-        # Optionally remove the CSV file to save space
-        try:
-            os.remove(csv_path)
-            logger.debug(f"Removed original CSV file: {csv_path}")
-        except OSError as e:
-            logger.warning(f"Could not remove CSV file {csv_path}: {e}")
-            
-        return xlsx_path
-        
-    except Exception as e:
-        logger.error(f"Failed to convert {csv_path} to XLSX: {e}")
-        return None
 
 def get_config() -> Dict[str, Any]:
     """Load scraper configuration from file.
@@ -343,18 +312,10 @@ def get_config() -> Dict[str, Any]:
         "tabs": {tab["name"]: True for tab in TABS}
     }
     
-    if not os.path.exists(CONFIG_FILE):
-        logger.info("Configuration file not found, using defaults")
-        return default_config
-        
-    try:
-        with open(CONFIG_FILE, 'r', encoding='utf-8') as f:
-            config = json.load(f)
-        logger.info("Loaded scraper configuration")
-        return config
-    except (json.JSONDecodeError, OSError) as e:
-        logger.error(f"Failed to load configuration: {e}, using defaults")
-        return default_config
+    from utils import load_json
+    config = load_json(CONFIG_FILE, default_config)
+    logger.info("Loaded scraper configuration")
+    return config
 
 def login_and_download_reports_for_user(username: str, password: str) -> bool:
     """Login and download reports for a specific user.
@@ -418,7 +379,7 @@ def login_and_download_reports_for_user(username: str, password: str) -> bool:
                     
                     try:
                         if switch_tab(page, tab_name):
-                            if download_report(page):
+                            if download_report(page, username):
                                 successful_downloads += 1
                                 logger.info(f"Successfully downloaded {tab_name} report")
                             else:
