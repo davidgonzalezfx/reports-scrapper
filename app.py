@@ -444,7 +444,7 @@ if __name__ == '__main__':
     BROWSER_HOST = 'localhost'  # Browser should connect to localhost
     AUTO_OPEN_BROWSER = os.getenv('AUTO_OPEN_BROWSER', 'true').lower() == 'true'
     
-    # cleanup_reports_directory()
+    cleanup_reports_directory()
     logger.info("Starting Flask application")
     logger.info(f"Server will be available at http://{BROWSER_HOST}:{PORT}")
     
