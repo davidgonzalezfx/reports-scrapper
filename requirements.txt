@@ -1,5 +1,8 @@
-playwright
-pandas
-openpyxl
-flask
-apscheduler 
+playwright>=1.40.0
+pandas>=2.0.0
+openpyxl>=3.0.0
+flask>=2.3.0
+waitress>=2.1.0
+pyinstaller>=6.0.0
+python-dotenv>=1.0.0
+typing-extensions>=4.0.0
