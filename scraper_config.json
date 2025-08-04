@@ -1,1 +1,10 @@
-{"date_filter": "Last 7 Days", "tabs": {"Student Usage": true, "Skill": false, "Assignment": false, "Assessment": false, "Level Up Progress": true}}
+{
+  "date_filter": "Today",
+  "tabs": {
+    "Student Usage": false,
+    "Skill": true,
+    "Assignment": false,
+    "Assessment": false,
+    "Level Up Progress": false
+  }
+}

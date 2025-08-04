@@ -1,3 +1,5 @@
+"""Flask web application for reports scraping management."""
+
 from flask import Flask, render_template, send_from_directory, redirect, url_for, request, jsonify, send_file
 import os
 import subprocess
@@ -5,9 +7,12 @@ import threading
 import json
 import zipfile
 import tempfile
+import logging
 from datetime import datetime
-USERS_FILE = 'users.json'
+from typing import Dict, List, Any, Optional
 
+# Constants
+USERS_FILE = 'users.json'
 REPORTS_DIR = 'reports'
 CONFIG_FILE = 'scraper_config.json'
 DATE_FILTERS = ["Today", "Last 7 Days", "Last 30 Days", "Last 90 Days", "Last Year"]
@@ -19,142 +24,346 @@ TABS = [
     {"name": "Level Up Progress", "default": True},
 ]
 
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('app.log'),
+        logging.StreamHandler()
+    ]
+)
+logger = logging.getLogger(__name__)
+
 app = Flask(__name__)
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 
-# Track scraper status
-download_in_progress = False
+class AppState:
+    """Application state management."""
+    
+    def __init__(self):
+        self.download_in_progress = False
+        self._lock = threading.Lock()
+    
+    def set_download_status(self, status: bool) -> None:
+        """Thread-safe setter for download status."""
+        with self._lock:
+            self.download_in_progress = status
+    
+    def get_download_status(self) -> bool:
+        """Thread-safe getter for download status."""
+        with self._lock:
+            return self.download_in_progress
 
-def save_config(config_data):
-    with open(CONFIG_FILE, 'w') as f:
-        json.dump(config_data, f)
+app_state = AppState()
 
-def load_config():
-    if os.path.exists(CONFIG_FILE):
-        with open(CONFIG_FILE, 'r') as f:
-            return json.load(f)
-    return {"date_filter": DATE_FILTERS[0], "tabs": {tab["name"]: tab["default"] for tab in TABS}}
+def save_config(config_data: Dict[str, Any]) -> None:
+    """Save configuration data to file.
+    
+    Args:
+        config_data: Configuration dictionary to save
+        
+    Raises:
+        OSError: If file cannot be written
+        json.JSONDecodeError: If data cannot be serialized
+    """
+    try:
+        with open(CONFIG_FILE, 'w', encoding='utf-8') as f:
+            json.dump(config_data, f, indent=2)
+        logger.info("Configuration saved successfully")
+    except (OSError, json.JSONDecodeError) as e:
+        logger.error(f"Failed to save configuration: {e}")
+        raise
 
-def load_users():
-    if os.path.exists(USERS_FILE):
-        with open(USERS_FILE, 'r') as f:
-            return json.load(f)
-    return []
+def load_config() -> Dict[str, Any]:
+    """Load configuration from file with fallback to defaults.
+    
+    Returns:
+        Configuration dictionary
+    """
+    default_config = {
+        "date_filter": DATE_FILTERS[0], 
+        "tabs": {tab["name"]: tab["default"] for tab in TABS}
+    }
+    
+    if not os.path.exists(CONFIG_FILE):
+        logger.info("Configuration file not found, using defaults")
+        return default_config
+        
+    try:
+        with open(CONFIG_FILE, 'r', encoding='utf-8') as f:
+            config = json.load(f)
+        logger.info("Configuration loaded successfully")
+        return config
+    except (OSError, json.JSONDecodeError) as e:
+        logger.error(f"Failed to load configuration: {e}, using defaults")
+        return default_config
 
-def save_users(users):
-    with open(USERS_FILE, 'w') as f:
-        json.dump(users, f)
+def load_users() -> List[Dict[str, str]]:
+    """Load users from file with fallback to empty list.
+    
+    Returns:
+        List of user dictionaries
+    """
+    if not os.path.exists(USERS_FILE):
+        logger.info("Users file not found, returning empty list")
+        return []
+        
+    try:
+        with open(USERS_FILE, 'r', encoding='utf-8') as f:
+            users = json.load(f)
+        logger.info(f"Loaded {len(users)} users successfully")
+        return users
+    except (OSError, json.JSONDecodeError) as e:
+        logger.error(f"Failed to load users: {e}, returning empty list")
+        return []
 
-def run_scraper():
-    global download_in_progress
-    download_in_progress = True
-    users = load_users()
-    subprocess.call(['python3', 'scraper.py', '--users', USERS_FILE])
-    download_in_progress = False
+def save_users(users: List[Dict[str, str]]) -> None:
+    """Save users to file.
+    
+    Args:
+        users: List of user dictionaries to save
+        
+    Raises:
+        OSError: If file cannot be written
+        json.JSONDecodeError: If data cannot be serialized
+    """
+    try:
+        with open(USERS_FILE, 'w', encoding='utf-8') as f:
+            json.dump(users, f, indent=2)
+        logger.info(f"Saved {len(users)} users successfully")
+    except (OSError, json.JSONDecodeError) as e:
+        logger.error(f"Failed to save users: {e}")
+        raise
+
+def run_scraper() -> None:
+    """Execute the scraper subprocess."""
+    try:
+        app_state.set_download_status(True)
+        logger.info("Starting scraper process")
+        
+        users = load_users()
+        if not users:
+            logger.warning("No users found, scraper may not function properly")
+            
+        result = subprocess.run(
+            ['python3', 'scraper.py', '--users', USERS_FILE],
+            capture_output=True,
+            text=True,
+            timeout=3600  # 1 hour timeout
+        )
+        
+        if result.returncode == 0:
+            logger.info("Scraper completed successfully")
+        else:
+            logger.error(f"Scraper failed with return code {result.returncode}")
+            logger.error(f"Stderr: {result.stderr}")
+            
+    except subprocess.TimeoutExpired:
+        logger.error("Scraper process timed out")
+    except Exception as e:
+        logger.error(f"Error running scraper: {e}")
+    finally:
+        app_state.set_download_status(False)
+        logger.info("Scraper process finished")
 
 @app.route('/', methods=['GET'])
 def index():
-    files = [f for f in os.listdir(REPORTS_DIR) if f.endswith('.xlsx')]
-    files.sort(reverse=True)
-    config = load_config()
-    selected_filter = config.get('date_filter', DATE_FILTERS[0])
-    selected_tabs = config.get('tabs', {tab["name"]: tab["default"] for tab in TABS})
-    users = load_users()
-    return render_template('scrapper.html', files=files, download_in_progress=download_in_progress, 
-        date_filters=DATE_FILTERS, selected_filter=selected_filter,
-        tabs=TABS, selected_tabs=selected_tabs, users=users)
+    """Main page displaying reports and configuration."""
+    try:
+        files = [f for f in os.listdir(REPORTS_DIR) if f.endswith('.xlsx')]
+        files.sort(reverse=True)
+        
+        config = load_config()
+        selected_filter = config.get('date_filter', DATE_FILTERS[0])
+        selected_tabs = config.get('tabs', {tab["name"]: tab["default"] for tab in TABS})
+        users = load_users()
+        
+        return render_template(
+            'scrapper.html', 
+            files=files, 
+            download_in_progress=app_state.get_download_status(),
+            date_filters=DATE_FILTERS, 
+            selected_filter=selected_filter,
+            tabs=TABS, 
+            selected_tabs=selected_tabs, 
+            users=users
+        )
+    except Exception as e:
+        logger.error(f"Error in index route: {e}")
+        return jsonify({'error': 'Internal server error'}), 500
 
 @app.route('/set-filter', methods=['POST'])
 def set_filter():
-    config = load_config()
-    
-    # Update date filter
-    date_filter = request.form.get('date_filter', DATE_FILTERS[0])
-    config['date_filter'] = date_filter
-    
-    # Update tabs selection
-    selected_tabs = request.form.getlist('tabs')
-    tabs_config = {tab["name"]: (tab["name"] in selected_tabs) for tab in TABS}
-    config['tabs'] = tabs_config
-    
-    save_config(config)
-    return redirect(url_for('index'))
+    """Update filter configuration from form data."""
+    try:
+        config = load_config()
+        
+        # Update date filter
+        date_filter = request.form.get('date_filter', DATE_FILTERS[0])
+        if date_filter not in DATE_FILTERS:
+            logger.warning(f"Invalid date filter received: {date_filter}")
+            date_filter = DATE_FILTERS[0]
+        config['date_filter'] = date_filter
+        
+        # Update tabs selection
+        selected_tabs = request.form.getlist('tabs')
+        tabs_config = {tab["name"]: (tab["name"] in selected_tabs) for tab in TABS}
+        config['tabs'] = tabs_config
+        
+        save_config(config)
+        logger.info(f"Filter configuration updated: {date_filter}, tabs: {selected_tabs}")
+        return redirect(url_for('index'))
+        
+    except Exception as e:
+        logger.error(f"Error updating filter configuration: {e}")
+        return jsonify({'error': 'Failed to update configuration'}), 500
 
 @app.route('/download/<filename>')
-def download(filename):
-    return send_from_directory(REPORTS_DIR, filename, as_attachment=True)
+def download(filename: str):
+    """Download a specific report file.
+    
+    Args:
+        filename: Name of the file to download
+    """
+    try:
+        # Security check: ensure filename doesn't contain path traversal
+        if '..' in filename or '/' in filename or '\\' in filename:
+            logger.warning(f"Potentially malicious filename requested: {filename}")
+            return jsonify({'error': 'Invalid filename'}), 400
+            
+        file_path = os.path.join(REPORTS_DIR, filename)
+        if not os.path.exists(file_path):
+            logger.warning(f"Requested file not found: {filename}")
+            return jsonify({'error': 'File not found'}), 404
+            
+        logger.info(f"Downloading file: {filename}")
+        return send_from_directory(REPORTS_DIR, filename, as_attachment=True)
+        
+    except Exception as e:
+        logger.error(f"Error downloading file {filename}: {e}")
+        return jsonify({'error': 'Download failed'}), 500
 
 @app.route('/download-all-zip')
 def download_all_zip():
-    files = [f for f in os.listdir(REPORTS_DIR) if f.endswith('.xlsx')]
-    
-    if not files:
-        return jsonify({'error': 'No files available for download'}), 404
-    
-    # Create a temporary zip file
-    temp_zip = tempfile.NamedTemporaryFile(delete=False, suffix='.zip')
-    
+    """Create and download a zip file containing all reports."""
     try:
-        with zipfile.ZipFile(temp_zip.name, 'w', zipfile.ZIP_DEFLATED) as zipf:
-            for file in files:
-                file_path = os.path.join(REPORTS_DIR, file)
-                zipf.write(file_path, file)
+        files = [f for f in os.listdir(REPORTS_DIR) if f.endswith('.xlsx')]
         
-        # Generate timestamp for filename
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        zip_filename = f'reports_{timestamp}.zip'
+        if not files:
+            logger.info("No files available for zip download")
+            return jsonify({'error': 'No files available for download'}), 404
         
-        return send_file(
-            temp_zip.name,
-            as_attachment=True,
-            download_name=zip_filename,
-            mimetype='application/zip'
-        )
-    finally:
-        # Clean up temp file after sending
-        def cleanup():
-            try:
-                os.unlink(temp_zip.name)
-            except:
-                pass
-        threading.Thread(target=cleanup).start()
+        # Create a temporary zip file
+        temp_zip = tempfile.NamedTemporaryFile(delete=False, suffix='.zip')
+        
+        try:
+            with zipfile.ZipFile(temp_zip.name, 'w', zipfile.ZIP_DEFLATED) as zipf:
+                for file in files:
+                    file_path = os.path.join(REPORTS_DIR, file)
+                    if os.path.exists(file_path):
+                        zipf.write(file_path, file)
+                        logger.debug(f"Added {file} to zip")
+            
+            # Generate timestamp for filename
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+            zip_filename = f'reports_{timestamp}.zip'
+            
+            logger.info(f"Created zip file with {len(files)} reports: {zip_filename}")
+            
+            return send_file(
+                temp_zip.name,
+                as_attachment=True,
+                download_name=zip_filename,
+                mimetype='application/zip'
+            )
+        finally:
+            # Clean up temp file after sending
+            def cleanup():
+                try:
+                    os.unlink(temp_zip.name)
+                    logger.debug(f"Cleaned up temporary zip file: {temp_zip.name}")
+                except OSError as e:
+                    logger.warning(f"Failed to cleanup temp file {temp_zip.name}: {e}")
+            threading.Thread(target=cleanup).start()
+            
+    except Exception as e:
+        logger.error(f"Error creating zip download: {e}")
+        return jsonify({'error': 'Failed to create zip file'}), 500
 
 @app.route('/scrape', methods=['POST'])
 def scrape():
-    global download_in_progress
-    if not download_in_progress:
-        threading.Thread(target=run_scraper).start()
-        return jsonify({'status': 'started'})
-    else:
-        return jsonify({'status': 'already_running'})
+    """Start the scraping process."""
+    try:
+        if not app_state.get_download_status():
+            logger.info("Starting new scrape job")
+            threading.Thread(target=run_scraper, daemon=True).start()
+            return jsonify({'status': 'started'})
+        else:
+            logger.info("Scrape request received but job already running")
+            return jsonify({'status': 'already_running'})
+    except Exception as e:
+        logger.error(f"Error starting scrape job: {e}")
+        return jsonify({'error': 'Failed to start scraper'}), 500
 
 @app.route('/scrape-status')
 def scrape_status():
-    return jsonify({'in_progress': download_in_progress})
+    """Get current scraping status."""
+    try:
+        return jsonify({'in_progress': app_state.get_download_status()})
+    except Exception as e:
+        logger.error(f"Error getting scrape status: {e}")
+        return jsonify({'error': 'Failed to get status'}), 500
 
 @app.route('/get-users', methods=['GET'])
 def get_users():
-    users = load_users()
-    return jsonify(users)
+    """Get list of configured users."""
+    try:
+        users = load_users()
+        return jsonify(users)
+    except Exception as e:
+        logger.error(f"Error getting users: {e}")
+        return jsonify({'error': 'Failed to load users'}), 500
 
 @app.route('/save-users', methods=['POST'])
 def save_users_route():
-    users = request.json.get('users', [])
-    save_users(users)
-    return jsonify({'status': 'ok'})
+    """Save users configuration via JSON API."""
+    try:
+        if not request.is_json:
+            return jsonify({'error': 'Content-Type must be application/json'}), 400
+            
+        users = request.json.get('users', [])
+        
+        # Validate users data
+        if not isinstance(users, list):
+            return jsonify({'error': 'Users must be a list'}), 400
+            
+        for user in users:
+            if not isinstance(user, dict) or 'username' not in user or 'password' not in user:
+                return jsonify({'error': 'Each user must have username and password fields'}), 400
+        
+        save_users(users)
+        logger.info(f"Saved {len(users)} users via API")
+        return jsonify({'status': 'ok'})
+        
+    except Exception as e:
+        logger.error(f"Error saving users: {e}")
+        return jsonify({'error': 'Failed to save users'}), 500
 
 @app.route('/upload-users', methods=['POST'])
 def upload_users():
-    if 'users_file' not in request.files:
-        return jsonify({'error': 'No file uploaded'}), 400
-    
-    file = request.files['users_file']
-    if file.filename == '':
-        return jsonify({'error': 'No file selected'}), 400
-    
-    if not file.filename.endswith('.json'):
-        return jsonify({'error': 'File must be a JSON file'}), 400
-    
+    """Upload users configuration from JSON file."""
     try:
+        if 'users_file' not in request.files:
+            return jsonify({'error': 'No file uploaded'}), 400
+        
+        file = request.files['users_file']
+        if file.filename == '':
+            return jsonify({'error': 'No file selected'}), 400
+        
+        if not file.filename.endswith('.json'):
+            return jsonify({'error': 'File must be a JSON file'}), 400
+        
         # Read and parse the uploaded JSON
         file_content = file.read().decode('utf-8')
         users_data = json.loads(file_content)
@@ -169,18 +378,41 @@ def upload_users():
         
         # Save the new users configuration
         save_users(users_data)
+        logger.info(f"Successfully uploaded {len(users_data)} users from file")
         return jsonify({'status': 'ok', 'message': f'Successfully uploaded {len(users_data)} users'})
         
-    except json.JSONDecodeError:
+    except json.JSONDecodeError as e:
+        logger.error(f"Invalid JSON in uploaded file: {e}")
         return jsonify({'error': 'Invalid JSON file format'}), 400
+    except UnicodeDecodeError as e:
+        logger.error(f"File encoding error: {e}")
+        return jsonify({'error': 'File encoding not supported, please use UTF-8'}), 400
     except Exception as e:
+        logger.error(f"Error processing uploaded file: {e}")
         return jsonify({'error': f'Error processing file: {str(e)}'}), 500
 
+def cleanup_reports_directory() -> None:
+    """Clean up the reports directory on startup."""
+    try:
+        os.makedirs(REPORTS_DIR, exist_ok=True)
+        
+        # Delete all files in the reports directory
+        files_removed = 0
+        for f in os.listdir(REPORTS_DIR):
+            file_path = os.path.join(REPORTS_DIR, f)
+            if os.path.isfile(file_path):
+                os.remove(file_path)
+                files_removed += 1
+        
+        if files_removed > 0:
+            logger.info(f"Cleaned up {files_removed} files from reports directory")
+        else:
+            logger.info("Reports directory is clean")
+            
+    except Exception as e:
+        logger.error(f"Error cleaning up reports directory: {e}")
+
 if __name__ == '__main__':
-    os.makedirs(REPORTS_DIR, exist_ok=True)
-    # Delete all files in the reports directory
-    for f in os.listdir(REPORTS_DIR):
-        file_path = os.path.join(REPORTS_DIR, f)
-        if os.path.isfile(file_path):
-            os.remove(file_path)
-    app.run(debug=False)
+    cleanup_reports_directory()
+    logger.info("Starting Flask application")
+    app.run(debug=False, host='0.0.0.0', port=5000)

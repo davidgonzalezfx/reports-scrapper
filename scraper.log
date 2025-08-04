@@ -1,0 +1,22 @@
+2025-08-03 20:43:29,624 - __main__ - INFO - Starting scraper application
+2025-08-03 20:43:29,624 - __main__ - INFO - Loaded 1 users from users.json
+2025-08-03 20:43:29,624 - __main__ - INFO - Found 1 users to process
+2025-08-03 20:43:29,624 - __main__ - INFO - Processing user 1/1: ycaicedo
+2025-08-03 20:43:29,624 - __main__ - INFO - Starting report download process for user: ycaicedo
+2025-08-03 20:43:30,447 - __main__ - INFO - Attempting login for user: ycaicedo
+2025-08-03 20:43:39,122 - __main__ - INFO - Login successful for user: ycaicedo
+2025-08-03 20:43:45,134 - __main__ - INFO - Successfully navigated to reports section: https://www.kidsa-z.com/main/reports#!/student-usage
+2025-08-03 20:43:48,139 - __main__ - INFO - Loaded scraper configuration
+2025-08-03 20:43:48,140 - __main__ - INFO - Using date filter: Today
+2025-08-03 20:43:48,140 - __main__ - INFO - Skipping Student Usage report (not selected)
+2025-08-03 20:43:48,140 - __main__ - INFO - Processing Skill report
+2025-08-03 20:43:50,285 - __main__ - INFO - Successfully switched to tab: Skill
+2025-08-03 20:43:51,580 - __main__ - INFO - Downloaded CSV report: Skill_All_2025-07-05_2025-08-03.csv
+2025-08-03 20:43:52,040 - __main__ - INFO - Successfully converted CSV to XLSX: Skill_All_2025-07-05_2025-08-03.xlsx
+2025-08-03 20:43:52,040 - __main__ - INFO - Successfully downloaded Skill report
+2025-08-03 20:43:52,040 - __main__ - INFO - Skipping Assignment report (not selected)
+2025-08-03 20:43:52,040 - __main__ - INFO - Skipping Assessment report (not selected)
+2025-08-03 20:43:52,040 - __main__ - INFO - Skipping Level Up Progress report (not selected)
+2025-08-03 20:43:52,040 - __main__ - INFO - Completed report download for ycaicedo: 1/1 successful
+2025-08-03 20:43:52,099 - __main__ - INFO - Successfully processed user: ycaicedo
+2025-08-03 20:43:52,100 - __main__ - INFO - Scraper completed: 1/1 users processed successfully

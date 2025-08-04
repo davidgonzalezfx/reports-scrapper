@@ -1,210 +1,512 @@
+"""Web scraper for educational reports using Playwright.
+
+This module handles automated login and report downloading from an educational platform.
+"""
+
 import os
 import time
+import logging
+import argparse
+import json
+from typing import List, Dict, Any, Optional
+
 import pandas as pd
 from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeoutError
 from dotenv import load_dotenv
-import json
-import argparse
 
+# Load environment variables
 load_dotenv()
 
+# Constants
 REPORTS_DIR = 'reports'
 LOGIN_URL = 'https://accounts.learninga-z.com/ng/member/login?siteAbbr=rp'
 USERNAME = os.getenv('SCRAPER_USERNAME', 'your_username')
 PASSWORD = os.getenv('SCRAPER_PASSWORD', 'your_password')
 CONFIG_FILE = 'scraper_config.json'
-
 USERS_FILE = 'users.json'
 
+# Page interaction timeouts
+DEFAULT_TIMEOUT = 15000
+LOGIN_TIMEOUT = 10000
+DOWNLOAD_TIMEOUT = 30000
+
 TABS = [
-    {"name": "Student Usage" },
-    {"name": "Skill" },
-    {"name": "Assignment" },
-    {"name": "Assessment" },
-    {"name": "Level Up Progress" },
+    {"name": "Student Usage"},
+    {"name": "Skill"},
+    {"name": "Assignment"},
+    {"name": "Assessment"},
+    {"name": "Level Up Progress"},
 ]
 
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('scraper.log'),
+        logging.StreamHandler()
+    ]
+)
+logger = logging.getLogger(__name__)
+
+# Ensure reports directory exists
 os.makedirs(REPORTS_DIR, exist_ok=True)
 
-def load_users(users_file=USERS_FILE):
-    if os.path.exists(users_file):
-        with open(users_file, 'r') as f:
-            return json.load(f)
-    return []
-
-def login(page, username, password):
-    print('Navigating to login page...')
-    page.goto(LOGIN_URL)
+def load_users(users_file: str = USERS_FILE) -> List[Dict[str, str]]:
+    """Load users from JSON file.
+    
+    Args:
+        users_file: Path to users JSON file
+        
+    Returns:
+        List of user dictionaries with username and password
+    """
+    if not os.path.exists(users_file):
+        logger.warning(f"Users file not found: {users_file}")
+        return []
+        
     try:
-        print('Filling in username...')
+        with open(users_file, 'r', encoding='utf-8') as f:
+            users = json.load(f)
+        logger.info(f"Loaded {len(users)} users from {users_file}")
+        return users
+    except (json.JSONDecodeError, OSError) as e:
+        logger.error(f"Failed to load users from {users_file}: {e}")
+        return []
+
+def login(page, username: str, password: str) -> bool:
+    """Perform login to the educational platform.
+    
+    Args:
+        page: Playwright page object
+        username: User's login username
+        password: User's login password
+        
+    Returns:
+        True if login successful, False otherwise
+    """
+    try:
+        logger.info(f"Attempting login for user: {username}")
+        logger.debug("Navigating to login page")
+        page.goto(LOGIN_URL)
+        
+        logger.debug("Filling in credentials")
         page.fill('input#username', username)
-        print('Filling in password...')
         page.fill('input#password', password)
-        print('Waiting for login button to be enabled...')
-        page.wait_for_selector('button#memberLoginSubmitButton:not([disabled])', timeout=10000)
-        print('Clicking login button...')
+        
+        logger.debug("Waiting for login button to be enabled")
+        page.wait_for_selector(
+            'button#memberLoginSubmitButton:not([disabled])', 
+            timeout=LOGIN_TIMEOUT
+        )
+        
+        logger.debug("Clicking login button")
         page.click('button#memberLoginSubmitButton')
         page.wait_for_load_state('networkidle')
-        print('After login, current URL:', page.url)
-        if page.url.startswith(LOGIN_URL):
-            print('Login failed: Still on login page.')
+        
+        # Check if login was successful
+        current_url = page.url
+        logger.debug(f"Post-login URL: {current_url}")
+        
+        if current_url.startswith(LOGIN_URL):
+            logger.error(f"Login failed for {username}: Still on login page")
             return False
-        print('Login successful!')
+            
+        logger.info(f"Login successful for user: {username}")
         return True
+        
     except PlaywrightTimeoutError as e:
-        print(f'Login failed due to timeout: {e}')
+        logger.error(f"Login timeout for {username}: {e}")
+        return False
+    except Exception as e:
+        logger.error(f"Login error for {username}: {e}")
         return False
 
-def navigate_to_reports(page):
+def navigate_to_reports(page) -> bool:
+    """Navigate to the reports section of the platform.
+    
+    Args:
+        page: Playwright page object
+        
+    Returns:
+        True if navigation successful, False otherwise
+    """
     try:
-        page.wait_for_selector('span.buttonText', timeout=15000)
+        logger.debug("Looking for Menu button")
+        page.wait_for_selector('span.buttonText', timeout=DEFAULT_TIMEOUT)
+        
         menu_buttons = page.locator('span.buttonText')
+        menu_found = False
+        
         for i in range(menu_buttons.count()):
             if menu_buttons.nth(i).inner_text().strip() == 'Menu':
-                print('Clicking Menu button...')
+                logger.debug("Clicking Menu button")
                 menu_buttons.nth(i).click()
+                menu_found = True
                 break
+                
+        if not menu_found:
+            logger.error("Menu button not found")
+            return False
+            
+        # Wait for menu to open
         time.sleep(2)
-    except Exception as e:
-        print('Could not find or click Menu button:', e)
-        return False
-    try:
-        print('Looking for Classroom Reports link...')
-        page.wait_for_selector('a:has-text("Classroom Reports")', timeout=15000)
+        
+        logger.debug("Looking for Classroom Reports link")
+        page.wait_for_selector('a:has-text("Classroom Reports")', timeout=DEFAULT_TIMEOUT)
         page.click('a:has-text("Classroom Reports")')
         page.wait_for_load_state('networkidle')
-        print('Navigated to Classroom Reports. Current URL:', page.url)
-        time.sleep(3)
+        
+        current_url = page.url
+        logger.info(f"Successfully navigated to reports section: {current_url}")
+        time.sleep(3)  # Allow page to fully load
         return True
+        
+    except PlaywrightTimeoutError as e:
+        logger.error(f"Timeout while navigating to reports: {e}")
+        return False
     except Exception as e:
-        print('Could not find or click Classroom Reports link:', e)
+        logger.error(f"Error navigating to reports: {e}")
         return False
 
-def select_date_filter(page, label):
+def select_date_filter(page, label: str) -> bool:
+    """Select a date filter option from the dropdown.
+    
+    Args:
+        page: Playwright page object
+        label: Date filter label to select
+        
+    Returns:
+        True if selection successful, False otherwise
+    """
     try:
-        print(f'Selecting date filter: {label} ...')
-        page.wait_for_selector('#mat-select-0', timeout=10000)
+        logger.debug(f"Selecting date filter: {label}")
+        
+        # Click on the date filter dropdown
+        page.wait_for_selector('#mat-select-0', timeout=DEFAULT_TIMEOUT)
         page.click('#mat-select-0')
         time.sleep(1)
-        page.wait_for_selector('mat-option .mat-option-text', timeout=10000)
+        
+        # Wait for options to appear and select the desired one
+        page.wait_for_selector('mat-option .mat-option-text', timeout=DEFAULT_TIMEOUT)
         options = page.locator('mat-option .mat-option-text')
+        
+        option_found = False
         for i in range(options.count()):
-            if options.nth(i).inner_text().strip() == label:
+            option_text = options.nth(i).inner_text().strip()
+            if option_text == label:
                 options.nth(i).click()
-                print(f'Selected "{label}" in date filter.')
+                logger.info(f"Selected date filter: {label}")
+                option_found = True
                 break
-        time.sleep(2)
-    except Exception as e:
-        print(f'Could not select date filter {label}:', e)
-        return False
-    return True
-
-def download_report(page):
-    try:
-        # Check for 'No results for filter criteria' before attempting download
-        if page.locator('text="No results for filter criteria"').count() > 0:
-            print('No results for filter criteria. Skipping download for this tab.')
+                
+        if not option_found:
+            logger.warning(f"Date filter option '{label}' not found")
             return False
-        print('Clicking options (ellipsis) button...')
+            
+        time.sleep(2)  # Allow filter to apply
+        return True
+        
+    except PlaywrightTimeoutError as e:
+        logger.error(f"Timeout selecting date filter '{label}': {e}")
+        return False
+    except Exception as e:
+        logger.error(f"Error selecting date filter '{label}': {e}")
+        return False
+
+def download_report(page) -> bool:
+    """Download the current report as CSV and convert to XLSX.
+    
+    Args:
+        page: Playwright page object
+        
+    Returns:
+        True if download successful, False otherwise
+    """
+    try:
+        # Check if there are any results to download
+        no_results_locator = page.locator('text="No results for filter criteria"')
+        if no_results_locator.count() > 0:
+            logger.warning("No results for filter criteria, skipping download")
+            return False
+            
+        logger.debug("Attempting to download report")
+        
+        # Click the options (ellipsis) button
+        page.wait_for_selector('button[tid="class-reports-ellipsis-tooltip"]', timeout=DEFAULT_TIMEOUT)
         page.click('button[tid="class-reports-ellipsis-tooltip"]')
         time.sleep(1)
-        print('Clicking download button and waiting for download...')
-        with page.expect_download() as download_info:
+        
+        # Download the CSV report
+        logger.debug("Initiating CSV download")
+        with page.expect_download(timeout=DOWNLOAD_TIMEOUT) as download_info:
             page.click('#report-menu-options-0-csv-report-download-btn')
+            
         download = download_info.value
         filename = download.suggested_filename
         csv_path = os.path.join(REPORTS_DIR, filename)
-        download.save_as(csv_path)
-        print(f'Downloaded CSV to {csv_path}')
-        convert_csv_to_xlsx(csv_path)
-    except Exception as e:
-        print('Failed to download report:', e)
-        return False
-    return True
-
-def switch_tab(page, tab_name):
-    try:
-        print(f'Switching to tab: {tab_name}...')
         
-        # Try by button text
+        download.save_as(csv_path)
+        logger.info(f"Downloaded CSV report: {filename}")
+        
+        # Convert CSV to XLSX
+        convert_csv_to_xlsx(csv_path)
+        return True
+        
+    except PlaywrightTimeoutError as e:
+        logger.error(f"Timeout during report download: {e}")
+        return False
+    except Exception as e:
+        logger.error(f"Failed to download report: {e}")
+        return False
+
+def switch_tab(page, tab_name: str) -> bool:
+    """Switch to a specific report tab.
+    
+    Args:
+        page: Playwright page object
+        tab_name: Name of the tab to switch to
+        
+    Returns:
+        True if tab switch successful, False otherwise
+    """
+    try:
+        logger.debug(f"Switching to tab: {tab_name}")
+        
         tab_buttons = page.locator('button[role="tab"]')
-        found = False
+        tab_found = False
+        available_tabs = []
+        
         for i in range(tab_buttons.count()):
-            text = tab_buttons.nth(i).inner_text().strip().lower()
-            if tab_name.lower() in text:
-                print(f'Clicking tab button with text: {text}')
+            button_text = tab_buttons.nth(i).inner_text().strip()
+            available_tabs.append(button_text)
+            
+            if tab_name.lower() in button_text.lower():
+                logger.debug(f"Clicking tab button: {button_text}")
                 tab_buttons.nth(i).click()
                 page.wait_for_load_state('networkidle')
-                time.sleep(2)
-                print(f'Switched to tab {tab_name}.')
-                found = True
+                time.sleep(2)  # Allow tab content to load
+                logger.info(f"Successfully switched to tab: {tab_name}")
+                tab_found = True
                 break
-        if not found:
-            print(f'Could not find tab with name {tab_name}. Available tab buttons:')
-            for i in range(tab_buttons.count()):
-                print('-', tab_buttons.nth(i).inner_text().strip())
+                
+        if not tab_found:
+            logger.error(f"Tab '{tab_name}' not found. Available tabs: {available_tabs}")
             return False
+            
         return True
+        
     except Exception as e:
-        print(f'Could not switch to tab {button_id} ({tab_name}):', e)
+        logger.error(f"Error switching to tab '{tab_name}': {e}")
         return False
 
-def convert_csv_to_xlsx(csv_path):
-    xlsx_path = csv_path.replace('.csv', '.xlsx')
-    df = pd.read_csv(csv_path)
-    df.to_excel(xlsx_path, index=False)
-    print(f'Converted {csv_path} to {xlsx_path}')
+def convert_csv_to_xlsx(csv_path: str) -> Optional[str]:
+    """Convert CSV file to XLSX format.
+    
+    Args:
+        csv_path: Path to the CSV file
+        
+    Returns:
+        Path to the created XLSX file, or None if conversion failed
+    """
+    try:
+        xlsx_path = csv_path.replace('.csv', '.xlsx')
+        
+        logger.debug(f"Converting {csv_path} to XLSX")
+        df = pd.read_csv(csv_path)
+        df.to_excel(xlsx_path, index=False)
+        
+        logger.info(f"Successfully converted CSV to XLSX: {os.path.basename(xlsx_path)}")
+        
+        # Optionally remove the CSV file to save space
+        try:
+            os.remove(csv_path)
+            logger.debug(f"Removed original CSV file: {csv_path}")
+        except OSError as e:
+            logger.warning(f"Could not remove CSV file {csv_path}: {e}")
+            
+        return xlsx_path
+        
+    except Exception as e:
+        logger.error(f"Failed to convert {csv_path} to XLSX: {e}")
+        return None
 
-def get_config():
-    if os.path.exists(CONFIG_FILE):
-        with open(CONFIG_FILE, 'r') as f:
-            return json.load(f)
-    return {
-        "date_filter": "Today", 
+def get_config() -> Dict[str, Any]:
+    """Load scraper configuration from file.
+    
+    Returns:
+        Configuration dictionary with date_filter and tabs settings
+    """
+    default_config = {
+        "date_filter": "Today",
         "tabs": {tab["name"]: True for tab in TABS}
     }
+    
+    if not os.path.exists(CONFIG_FILE):
+        logger.info("Configuration file not found, using defaults")
+        return default_config
+        
+    try:
+        with open(CONFIG_FILE, 'r', encoding='utf-8') as f:
+            config = json.load(f)
+        logger.info("Loaded scraper configuration")
+        return config
+    except (json.JSONDecodeError, OSError) as e:
+        logger.error(f"Failed to load configuration: {e}, using defaults")
+        return default_config
 
-def login_and_download_reports_for_user(username, password):
-    with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
-        context = browser.new_context(
-            accept_downloads=True,
-            user_agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
-            viewport={'width': 1280, 'height': 800}
-        )
-        page = context.new_page()
-        print(f'\n==== Running for user: {username} ====')
-        if not login(page, username, password):
-            browser.close()
-            return
-        if not navigate_to_reports(page):
-            browser.close()
-            return
-        config = get_config()
-        selected_filter = config.get('date_filter', 'Today')
-        selected_tabs = config.get('tabs', {tab["name"]: True for tab in TABS})
-
-        for tab in TABS:
-            if not selected_tabs.get(tab["name"], True):
-                print(f"\n--- Skipping {tab['name']} Report (not selected) ---")
-                continue
+def login_and_download_reports_for_user(username: str, password: str) -> bool:
+    """Login and download reports for a specific user.
+    
+    Args:
+        username: User's login username
+        password: User's login password
+        
+    Returns:
+        True if process completed successfully, False otherwise
+    """
+    logger.info(f"Starting report download process for user: {username}")
+    
+    try:
+        with sync_playwright() as p:
+            # Launch browser with proper configuration
+            browser = p.chromium.launch(
+                headless=True,
+                args=['--no-sandbox', '--disable-dev-shm-usage']
+            )
+            
+            context = browser.new_context(
+                accept_downloads=True,
+                user_agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
+                viewport={'width': 1280, 'height': 800},
+                ignore_https_errors=True
+            )
+            
+            page = context.new_page()
+            
+            try:
+                # Perform login
+                if not login(page, username, password):
+                    logger.error(f"Login failed for user: {username}")
+                    return False
+                    
+                # Navigate to reports section
+                if not navigate_to_reports(page):
+                    logger.error(f"Failed to navigate to reports for user: {username}")
+                    return False
+                    
+                # Load configuration
+                config = get_config()
+                selected_filter = config.get('date_filter', 'Today')
+                selected_tabs = config.get('tabs', {tab["name"]: True for tab in TABS})
                 
-            print(f"\n--- Downloading {tab['name']} Report ---")
-            if not switch_tab(page, tab['name']):
-                continue
-            download_report(page)
-        browser.close()
+                logger.info(f"Using date filter: {selected_filter}")
+                
+                # Process each tab
+                successful_downloads = 0
+                total_tabs = sum(1 for tab in TABS if selected_tabs.get(tab["name"], True))
+                
+                for tab in TABS:
+                    tab_name = tab["name"]
+                    
+                    if not selected_tabs.get(tab_name, True):
+                        logger.info(f"Skipping {tab_name} report (not selected)")
+                        continue
+                    
+                    logger.info(f"Processing {tab_name} report")
+                    
+                    try:
+                        if switch_tab(page, tab_name):
+                            if download_report(page):
+                                successful_downloads += 1
+                                logger.info(f"Successfully downloaded {tab_name} report")
+                            else:
+                                logger.warning(f"Failed to download {tab_name} report")
+                        else:
+                            logger.warning(f"Failed to switch to {tab_name} tab")
+                    except Exception as e:
+                        logger.error(f"Error processing {tab_name} report: {e}")
+                        
+                logger.info(f"Completed report download for {username}: {successful_downloads}/{total_tabs} successful")
+                return successful_downloads > 0
+                
+            finally:
+                browser.close()
+                
+    except Exception as e:
+        logger.error(f"Unexpected error during report download for {username}: {e}")
+        return False
 
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--users', type=str, default=USERS_FILE, help='Path to users.json')
+def main() -> None:
+    """Main function to orchestrate the scraping process."""
+    parser = argparse.ArgumentParser(
+        description='Educational platform report scraper',
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    parser.add_argument(
+        '--users', 
+        type=str, 
+        default=USERS_FILE, 
+        help='Path to users JSON file containing login credentials'
+    )
+    parser.add_argument(
+        '--verbose', 
+        '-v', 
+        action='store_true', 
+        help='Enable verbose logging'
+    )
+    parser.add_argument(
+        '--config', 
+        type=str, 
+        default=CONFIG_FILE, 
+        help='Path to scraper configuration file'
+    )
+    
     args = parser.parse_args()
+    
+    # Set logging level based on verbose flag
+    if args.verbose:
+        logging.getLogger().setLevel(logging.DEBUG)
+        logger.info("Verbose logging enabled")
+    
+    logger.info("Starting scraper application")
+    
+    # Load users
     users = load_users(args.users)
-    for user in users:
+    if not users:
+        logger.error("No users found. Please check the users file.")
+        return
+    
+    logger.info(f"Found {len(users)} users to process")
+    
+    # Process each user
+    successful_users = 0
+    for i, user in enumerate(users, 1):
         username = user.get('username')
         password = user.get('password')
-        if username and password:
-            login_and_download_reports_for_user(username, password)
+        
+        if not username or not password:
+            logger.error(f"User {i}: Missing username or password, skipping")
+            continue
+            
+        logger.info(f"Processing user {i}/{len(users)}: {username}")
+        
+        try:
+            if login_and_download_reports_for_user(username, password):
+                successful_users += 1
+                logger.info(f"Successfully processed user: {username}")
+            else:
+                logger.error(f"Failed to process user: {username}")
+        except Exception as e:
+            logger.error(f"Unexpected error processing user {username}: {e}")
+    
+    logger.info(f"Scraper completed: {successful_users}/{len(users)} users processed successfully")
 
 if __name__ == '__main__':
-    main() 
+    try:
+        main()
+    except KeyboardInterrupt:
+        logger.info("Scraper interrupted by user")
+    except Exception as e:
+        logger.error(f"Unexpected error in main: {e}")
+        raise 

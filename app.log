@@ -1,0 +1,52 @@
+2025-08-03 20:42:40,571 - __main__ - INFO - Cleaned up 4 files from reports directory
+2025-08-03 20:42:40,571 - __main__ - INFO - Starting Flask application
+2025-08-03 20:42:40,739 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.8:5000
+2025-08-03 20:42:40,740 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-08-03 20:43:00,747 - __main__ - INFO - Configuration loaded successfully
+2025-08-03 20:43:00,748 - __main__ - INFO - Loaded 1 users successfully
+2025-08-03 20:43:00,763 - werkzeug - INFO - 127.0.0.1 - - [03/Aug/2025 20:43:00] "GET / HTTP/1.1" 200 -
+2025-08-03 20:43:02,113 - werkzeug - INFO - 127.0.0.1 - - [03/Aug/2025 20:43:02] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-08-03 20:43:10,906 - __main__ - INFO - Configuration loaded successfully
+2025-08-03 20:43:10,907 - __main__ - INFO - Configuration saved successfully
+2025-08-03 20:43:10,907 - __main__ - INFO - Filter configuration updated: Today, tabs: ['Skill']
+2025-08-03 20:43:10,907 - werkzeug - INFO - 127.0.0.1 - - [03/Aug/2025 20:43:10] "[32mPOST /set-filter HTTP/1.1[0m" 302 -
+2025-08-03 20:43:10,916 - __main__ - INFO - Configuration loaded successfully
+2025-08-03 20:43:10,916 - __main__ - INFO - Loaded 1 users successfully
+2025-08-03 20:43:10,917 - werkzeug - INFO - 127.0.0.1 - - [03/Aug/2025 20:43:10] "GET / HTTP/1.1" 200 -
+2025-08-03 20:43:28,699 - __main__ - INFO - Starting new scrape job
+2025-08-03 20:43:28,699 - __main__ - INFO - Starting scraper process
+2025-08-03 20:43:28,700 - werkzeug - INFO - 127.0.0.1 - - [03/Aug/2025 20:43:28] "POST /scrape HTTP/1.1" 200 -
+2025-08-03 20:43:28,700 - __main__ - INFO - Loaded 1 users successfully
+2025-08-03 20:43:28,729 - werkzeug - INFO - 127.0.0.1 - - [03/Aug/2025 20:43:28] "GET /scrape-status HTTP/1.1" 200 -
+2025-08-03 20:43:29,734 - werkzeug - INFO - 127.0.0.1 - - [03/Aug/2025 20:43:29] "GET /scrape-status HTTP/1.1" 200 -
+2025-08-03 20:43:30,739 - werkzeug - INFO - 127.0.0.1 - - [03/Aug/2025 20:43:30] "GET /scrape-status HTTP/1.1" 200 -
+2025-08-03 20:43:31,745 - werkzeug - INFO - 127.0.0.1 - - [03/Aug/2025 20:43:31] "GET /scrape-status HTTP/1.1" 200 -
+2025-08-03 20:43:32,758 - werkzeug - INFO - 127.0.0.1 - - [03/Aug/2025 20:43:32] "GET /scrape-status HTTP/1.1" 200 -
+2025-08-03 20:43:33,772 - werkzeug - INFO - 127.0.0.1 - - [03/Aug/2025 20:43:33] "GET /scrape-status HTTP/1.1" 200 -
+2025-08-03 20:43:34,789 - werkzeug - INFO - 127.0.0.1 - - [03/Aug/2025 20:43:34] "GET /scrape-status HTTP/1.1" 200 -
+2025-08-03 20:43:35,800 - werkzeug - INFO - 127.0.0.1 - - [03/Aug/2025 20:43:35] "GET /scrape-status HTTP/1.1" 200 -
+2025-08-03 20:43:36,811 - werkzeug - INFO - 127.0.0.1 - - [03/Aug/2025 20:43:36] "GET /scrape-status HTTP/1.1" 200 -
+2025-08-03 20:43:37,832 - werkzeug - INFO - 127.0.0.1 - - [03/Aug/2025 20:43:37] "GET /scrape-status HTTP/1.1" 200 -
+2025-08-03 20:43:38,838 - werkzeug - INFO - 127.0.0.1 - - [03/Aug/2025 20:43:38] "GET /scrape-status HTTP/1.1" 200 -
+2025-08-03 20:43:39,849 - werkzeug - INFO - 127.0.0.1 - - [03/Aug/2025 20:43:39] "GET /scrape-status HTTP/1.1" 200 -
+2025-08-03 20:43:40,862 - werkzeug - INFO - 127.0.0.1 - - [03/Aug/2025 20:43:40] "GET /scrape-status HTTP/1.1" 200 -
+2025-08-03 20:43:41,875 - werkzeug - INFO - 127.0.0.1 - - [03/Aug/2025 20:43:41] "GET /scrape-status HTTP/1.1" 200 -
+2025-08-03 20:43:42,881 - werkzeug - INFO - 127.0.0.1 - - [03/Aug/2025 20:43:42] "GET /scrape-status HTTP/1.1" 200 -
+2025-08-03 20:43:43,918 - werkzeug - INFO - 127.0.0.1 - - [03/Aug/2025 20:43:43] "GET /scrape-status HTTP/1.1" 200 -
+2025-08-03 20:43:44,925 - werkzeug - INFO - 127.0.0.1 - - [03/Aug/2025 20:43:44] "GET /scrape-status HTTP/1.1" 200 -
+2025-08-03 20:43:45,938 - werkzeug - INFO - 127.0.0.1 - - [03/Aug/2025 20:43:45] "GET /scrape-status HTTP/1.1" 200 -
+2025-08-03 20:43:46,946 - werkzeug - INFO - 127.0.0.1 - - [03/Aug/2025 20:43:46] "GET /scrape-status HTTP/1.1" 200 -
+2025-08-03 20:43:47,957 - werkzeug - INFO - 127.0.0.1 - - [03/Aug/2025 20:43:47] "GET /scrape-status HTTP/1.1" 200 -
+2025-08-03 20:43:48,963 - werkzeug - INFO - 127.0.0.1 - - [03/Aug/2025 20:43:48] "GET /scrape-status HTTP/1.1" 200 -
+2025-08-03 20:43:49,975 - werkzeug - INFO - 127.0.0.1 - - [03/Aug/2025 20:43:49] "GET /scrape-status HTTP/1.1" 200 -
+2025-08-03 20:43:50,984 - werkzeug - INFO - 127.0.0.1 - - [03/Aug/2025 20:43:50] "GET /scrape-status HTTP/1.1" 200 -
+2025-08-03 20:43:51,991 - werkzeug - INFO - 127.0.0.1 - - [03/Aug/2025 20:43:51] "GET /scrape-status HTTP/1.1" 200 -
+2025-08-03 20:43:52,203 - __main__ - INFO - Scraper completed successfully
+2025-08-03 20:43:52,203 - __main__ - INFO - Scraper process finished
+2025-08-03 20:43:53,003 - werkzeug - INFO - 127.0.0.1 - - [03/Aug/2025 20:43:53] "GET /scrape-status HTTP/1.1" 200 -
+2025-08-03 20:43:53,015 - __main__ - INFO - Configuration loaded successfully
+2025-08-03 20:43:53,015 - __main__ - INFO - Loaded 1 users successfully
+2025-08-03 20:43:53,016 - werkzeug - INFO - 127.0.0.1 - - [03/Aug/2025 20:43:53] "GET / HTTP/1.1" 200 -

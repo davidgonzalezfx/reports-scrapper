@@ -1,5 +1,6 @@
-playwright
-pandas
-openpyxl
-flask
-apscheduler 
+playwright>=1.40.0
+pandas>=2.0.0
+openpyxl>=3.1.0
+flask>=2.3.0
+apscheduler>=3.10.0
+python-dotenv>=1.0.0 
