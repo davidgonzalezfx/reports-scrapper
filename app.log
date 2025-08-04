@@ -650,3 +650,157 @@ Stacktrace:
 2025-08-04 08:55:06,085 - __main__ - INFO - Opening browser to http://localhost:5000
 2025-08-04 08:55:06,310 - __main__ - INFO - Using default configuration
 2025-08-04 08:55:06,311 - __main__ - INFO - Loaded 2 users successfully
+2025-08-04 14:25:21,296 - __main__ - INFO - Cleaned up 4 files from reports directory
+2025-08-04 14:25:21,296 - __main__ - INFO - Starting Flask application
+2025-08-04 14:25:21,296 - __main__ - INFO - Server will be available at http://localhost:5000
+2025-08-04 14:25:21,296 - __main__ - INFO - Browser will open automatically in 1.5 seconds...
+2025-08-04 14:25:21,300 - waitress - INFO - Serving on http://0.0.0.0:5000
+2025-08-04 14:25:22,798 - __main__ - INFO - Opening browser to http://localhost:5000
+2025-08-04 14:25:23,067 - __main__ - INFO - Using default configuration
+2025-08-04 14:25:23,069 - __main__ - INFO - Loaded 2 users successfully
+2025-08-04 14:25:26,752 - __main__ - INFO - Starting new scrape job
+2025-08-04 14:25:26,753 - __main__ - INFO - Starting scraper process
+2025-08-04 14:25:26,754 - __main__ - INFO - Loaded 2 users successfully
+2025-08-04 14:25:27,289 - scraper - INFO - Starting scraper execution
+2025-08-04 14:25:27,290 - scraper - INFO - Loaded 2 users from users.json
+2025-08-04 14:25:27,290 - scraper - INFO - Found 2 users to process
+2025-08-04 14:25:27,290 - scraper - INFO - Processing user 1/2: ycaicedo
+2025-08-04 14:25:27,290 - scraper - INFO - Starting report download process for user: ycaicedo
+2025-08-04 14:25:27,790 - scraper - ERROR - Unexpected error during report download for ycaicedo: BrowserType.launch: Executable doesn't exist at /Users/david.gonzalez01/Library/Caches/ms-playwright/chromium_headless_shell-1181/chrome-mac/headless_shell
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or updated.       ║
+║ Please run the following command to download new browsers: ║
+║                                                            ║
+║     playwright install                                     ║
+║                                                            ║
+║ <3 Playwright Team                                         ║
+╚════════════════════════════════════════════════════════════╝
+2025-08-04 14:25:27,790 - scraper - ERROR - Failed to process user: ycaicedo
+2025-08-04 14:25:27,790 - scraper - INFO - Processing user 2/2: AnaCDemo2
+2025-08-04 14:25:27,790 - scraper - INFO - Starting report download process for user: AnaCDemo2
+2025-08-04 14:25:28,219 - scraper - ERROR - Unexpected error during report download for AnaCDemo2: BrowserType.launch: Executable doesn't exist at /Users/david.gonzalez01/Library/Caches/ms-playwright/chromium_headless_shell-1181/chrome-mac/headless_shell
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or updated.       ║
+║ Please run the following command to download new browsers: ║
+║                                                            ║
+║     playwright install                                     ║
+║                                                            ║
+║ <3 Playwright Team                                         ║
+╚════════════════════════════════════════════════════════════╝
+2025-08-04 14:25:28,219 - scraper - ERROR - Failed to process user: AnaCDemo2
+2025-08-04 14:25:28,219 - scraper - INFO - Scraper completed: 0/2 users processed successfully
+2025-08-04 14:25:28,219 - __main__ - ERROR - Scraper failed - no users processed successfully
+2025-08-04 14:25:28,219 - __main__ - INFO - Scraper process finished
+2025-08-04 14:25:28,805 - __main__ - INFO - Using default configuration
+2025-08-04 14:25:28,805 - __main__ - INFO - Loaded 2 users successfully
+2025-08-04 14:27:11,634 - __main__ - INFO - Reports directory is clean
+2025-08-04 14:27:11,635 - __main__ - INFO - Starting Flask application
+2025-08-04 14:27:11,635 - __main__ - INFO - Server will be available at http://localhost:5000
+2025-08-04 14:27:11,636 - __main__ - INFO - Browser will open automatically in 1.5 seconds...
+2025-08-04 14:27:11,642 - waitress - INFO - Serving on http://0.0.0.0:5000
+2025-08-04 14:27:13,140 - __main__ - INFO - Opening browser to http://localhost:5000
+2025-08-04 14:27:13,402 - __main__ - INFO - Using default configuration
+2025-08-04 14:27:13,403 - __main__ - INFO - Loaded 2 users successfully
+2025-08-04 14:27:18,998 - __main__ - INFO - Using default configuration
+2025-08-04 14:27:19,000 - __main__ - INFO - Configuration saved successfully
+2025-08-04 14:27:19,000 - __main__ - INFO - Filter configuration updated: Today, tabs: ['Skill']
+2025-08-04 14:27:19,018 - __main__ - INFO - Configuration loaded successfully
+2025-08-04 14:27:19,019 - __main__ - INFO - Loaded 2 users successfully
+2025-08-04 14:27:20,926 - __main__ - INFO - Starting new scrape job
+2025-08-04 14:27:20,926 - __main__ - INFO - Starting scraper process
+2025-08-04 14:27:20,927 - __main__ - INFO - Loaded 2 users successfully
+2025-08-04 14:27:21,074 - scraper - INFO - Starting scraper execution
+2025-08-04 14:27:21,074 - scraper - INFO - Loaded 2 users from users.json
+2025-08-04 14:27:21,075 - scraper - INFO - Found 2 users to process
+2025-08-04 14:27:21,075 - scraper - INFO - Processing user 1/2: ycaicedo
+2025-08-04 14:27:21,075 - scraper - INFO - Starting report download process for user: ycaicedo
+2025-08-04 14:27:21,622 - scraper - ERROR - Unexpected error during report download for ycaicedo: BrowserType.launch: Executable doesn't exist at /Users/david.gonzalez01/Library/Caches/ms-playwright/chromium_headless_shell-1181/chrome-mac/headless_shell
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or updated.       ║
+║ Please run the following command to download new browsers: ║
+║                                                            ║
+║     playwright install                                     ║
+║                                                            ║
+║ <3 Playwright Team                                         ║
+╚════════════════════════════════════════════════════════════╝
+2025-08-04 14:27:21,623 - scraper - ERROR - Failed to process user: ycaicedo
+2025-08-04 14:27:21,623 - scraper - INFO - Processing user 2/2: AnaCDemo2
+2025-08-04 14:27:21,623 - scraper - INFO - Starting report download process for user: AnaCDemo2
+2025-08-04 14:27:22,090 - scraper - ERROR - Unexpected error during report download for AnaCDemo2: BrowserType.launch: Executable doesn't exist at /Users/david.gonzalez01/Library/Caches/ms-playwright/chromium_headless_shell-1181/chrome-mac/headless_shell
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or updated.       ║
+║ Please run the following command to download new browsers: ║
+║                                                            ║
+║     playwright install                                     ║
+║                                                            ║
+║ <3 Playwright Team                                         ║
+╚════════════════════════════════════════════════════════════╝
+2025-08-04 14:27:22,090 - scraper - ERROR - Failed to process user: AnaCDemo2
+2025-08-04 14:27:22,090 - scraper - INFO - Scraper completed: 0/2 users processed successfully
+2025-08-04 14:27:22,091 - __main__ - ERROR - Scraper failed - no users processed successfully
+2025-08-04 14:27:22,091 - __main__ - INFO - Scraper process finished
+2025-08-04 14:27:22,977 - __main__ - INFO - Configuration loaded successfully
+2025-08-04 14:27:22,977 - __main__ - INFO - Loaded 2 users successfully
+2025-08-04 14:30:15,721 - __main__ - INFO - Reports directory is clean
+2025-08-04 14:30:15,721 - __main__ - INFO - Starting Flask application
+2025-08-04 14:30:15,721 - __main__ - INFO - Server will be available at http://localhost:5000
+2025-08-04 14:30:15,721 - __main__ - INFO - Browser will open automatically in 1.5 seconds...
+2025-08-04 14:30:15,725 - waitress - INFO - Serving on http://0.0.0.0:5000
+2025-08-04 14:30:17,225 - __main__ - INFO - Opening browser to http://localhost:5000
+2025-08-04 14:30:17,425 - __main__ - INFO - Configuration loaded successfully
+2025-08-04 14:30:17,427 - __main__ - INFO - Loaded 2 users successfully
+2025-08-04 14:30:41,061 - __main__ - INFO - Configuration loaded successfully
+2025-08-04 14:30:41,063 - __main__ - INFO - Loaded 2 users successfully
+2025-08-04 14:30:48,129 - __main__ - INFO - Starting new scrape job
+2025-08-04 14:30:48,130 - __main__ - INFO - Starting scraper process
+2025-08-04 14:30:48,131 - __main__ - INFO - Loaded 2 users successfully
+2025-08-04 14:30:48,281 - scraper - INFO - Starting scraper execution
+2025-08-04 14:30:48,281 - scraper - INFO - Loaded 2 users from users.json
+2025-08-04 14:30:48,281 - scraper - INFO - Found 2 users to process
+2025-08-04 14:30:48,281 - scraper - INFO - Processing user 1/2: ycaicedo
+2025-08-04 14:30:48,281 - scraper - INFO - Starting report download process for user: ycaicedo
+2025-08-04 14:30:49,038 - scraper - ERROR - Unexpected error during report download for ycaicedo: BrowserType.launch: Executable doesn't exist at /Users/david.gonzalez01/Personal/reports-scrapper/playwright-browsers/chromium_headless_shell-1181/chrome-mac/headless_shell
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or updated.       ║
+║ Please run the following command to download new browsers: ║
+║                                                            ║
+║     playwright install                                     ║
+║                                                            ║
+║ <3 Playwright Team                                         ║
+╚════════════════════════════════════════════════════════════╝
+2025-08-04 14:30:49,038 - scraper - ERROR - Failed to process user: ycaicedo
+2025-08-04 14:30:49,038 - scraper - INFO - Processing user 2/2: AnaCDemo2
+2025-08-04 14:30:49,038 - scraper - INFO - Starting report download process for user: AnaCDemo2
+2025-08-04 14:30:49,456 - scraper - ERROR - Unexpected error during report download for AnaCDemo2: BrowserType.launch: Executable doesn't exist at /Users/david.gonzalez01/Personal/reports-scrapper/playwright-browsers/chromium_headless_shell-1181/chrome-mac/headless_shell
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or updated.       ║
+║ Please run the following command to download new browsers: ║
+║                                                            ║
+║     playwright install                                     ║
+║                                                            ║
+║ <3 Playwright Team                                         ║
+╚════════════════════════════════════════════════════════════╝
+2025-08-04 14:30:49,456 - scraper - ERROR - Failed to process user: AnaCDemo2
+2025-08-04 14:30:49,456 - scraper - INFO - Scraper completed: 0/2 users processed successfully
+2025-08-04 14:30:49,456 - __main__ - ERROR - Scraper failed - no users processed successfully
+2025-08-04 14:30:49,456 - __main__ - INFO - Scraper process finished
+2025-08-04 14:30:50,197 - __main__ - INFO - Configuration loaded successfully
+2025-08-04 14:30:50,198 - __main__ - INFO - Loaded 2 users successfully
+2025-08-04 14:31:14,736 - __main__ - INFO - Reports directory is clean
+2025-08-04 14:31:14,736 - __main__ - INFO - Starting Flask application
+2025-08-04 14:31:14,736 - __main__ - INFO - Server will be available at http://localhost:5000
+2025-08-04 14:31:14,736 - __main__ - INFO - Browser will open automatically in 1.5 seconds...
+2025-08-04 14:31:14,739 - waitress - INFO - Serving on http://0.0.0.0:5000
+2025-08-04 14:31:16,246 - __main__ - INFO - Opening browser to http://localhost:5000
+2025-08-04 14:31:16,524 - __main__ - INFO - Configuration loaded successfully
+2025-08-04 14:31:16,525 - __main__ - INFO - Loaded 2 users successfully
+2025-08-04 14:31:19,680 - __main__ - INFO - Starting new scrape job
+2025-08-04 14:31:19,680 - __main__ - INFO - Starting scraper process
+2025-08-04 14:31:19,681 - __main__ - INFO - Loaded 2 users successfully
+2025-08-04 14:31:19,821 - scraper - INFO - Starting scraper execution
+2025-08-04 14:31:19,822 - scraper - INFO - Loaded 2 users from users.json
+2025-08-04 14:31:19,822 - scraper - INFO - Found 2 users to process
+2025-08-04 14:31:19,822 - scraper - INFO - Processing user 1/2: ycaicedo
+2025-08-04 14:31:19,822 - scraper - INFO - Starting report download process for user: ycaicedo
+2025-08-04 14:31:23,660 - scraper - INFO - Attempting login for user: ycaicedo
+2025-08-04 14:31:31,426 - scraper - INFO - Login successful for user: ycaicedo

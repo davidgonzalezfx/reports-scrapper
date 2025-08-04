@@ -330,6 +330,36 @@ def login_and_download_reports_for_user(username: str, password: str) -> bool:
     logger.info(f"Starting report download process for user: {username}")
     
     try:
+        # Check if the application is running in a PyInstaller bundle
+        if getattr(sys, 'frozen', False):
+            # For PyInstaller, check multiple possible locations
+            possible_paths = [
+                os.path.join(sys._MEIPASS, 'playwright-browser'),  # Bundled in _internal
+                os.path.join(os.path.dirname(sys.executable), 'playwright-browser'),  # Next to exe
+                os.path.join(os.path.dirname(sys.executable), '_internal', 'playwright-browser'),  # In _internal folder
+            ]
+            
+            bundled_playwright_path = None
+            for path in possible_paths:
+                if os.path.exists(path):
+                    bundled_playwright_path = path
+                    logger.info(f"Found playwright browsers at: {path}")
+                    break
+            
+            if not bundled_playwright_path:
+                logger.error(f"Could not find playwright browsers. Checked paths: {possible_paths}")
+                raise FileNotFoundError("Playwright browsers not found in executable bundle")
+        else:
+            # Path for a normal Python environment
+            bundled_playwright_path = os.path.join(os.getcwd(), 'playwright-browser')
+            if not os.path.exists(bundled_playwright_path):
+                logger.warning(f"Local playwright-browser directory not found: {bundled_playwright_path}")
+
+        # Set the environment variable so Playwright knows where to look.
+        os.environ['PLAYWRIGHT_BROWSERS_PATH'] = bundled_playwright_path
+        logger.info(f"Set PLAYWRIGHT_BROWSERS_PATH to: {bundled_playwright_path}")
+
+
         with sync_playwright() as p:
             # Launch browser with proper configuration
             browser = p.chromium.launch(

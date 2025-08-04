@@ -1,10 +1,10 @@
 {
   "date_filter": "Today",
   "tabs": {
-    "Student Usage": true,
+    "Student Usage": false,
     "Skill": true,
-    "Assignment": true,
-    "Assessment": true,
-    "Level Up Progress": true
+    "Assignment": false,
+    "Assessment": false,
+    "Level Up Progress": false
   }
 }
