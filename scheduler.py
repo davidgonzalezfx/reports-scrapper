@@ -4,7 +4,6 @@ This module handles periodic execution of the scraper using APScheduler.
 """
 
 import logging
-import subprocess
 import sys
 from typing import Optional
 
@@ -23,9 +22,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Constants
-SCRAPER_COMMAND = ['python3', 'scraper.py']
 DEFAULT_INTERVAL_WEEKS = 1
-SCRAPER_TIMEOUT = 3600  # 1 hour timeout
 
 def job_listener(event):
     """Log job execution events.
@@ -39,7 +36,7 @@ def job_listener(event):
         logger.info(f"Job {event.job_id} executed successfully")
 
 def run_scraper() -> bool:
-    """Execute the scraper subprocess with proper error handling.
+    """Execute the scraper directly by importing and calling the scraper module.
     
     Returns:
         True if scraper completed successfully, False otherwise
@@ -47,29 +44,19 @@ def run_scraper() -> bool:
     logger.info("Starting scheduled scraper execution")
     
     try:
-        result = subprocess.run(
-            SCRAPER_COMMAND,
-            capture_output=True,
-            text=True,
-            timeout=SCRAPER_TIMEOUT
-        )
+        # Import scraper module and call directly
+        from scraper import run_scraper_for_users
+        success = run_scraper_for_users(verbose=False)
         
-        if result.returncode == 0:
+        if success:
             logger.info("Scraper completed successfully")
-            if result.stdout:
-                logger.debug(f"Scraper output: {result.stdout}")
             return True
         else:
-            logger.error(f"Scraper failed with return code {result.returncode}")
-            if result.stderr:
-                logger.error(f"Scraper stderr: {result.stderr}")
+            logger.error("Scraper failed - no users processed successfully")
             return False
             
-    except subprocess.TimeoutExpired:
-        logger.error(f"Scraper process timed out after {SCRAPER_TIMEOUT} seconds")
-        return False
-    except FileNotFoundError:
-        logger.error("Scraper script not found. Please ensure scraper.py exists in the current directory")
+    except ImportError as e:
+        logger.error(f"Failed to import scraper module: {e}")
         return False
     except Exception as e:
         logger.error(f"Unexpected error running scraper: {e}")

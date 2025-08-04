@@ -2,14 +2,16 @@
 
 from flask import Flask, render_template, send_from_directory, redirect, url_for, request, jsonify, send_file
 import os
-import subprocess
 import threading
 import json
 import zipfile
 import tempfile
 import logging
+import webbrowser
+import time
 from datetime import datetime
 from typing import Dict, List, Any, Optional
+from waitress import serve
 
 # Constants
 USERS_FILE = 'users.json'
@@ -137,7 +139,7 @@ def save_users(users: List[Dict[str, str]]) -> None:
         raise
 
 def run_scraper() -> None:
-    """Execute the scraper subprocess."""
+    """Execute the scraper directly by importing and calling the scraper module."""
     try:
         app_state.set_download_status(True)
         logger.info("Starting scraper process")
@@ -145,22 +147,22 @@ def run_scraper() -> None:
         users = load_users()
         if not users:
             logger.warning("No users found, scraper may not function properly")
-            
-        result = subprocess.run(
-            ['python3', 'scraper.py', '--users', USERS_FILE],
-            capture_output=True,
-            text=True,
-            timeout=3600  # 1 hour timeout
-        )
         
-        if result.returncode == 0:
-            logger.info("Scraper completed successfully")
-        else:
-            logger.error(f"Scraper failed with return code {result.returncode}")
-            logger.error(f"Stderr: {result.stderr}")
+        # Import scraper module and call directly
+        try:
+            from scraper import run_scraper_for_users
+            success = run_scraper_for_users(USERS_FILE, verbose=False)
             
-    except subprocess.TimeoutExpired:
-        logger.error("Scraper process timed out")
+            if success:
+                logger.info("Scraper completed successfully")
+            else:
+                logger.error("Scraper failed - no users processed successfully")
+                
+        except ImportError as e:
+            logger.error(f"Failed to import scraper module: {e}")
+        except Exception as e:
+            logger.error(f"Error in scraper execution: {e}")
+            
     except Exception as e:
         logger.error(f"Error running scraper: {e}")
     finally:
@@ -412,7 +414,51 @@ def cleanup_reports_directory() -> None:
     except Exception as e:
         logger.error(f"Error cleaning up reports directory: {e}")
 
+def open_browser(host: str = 'localhost', port: int = 5000, delay: float = 1.5) -> None:
+    """Open the default web browser to the application URL.
+    
+    Args:
+        host: Host address (use localhost for browser access)
+        port: Port number
+        delay: Delay in seconds before opening browser
+    """
+    def _open_browser():
+        time.sleep(delay)  # Wait for server to start
+        url = f"http://{host}:{port}"
+        try:
+            logger.info(f"Opening browser to {url}")
+            webbrowser.open(url)
+        except Exception as e:
+            logger.warning(f"Could not open browser automatically: {e}")
+            logger.info(f"Please open your browser manually and go to {url}")
+    
+    # Run in a separate thread to avoid blocking the server
+    browser_thread = threading.Thread(target=_open_browser, daemon=True)
+    browser_thread.start()
+
 if __name__ == '__main__':
+    # Configuration
+    HOST = os.getenv('FLASK_HOST', '0.0.0.0')  # Server binds to all interfaces
+    PORT = int(os.getenv('FLASK_PORT', '5000'))
+    BROWSER_HOST = 'localhost'  # Browser should connect to localhost
+    AUTO_OPEN_BROWSER = os.getenv('AUTO_OPEN_BROWSER', 'true').lower() == 'true'
+    
     cleanup_reports_directory()
     logger.info("Starting Flask application")
-    app.run(debug=False, host='0.0.0.0', port=5000)
+    logger.info(f"Server will be available at http://{BROWSER_HOST}:{PORT}")
+    
+    # Start browser opening in background (if enabled)
+    if AUTO_OPEN_BROWSER:
+        open_browser(host=BROWSER_HOST, port=PORT)
+        logger.info("Browser will open automatically in 1.5 seconds...")
+    else:
+        logger.info("Auto-open browser disabled. Open your browser manually.")
+    
+    # Start the server
+    try:
+        serve(app, host=HOST, port=PORT)
+    except KeyboardInterrupt:
+        logger.info("Application stopped by user")
+    except Exception as e:
+        logger.error(f"Server error: {e}")
+        raise

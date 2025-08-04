@@ -4,6 +4,7 @@ This module handles automated login and report downloading from an educational p
 """
 
 import os
+import sys
 import time
 import logging
 import argparse
@@ -437,45 +438,28 @@ def login_and_download_reports_for_user(username: str, password: str) -> bool:
         logger.error(f"Unexpected error during report download for {username}: {e}")
         return False
 
-def main() -> None:
-    """Main function to orchestrate the scraping process."""
-    parser = argparse.ArgumentParser(
-        description='Educational platform report scraper',
-        formatter_class=argparse.RawDescriptionHelpFormatter
-    )
-    parser.add_argument(
-        '--users', 
-        type=str, 
-        default=USERS_FILE, 
-        help='Path to users JSON file containing login credentials'
-    )
-    parser.add_argument(
-        '--verbose', 
-        '-v', 
-        action='store_true', 
-        help='Enable verbose logging'
-    )
-    parser.add_argument(
-        '--config', 
-        type=str, 
-        default=CONFIG_FILE, 
-        help='Path to scraper configuration file'
-    )
+def run_scraper_for_users(users_file: str = USERS_FILE, verbose: bool = False) -> bool:
+    """Run the scraper for all users in the users file.
     
-    args = parser.parse_args()
-    
+    Args:
+        users_file: Path to users JSON file
+        verbose: Enable verbose logging
+        
+    Returns:
+        True if at least one user was processed successfully, False otherwise
+    """
     # Set logging level based on verbose flag
-    if args.verbose:
+    if verbose:
         logging.getLogger().setLevel(logging.DEBUG)
         logger.info("Verbose logging enabled")
     
-    logger.info("Starting scraper application")
+    logger.info("Starting scraper execution")
     
     # Load users
-    users = load_users(args.users)
+    users = load_users(users_file)
     if not users:
         logger.error("No users found. Please check the users file.")
-        return
+        return False
     
     logger.info(f"Found {len(users)} users to process")
     
@@ -501,6 +485,40 @@ def main() -> None:
             logger.error(f"Unexpected error processing user {username}: {e}")
     
     logger.info(f"Scraper completed: {successful_users}/{len(users)} users processed successfully")
+    return successful_users > 0
+
+def main() -> None:
+    """Main function for command-line execution."""
+    parser = argparse.ArgumentParser(
+        description='Educational platform report scraper',
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    parser.add_argument(
+        '--users', 
+        type=str, 
+        default=USERS_FILE, 
+        help='Path to users JSON file containing login credentials'
+    )
+    parser.add_argument(
+        '--verbose', 
+        '-v', 
+        action='store_true', 
+        help='Enable verbose logging'
+    )
+    parser.add_argument(
+        '--config', 
+        type=str, 
+        default=CONFIG_FILE, 
+        help='Path to scraper configuration file'
+    )
+    
+    args = parser.parse_args()
+    
+    # Run the scraper
+    success = run_scraper_for_users(args.users, args.verbose)
+    
+    # Exit with appropriate code
+    sys.exit(0 if success else 1)
 
 if __name__ == '__main__':
     try:

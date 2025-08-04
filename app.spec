@@ -5,7 +5,11 @@ a = Analysis(
     ['app.py'],
     pathex=[],
     binaries=[],
-    datas=[],
+    datas=[
+        ('templates', 'templates'),
+        ('scraper.py', '.'),
+        # Add any other static files/directories
+    ],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
