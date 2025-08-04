@@ -561,69 +561,74 @@
 			</div>
 
 			{% if files %}
-			<div class="bg-gradient-to-r from-orange-50 to-red-50 rounded-xl p-1 border border-orange-100">
-				<div class="bg-white rounded-lg overflow-hidden shadow-sm">
-					<div class="space-y-6 p-4">
-						{% for user, user_files in files_by_user.items() %}
-						<div class="border-l-4 border-blue-500 bg-blue-50 rounded-lg p-4">
-							<div class="flex items-center gap-3 mb-3">
-								<div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
-									<i class="fas fa-user text-white text-sm"></i>
-								</div>
-								<div>
-									<h3 class="text-lg font-semibold text-gray-900">{{ user }}</h3>
-									<p class="text-sm text-gray-600">{{ user_files|length }} report(s) downloaded</p>
-								</div>
+
+			<div class="bg-white rounded-lg overflow-hidden shadow-sm">
+				<div class="space-y-6 p-4">
+					{% for user, user_files in files_by_user.items() %}
+					<div class="border-l-4 border-orange-100 bg-gradient-to-r from-orange-50 to-red-50 rounded-lg p-4">
+						<div class="flex items-center gap-3 mb-3">
+							<div class="w-8 h-8 bg-orange-600 rounded-full flex items-center justify-center">
+								<i class="fas fa-user text-white text-sm"></i>
 							</div>
-							
-							<div class="grid grid-cols-1 gap-2">
-								{% for file_info in user_files %}
-								<div class="group relative bg-white hover:bg-gradient-to-r hover:from-orange-50 hover:to-red-50 transition-all duration-200 p-3 rounded-lg border border-gray-200">
-									<div class="flex items-center justify-between">
-										<div class="flex items-center gap-3 flex-1">
-											<div class="w-10 h-10 bg-gradient-to-r from-orange-100 to-red-100 rounded-lg flex items-center justify-center group-hover:from-orange-200 group-hover:to-red-200 transition-colors">
-												<i class="fas fa-file-excel text-orange-600"></i>
-											</div>
-											<div class="flex-1 min-w-0">
-												<div class="flex items-center gap-2 mb-1">
-													<h4 class="text-sm font-semibold text-gray-900 truncate">{{ file_info.report_name }}</h4>
-													<div class="flex-shrink-0">
-														<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-															<i class="fas fa-check-circle mr-1"></i>Ready
-														</span>
-													</div>
-												</div>
-												<div class="flex items-center gap-4 text-xs text-gray-500">
-													<span class="flex items-center gap-1">
-														<i class="fas fa-file-alt"></i>XLSX Format
-													</span>
-													<span class="flex items-center gap-1">
-														<i class="fas fa-clock"></i>Recently generated
-													</span>
-													<span class="flex items-center gap-1">
-														<i class="fas fa-user-tag"></i>{{ file_info.user }}
-													</span>
-												</div>
-											</div>
-										</div>
-										
-										<div class="flex items-center gap-2">
-											<a href="/download/{{ file_info.filename }}"
-												class="group/btn relative inline-flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-orange-600 to-red-600 text-white font-medium rounded-lg shadow-md hover:from-orange-700 hover:to-red-700 focus:outline-none focus:ring-4 focus:ring-orange-300 transition-all duration-200 text-sm">
-												<i class="fas fa-download"></i>
-												<span>Download</span>
-												<div class="absolute inset-0 bg-white opacity-0 group-hover/btn:opacity-20 rounded-lg transition-opacity duration-200"></div>
-											</a>
-										</div>
-									</div>
-								</div>
-								{% endfor %}
+							<div>
+								<h3 class="text-lg font-semibold text-gray-900">{{ user }}</h3>
+								<p class="text-sm text-gray-600">{{ user_files|length }} report(s) downloaded</p>
 							</div>
 						</div>
-						{% endfor %}
+
+						<div class="grid grid-cols-1 gap-2">
+							{% for file_info in user_files %}
+							<div
+								class="group relative bg-white hover:bg-gradient-to-r hover:from-orange-50 hover:to-red-50 transition-all duration-200 p-3 rounded-lg border border-gray-200">
+								<div class="flex items-center justify-between">
+									<div class="flex items-center gap-3 flex-1">
+										<div
+											class="w-10 h-10 bg-gradient-to-r from-orange-100 to-red-100 rounded-lg flex items-center justify-center group-hover:from-orange-200 group-hover:to-red-200 transition-colors">
+											<i class="fas fa-file-excel text-orange-600"></i>
+										</div>
+										<div class="flex-1 min-w-0">
+											<div class="flex items-center gap-2 mb-1">
+												<h4 class="text-sm font-semibold text-gray-900 truncate">{{ file_info.report_name }}</h4>
+												<div class="flex-shrink-0">
+													<span
+														class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+														<i class="fas fa-check-circle mr-1"></i>Ready
+													</span>
+												</div>
+											</div>
+											<div class="flex items-center gap-4 text-xs text-gray-500">
+												<span class="flex items-center gap-1">
+													<i class="fas fa-file-alt"></i>XLSX Format
+												</span>
+												<span class="flex items-center gap-1">
+													<i class="fas fa-clock"></i>Recently generated
+												</span>
+												<span class="flex items-center gap-1">
+													<i class="fas fa-user-tag"></i>{{ file_info.user }}
+												</span>
+											</div>
+										</div>
+									</div>
+
+									<div class="flex items-center gap-2">
+										<a href="/download/{{ file_info.filename }}"
+											class="group/btn relative inline-flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-orange-600 to-red-600 text-white font-medium rounded-lg shadow-md hover:from-orange-700 hover:to-red-700 focus:outline-none focus:ring-4 focus:ring-orange-300 transition-all duration-200 text-sm">
+											<i class="fas fa-download"></i>
+											<span>Download</span>
+											<div
+												class="absolute inset-0 bg-white opacity-0 group-hover/btn:opacity-20 rounded-lg transition-opacity duration-200">
+											</div>
+										</a>
+									</div>
+								</div>
+							</div>
+							{% endfor %}
+						</div>
 					</div>
+					{% endfor %}
 				</div>
 			</div>
+
 			{% else %}
 			<div class="bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl p-12 text-center border border-gray-200">
 				<div
@@ -697,9 +702,9 @@
 			const selectAllCheckbox = document.getElementById('select-all');
 			const selectAllIcon = document.getElementById('select-all-icon');
 			const selectAllVisual = selectAllIcon.parentElement;
-			
+
 			selectAllCheckbox.checked = allChecked;
-			
+
 			if (allChecked) {
 				selectAllIcon.style.opacity = '1';
 				selectAllVisual.style.backgroundColor = '#2563eb';
