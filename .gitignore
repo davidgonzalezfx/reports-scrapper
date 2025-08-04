@@ -11,3 +11,7 @@ env/
 /playwright-browser
 
 .DS_STORE
+
+# Configuration files with sensitive data
+ui.json
+users.json
