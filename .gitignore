@@ -9,6 +9,7 @@ env/
 /build
 /reports
 /playwright-browser
+/playwright
 
 .DS_STORE
 
