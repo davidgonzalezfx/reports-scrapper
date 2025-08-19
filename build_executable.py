@@ -24,9 +24,9 @@ def run_command(cmd, description):
 
 def copy_browsers():
     """Copy playwright browsers to the dist folder."""
-    source_browser_dir = Path("playwright-browser")
+    source_browser_dir = Path("playwright")
     dist_dir = Path("dist/app")
-    target_browser_dir = dist_dir / "playwright-browser"
+    target_browser_dir = dist_dir / "playwright"
     
     if not source_browser_dir.exists():
         print(f"❌ Source browser directory not found: {source_browser_dir}")

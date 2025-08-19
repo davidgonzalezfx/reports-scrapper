@@ -13,7 +13,7 @@ a = Analysis(
         ('templates', 'templates'),
         ('users.json', '.'),
         ('scraper_config.json', '.'),
-        ('ui.json', '.'),  # Include UI config if present
+        ('playwright', 'playwright')  # Include Playwright browser binaries
     ],
     hiddenimports=[
         'playwright.sync_api',

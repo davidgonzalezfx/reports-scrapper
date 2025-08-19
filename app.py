@@ -9,6 +9,7 @@ import time
 from datetime import datetime
 from typing import Dict, List, Any, Optional
 from waitress import serve
+import sys
 
 from utils import load_json, save_json, validate_filename, validate_user_data, get_report_files
 
@@ -155,7 +156,12 @@ def parse_file_info(filename: str) -> Dict[str, str]:
 def index():
     """Main page displaying reports and configuration."""
     try:
-        raw_files = get_report_files(REPORTS_DIR)
+        if getattr(sys, 'frozen', False):  # If running as a frozen executable
+            base_path = sys._MEIPASS
+        else:
+            base_path = os.path.abspath('.')  
+        REPORTS_DIR_TMP = os.path.join(base_path, 'reports')  # Adjust based on how reports are bundled
+        raw_files = get_report_files(REPORTS_DIR_TMP)
         
         # Parse file information for better display
         files_with_info = [parse_file_info(f) for f in raw_files]
@@ -222,20 +228,26 @@ def download(filename: str):
     Args:
         filename: Name of the file to download
     """
+    if getattr(sys, 'frozen', False):  # If running as a frozen executable
+        base_path = sys._MEIPASS
+    else:
+        base_path = os.path.abspath('.')
+    REPORTS_DIR_TMP = os.path.join(base_path, 'reports')  # Adjust based on how reports are bundled
+
     try:
         # Security check: ensure filename doesn't contain path traversal
         if not validate_filename(filename):
             logger.warning(f"Potentially malicious filename requested: {filename}")
             return jsonify({'error': 'Invalid filename'}), 400
-            
-        file_path = os.path.join(REPORTS_DIR, filename)
+
+        file_path = os.path.join(REPORTS_DIR_TMP, filename)
         if not os.path.exists(file_path):
             logger.warning(f"Requested file not found: {filename}")
             return jsonify({'error': 'File not found'}), 404
-            
+
         logger.info(f"Downloading file: {filename}")
-        return send_from_directory(REPORTS_DIR, filename, as_attachment=True)
-        
+        return send_from_directory(REPORTS_DIR_TMP, filename, as_attachment=True)
+
     except Exception as e:
         logger.error(f"Error downloading file {filename}: {e}")
         return jsonify({'error': 'Download failed'}), 500

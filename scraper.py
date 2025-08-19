@@ -241,7 +241,14 @@ def download_report(page, username: str) -> bool:
         
         # Create user-specific filename by prepending username
         user_filename = f"{username}_{original_filename}"
-        csv_path = os.path.join(REPORTS_DIR, user_filename)
+
+        if getattr(sys, 'frozen', False):  # If running as a frozen executable
+            base_path = sys._MEIPASS
+        else:
+            base_path = os.path.abspath('.')
+        REPORTS_DIR_TMP = os.path.join(base_path, 'reports')
+
+        csv_path = os.path.join(REPORTS_DIR_TMP, user_filename)
         
         download.save_as(csv_path)
         logger.info(f"Downloaded CSV report: {user_filename}")
@@ -334,9 +341,9 @@ def login_and_download_reports_for_user(username: str, password: str) -> bool:
         if getattr(sys, 'frozen', False):
             # For PyInstaller, check multiple possible locations
             possible_paths = [
-                os.path.join(sys._MEIPASS, 'playwright-browser'),  # Bundled in _internal
-                os.path.join(os.path.dirname(sys.executable), 'playwright-browser'),  # Next to exe
-                os.path.join(os.path.dirname(sys.executable), '_internal', 'playwright-browser'),  # In _internal folder
+                os.path.join(sys._MEIPASS, 'playwright'),  # Bundled in _internal
+                os.path.join(os.path.dirname(sys.executable), 'playwright'),  # Next to exe
+                os.path.join(os.path.dirname(sys.executable), '_internal', 'playwright'),  # In _internal folder
             ]
             
             bundled_playwright_path = None
@@ -351,9 +358,9 @@ def login_and_download_reports_for_user(username: str, password: str) -> bool:
                 raise FileNotFoundError("Playwright browsers not found in executable bundle")
         else:
             # Path for a normal Python environment
-            bundled_playwright_path = os.path.join(os.getcwd(), 'playwright-browser')
+            bundled_playwright_path = os.path.join(os.getcwd(), 'playwright')
             if not os.path.exists(bundled_playwright_path):
-                logger.warning(f"Local playwright-browser directory not found: {bundled_playwright_path}")
+                logger.warning(f"Local playwright directory not found: {bundled_playwright_path}")
 
         # Set the environment variable so Playwright knows where to look.
         os.environ['PLAYWRIGHT_BROWSERS_PATH'] = bundled_playwright_path
