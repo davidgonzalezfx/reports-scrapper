@@ -338,7 +338,7 @@
 			<form id="filter-form" method="post" action="/set-filter">
 				<!-- Main Configuration Grid -->
 				<div class="bg-blue-50 rounded-xl p-6 mb-6 border border-blue-100">
-					<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+					<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 						<!-- Date Filter Section -->
 						<div class="space-y-3">
 							<div class="flex items-center gap-2 mb-3">
@@ -352,11 +352,40 @@
 							<select id="date_filter" name="date_filter"
 								class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 font-medium focus:outline-none focus:ring-4 focus:ring-blue-300 focus:border-blue-500 transition-all duration-200 shadow-sm hover:shadow-md">
 								{% for option in date_filters %}
-								<option value="{{ option }}" {% if option==selected_filter %}selected{% endif %}>{{
+								<option value="{{ option }}" {% if option==selected_date_filter %}selected{% endif %}>{{
 									option }}</option>
 								{% endfor %}
 							</select>
 							<p class="text-xs text-gray-600">Choose the time period for data collection</p>
+						</div>
+
+						<!-- Products Filter Section -->
+						<div class="space-y-3">
+							<div class="flex items-center gap-2 mb-3">
+								<div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+									<i class="fas fa-cube text-white text-sm"></i>
+								</div>
+								<label for="products_filter" class="text-sm font-semibold text-gray-900">
+									Products Filter
+								</label>
+							</div>
+							<select id="products_filter" name="products_filter"
+								class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 font-medium focus:outline-none focus:ring-4 focus:ring-blue-300 focus:border-blue-500 transition-all duration-200 shadow-sm hover:shadow-md">
+								{% for option in products_filters %}
+								<option value="{{ option }}" {% if option==selected_products_filter %}selected{% endif %}>{{
+									option }}</option>
+								{% endfor %}
+							</select>
+							<p class="text-xs text-gray-600">Choose the product for data collection</p>
+							<div id="products-filter-warning" class="hidden p-3 bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-300 rounded-lg text-xs text-yellow-800">
+								<div class="flex items-start gap-2">
+									<i class="fas fa-exclamation-triangle text-yellow-600 mt-0.5"></i>
+									<div>
+										<p class="font-medium">Product Availability Notice</p>
+										<p class="mt-1">Not all users have access to all products. If this product is unavailable during scraping, you'll see a notification after the process completes.</p>
+									</div>
+								</div>
+							</div>
 						</div>
 
 						<!-- Quick Selection Section -->
@@ -397,7 +426,7 @@
 						</div>
 						<h3 class="text-lg font-semibold text-gray-900">Report Types</h3>
 					</div>
-					<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3">
+					<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3">
 						{% for tab in tabs %}
 						<div class="group">
 							<label
@@ -470,7 +499,11 @@
 									</div>
 									<div class="flex items-center gap-2">
 										<i class="fas fa-calendar w-3"></i>
-										<span>Date filter: {{ selected_filter }}</span>
+										<span>Date filter: {{ selected_date_filter }}</span>
+									</div>
+									<div class="flex items-center gap-2">
+										<i class="fas fa-cube w-3"></i>
+										<span>Products filter: {{ selected_products_filter }}</span>
 									</div>
 									<div class="flex items-center gap-2">
 										<i class="fas fa-th-large w-3"></i>
@@ -523,6 +556,30 @@
 						</form>
 					</div>
 				</div>
+			</div>
+		</div>
+
+		<!-- Scraper Status Notifications -->
+		<div id="scraper-notifications" class="hidden bg-white rounded-lg shadow-lg p-6 mb-6 border border-gray-100 animate-slide-up">
+			<div class="flex items-center justify-between mb-4">
+				<div class="flex items-center gap-3">
+					<div class="w-10 h-10 bg-gradient-to-r from-yellow-600 to-orange-600 rounded-lg flex items-center justify-center">
+						<i class="fas fa-exclamation-triangle text-white text-lg"></i>
+					</div>
+					<div>
+						<h2 class="text-xl font-semibold text-gray-900">Scraper Notifications</h2>
+						<p class="text-sm text-gray-600">Important updates about your scraping session</p>
+					</div>
+				</div>
+				<button id="clear-notifications-btn" onclick="clearAllNotifications()" 
+					class="group relative inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-gray-600 to-gray-700 text-white font-medium rounded-lg shadow-md hover:from-gray-700 hover:to-gray-800 focus:outline-none focus:ring-4 focus:ring-gray-300 transition-all duration-200">
+					<i class="fas fa-times-circle"></i>
+					<span>Clear All</span>
+				</button>
+			</div>
+			
+			<div id="notifications-content" class="space-y-3">
+				<!-- Notifications will be populated here -->
 			</div>
 		</div>
 
@@ -730,6 +787,23 @@
 					updateSelectAllState(); // Update select-all state when individual items change
 				});
 			});
+
+			// Add products filter change listener
+			const productsFilter = document.getElementById('products_filter');
+			const productsWarning = document.getElementById('products-filter-warning');
+			
+			if (productsFilter && productsWarning) {
+				productsFilter.addEventListener('change', function() {
+					// Show warning for all products since availability varies by user
+					if (this.value) {
+						productsWarning.classList.remove('hidden');
+						// Auto-hide after 5 seconds
+						setTimeout(() => {
+							productsWarning.classList.add('hidden');
+						}, 5000);
+					}
+				});
+			}
 		});
 
 		function getUserRows() {
@@ -890,6 +964,117 @@
 			}, 5000);
 		}
 
+		// Notification system functions
+		let notificationPollingInterval = null;
+		
+		function showNotification(message, type = 'warning', timestamp = null) {
+			const notificationsSection = document.getElementById('scraper-notifications');
+			const notificationsContent = document.getElementById('notifications-content');
+			
+			const notification = document.createElement('div');
+			notification.className = `flex items-start gap-3 p-4 rounded-lg border ${
+				type === 'error' ? 'bg-red-50 border-red-200' :
+				type === 'warning' ? 'bg-yellow-50 border-yellow-200' :
+				'bg-blue-50 border-blue-200'
+			}`;
+			
+			const timeStr = timestamp ? new Date(timestamp).toLocaleTimeString() : new Date().toLocaleTimeString();
+			
+			notification.innerHTML = `
+				<div class="flex-shrink-0">
+					<div class="w-6 h-6 ${
+						type === 'error' ? 'bg-red-600' :
+						type === 'warning' ? 'bg-yellow-600' :
+						'bg-blue-600'
+					} rounded-full flex items-center justify-center">
+						<i class="fas ${
+							type === 'error' ? 'fa-times' :
+							type === 'warning' ? 'fa-exclamation-triangle' :
+							'fa-info'
+						} text-white text-xs"></i>
+					</div>
+				</div>
+				<div class="flex-1">
+					<p class="text-sm font-medium ${
+						type === 'error' ? 'text-red-800' :
+						type === 'warning' ? 'text-yellow-800' :
+						'text-blue-800'
+					}">${message}</p>
+					<p class="text-xs ${
+						type === 'error' ? 'text-red-600' :
+						type === 'warning' ? 'text-yellow-600' :
+						'text-blue-600'
+					} mt-1">${timeStr}</p>
+				</div>
+				<button onclick="this.parentElement.remove(); checkNotificationsEmpty();" 
+					class="flex-shrink-0 p-1 ${
+						type === 'error' ? 'text-red-400 hover:text-red-600' :
+						type === 'warning' ? 'text-yellow-400 hover:text-yellow-600' :
+						'text-blue-400 hover:text-blue-600'
+					} transition-colors">
+					<i class="fas fa-times text-xs"></i>
+				</button>
+			`;
+			
+			notificationsContent.appendChild(notification);
+			notificationsSection.classList.remove('hidden');
+		}
+		
+		function checkNotificationsEmpty() {
+			const notificationsSection = document.getElementById('scraper-notifications');
+			const notificationsContent = document.getElementById('notifications-content');
+			
+			if (notificationsContent.children.length === 0) {
+				notificationsSection.classList.add('hidden');
+			}
+		}
+		
+		function clearAllNotifications() {
+			const notificationsContent = document.getElementById('notifications-content');
+			notificationsContent.innerHTML = '';
+			checkNotificationsEmpty();
+			
+			// Clear from server
+			fetch('/clear-notifications', { method: 'POST' })
+				.then(r => r.json())
+				.catch(error => console.error('Error clearing notifications:', error));
+		}
+		
+		function loadNotifications() {
+			fetch('/scrape-notifications')
+				.then(r => r.json())
+				.then(data => {
+					if (data.notifications && data.notifications.length > 0) {
+						// Clear existing notifications first
+						const notificationsContent = document.getElementById('notifications-content');
+						notificationsContent.innerHTML = '';
+						
+						data.notifications.forEach(notif => {
+							showNotification(notif.message, notif.type, notif.timestamp);
+						});
+					}
+				})
+				.catch(error => console.error('Error loading notifications:', error));
+		}
+		
+		function startNotificationPolling() {
+			// Poll for notifications every 2 seconds during scraping
+			if (notificationPollingInterval) {
+				clearInterval(notificationPollingInterval);
+			}
+			
+			notificationPollingInterval = setInterval(() => {
+				loadNotifications();
+			}, 2000);
+		}
+		
+		function stopNotificationPolling() {
+			if (notificationPollingInterval) {
+				clearInterval(notificationPollingInterval);
+				notificationPollingInterval = null;
+			}
+		}
+
 		const form = document.getElementById('scrape-form');
 		const btn = document.getElementById('scrape-btn');
 		const spinner = document.getElementById('spinner');
@@ -900,18 +1085,33 @@
 			btn.disabled = true;
 			spinner.classList.add('show');
 			elements.classList.add('hidden');
+			
+			// Don't clear notifications here - let them persist
+			// Start polling for notifications
+			startNotificationPolling();
 
 			fetch('/scrape', { method: 'POST' })
 				.then(response => response.json())
 				.then(data => {
 					if (data.status === 'started') {
-						// Poll for completion
+						// Poll for completion and status
 						function poll() {
 							fetch('/scrape-status').then(r => r.json()).then(status => {
 								if (status.in_progress) {
 									setTimeout(poll, 1000);
 								} else {
-									window.location.reload();
+									// Scraping completed
+									stopNotificationPolling();
+									
+									// Load final notifications
+									loadNotifications();
+									
+									// Reload page after a short delay to show notifications
+									setTimeout(() => {
+										// Store that we should load notifications on next page load
+										sessionStorage.setItem('showNotifications', 'true');
+										window.location.reload();
+									}, 1000);
 								}
 							});
 						}
@@ -920,10 +1120,19 @@
 				})
 				.catch(error => {
 					console.error('Error:', error);
+					stopNotificationPolling();
+					showNotification('Failed to start scraper: ' + error.message, 'error');
 					btn.disabled = false;
 					spinner.classList.remove('show');
+					elements.classList.remove('hidden');
 				});
 		});
+		
+		// Load notifications on page load if needed
+		if (sessionStorage.getItem('showNotifications') === 'true') {
+			sessionStorage.removeItem('showNotifications');
+			loadNotifications();
+		}
 	</script>
 </body>
 

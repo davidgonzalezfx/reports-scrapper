@@ -18,6 +18,7 @@ USERS_FILE = 'users.json'
 REPORTS_DIR = 'reports'
 CONFIG_FILE = 'scraper_config.json'
 DATE_FILTERS = ["Today", "Last 7 Days", "Last 30 Days", "Last 90 Days", "Last Year"]
+PRODUCTS_FILTERS = ["All", "Raz-Plus", "Español", "Science A-Z", "Writing A-Z", "Vocabulary A-Z", "Foundations A-Z"]
 TABS = [
     {"name": "Student Usage", "default": True},
     {"name": "Skill", "default": True},
@@ -46,6 +47,7 @@ class AppState:
     def __init__(self):
         self.download_in_progress = False
         self._lock = threading.Lock()
+        self.notifications = []  # Store notifications during scraping
     
     def set_download_status(self, status: bool) -> None:
         """Thread-safe setter for download status."""
@@ -56,6 +58,27 @@ class AppState:
         """Thread-safe getter for download status."""
         with self._lock:
             return self.download_in_progress
+    
+    def add_notification(self, message: str, type: str = 'warning') -> None:
+        """Thread-safe method to add a notification."""
+        with self._lock:
+            self.notifications.append({
+                'message': message,
+                'type': type,
+                'timestamp': datetime.now().isoformat()
+            })
+            logger.info(f"Added notification: {type} - {message}")
+    
+    def get_notifications(self) -> List[Dict[str, str]]:
+        """Thread-safe getter for notifications."""
+        with self._lock:
+            return self.notifications.copy()
+    
+    def clear_notifications(self) -> None:
+        """Thread-safe method to clear all notifications."""
+        with self._lock:
+            self.notifications = []
+            logger.info("Cleared all notifications")
 
 app_state = AppState()
 
@@ -69,6 +92,7 @@ def load_config() -> Dict[str, Any]:
     """Load configuration from file with fallback to defaults."""
     default_config = {
         "date_filter": DATE_FILTERS[0], 
+        "products_filter": PRODUCTS_FILTERS[0],
         "tabs": {tab["name"]: tab["default"] for tab in TABS}
     }
     
@@ -91,15 +115,64 @@ def save_users(users: List[Dict[str, str]]) -> None:
         raise OSError("Failed to save users")
     logger.info(f"Saved {len(users)} users successfully")
 
+def monitor_scraper_logs() -> None:
+    """Monitor scraper logs and add notifications for warnings/errors."""
+    import time
+    import os
+    
+    log_file = 'app.log'
+    if not os.path.exists(log_file):
+        return
+    
+    # Track last position in file
+    last_position = 0
+    
+    while app_state.get_download_status():
+        try:
+            with open(log_file, 'r', encoding='utf-8') as f:
+                f.seek(last_position)
+                new_lines = f.readlines()
+                last_position = f.tell()
+                
+                for line in new_lines:
+                    line = line.strip()
+                    # Check for product filter warnings
+                    if 'scraper - ERROR' in line and 'Products filter option' in line and 'not found' in line:
+                        # Extract the message after scraper - ERROR -
+                        msg_start = line.find('scraper - ERROR - ')
+                        if msg_start != -1:
+                            msg = line[msg_start + len('scraper - ERROR - '):]
+                            app_state.add_notification(msg, 'error')
+                    elif 'scraper - WARNING' in line and ('products filter' in line.lower() or 'product' in line.lower()):
+                        msg_start = line.find('scraper - WARNING - ')
+                        if msg_start != -1:
+                            msg = line[msg_start + len('scraper - WARNING - '):]
+                            app_state.add_notification(msg, 'warning')
+                    elif 'scraper - ERROR' in line and 'Product filter error' in line:
+                        msg_start = line.find('scraper - ERROR - ')
+                        if msg_start != -1:
+                            msg = line[msg_start + len('scraper - ERROR - '):]
+                            app_state.add_notification(msg, 'error')
+        except Exception as e:
+            logger.debug(f"Error monitoring logs: {e}")
+        
+        time.sleep(1)  # Check every second
+
 def run_scraper() -> None:
     """Execute the scraper directly by importing and calling the scraper module."""
     try:
         app_state.set_download_status(True)
+        app_state.clear_notifications()  # Clear previous notifications
         logger.info("Starting scraper process")
+        
+        # Start log monitoring in a separate thread
+        monitor_thread = threading.Thread(target=monitor_scraper_logs, daemon=True)
+        monitor_thread.start()
         
         users = load_users()
         if not users:
             logger.warning("No users found, scraper may not function properly")
+            app_state.add_notification("No users configured for scraping", 'warning')
         
         # Import scraper module and call directly
         try:
@@ -110,14 +183,18 @@ def run_scraper() -> None:
                 logger.info("Scraper completed successfully")
             else:
                 logger.error("Scraper failed - no users processed successfully")
+                app_state.add_notification("Scraper failed - no users processed successfully", 'error')
                 
         except ImportError as e:
             logger.error(f"Failed to import scraper module: {e}")
+            app_state.add_notification(f"Failed to import scraper module: {e}", 'error')
         except Exception as e:
             logger.error(f"Error in scraper execution: {e}")
+            app_state.add_notification(f"Error in scraper execution: {e}", 'error')
             
     except Exception as e:
         logger.error(f"Error running scraper: {e}")
+        app_state.add_notification(f"Error running scraper: {e}", 'error')
     finally:
         app_state.set_download_status(False)
         logger.info("Scraper process finished")
@@ -175,7 +252,8 @@ def index():
             files_by_user[user].append(file_info)
         
         config = load_config()
-        selected_filter = config.get('date_filter', DATE_FILTERS[0])
+        selected_date_filter = config.get('date_filter', DATE_FILTERS[0])
+        selected_products_filter = config.get('products_filter', PRODUCTS_FILTERS[0])
         selected_tabs = config.get('tabs', {tab["name"]: tab["default"] for tab in TABS})
         users = load_users()
         
@@ -185,8 +263,10 @@ def index():
             files_with_info=files_with_info,
             files_by_user=files_by_user,
             download_in_progress=app_state.get_download_status(),
-            date_filters=DATE_FILTERS, 
-            selected_filter=selected_filter,
+            date_filters=DATE_FILTERS,
+            selected_date_filter=selected_date_filter,
+            products_filters=PRODUCTS_FILTERS,
+            selected_products_filter=selected_products_filter,
             tabs=TABS, 
             selected_tabs=selected_tabs, 
             users=users
@@ -208,13 +288,20 @@ def set_filter():
             date_filter = DATE_FILTERS[0]
         config['date_filter'] = date_filter
         
+        # Update products filter
+        products_filter = request.form.get('products_filter', PRODUCTS_FILTERS[0])
+        if products_filter not in PRODUCTS_FILTERS:
+            logger.warning(f"Invalid products filter received: {products_filter}")
+            products_filter = PRODUCTS_FILTERS[0]
+        config['products_filter'] = products_filter
+        
         # Update tabs selection
         selected_tabs = request.form.getlist('tabs')
         tabs_config = {tab["name"]: (tab["name"] in selected_tabs) for tab in TABS}
         config['tabs'] = tabs_config
         
         save_config(config)
-        logger.info(f"Filter configuration updated: {date_filter}, tabs: {selected_tabs}")
+        logger.info(f"Filter configuration updated: date={date_filter}, products={products_filter}, tabs: {selected_tabs}")
         return redirect(url_for('index'))
         
     except Exception as e:
@@ -325,6 +412,54 @@ def scrape_status():
     except Exception as e:
         logger.error(f"Error getting scrape status: {e}")
         return jsonify({'error': 'Failed to get status'}), 500
+
+@app.route('/scrape-notifications')
+def scrape_notifications():
+    """Get current scraper notifications."""
+    try:
+        notifications = app_state.get_notifications()
+        return jsonify({
+            'notifications': notifications,
+            'in_progress': app_state.get_download_status()
+        })
+    except Exception as e:
+        logger.error(f"Error getting scrape notifications: {e}")
+        return jsonify({'notifications': [], 'in_progress': False})
+
+@app.route('/clear-notifications', methods=['POST'])
+def clear_notifications():
+    """Clear all notifications."""
+    try:
+        app_state.clear_notifications()
+        return jsonify({'status': 'ok'})
+    except Exception as e:
+        logger.error(f"Error clearing notifications: {e}")
+        return jsonify({'error': 'Failed to clear notifications'}), 500
+
+@app.route('/scrape-logs')
+def scrape_logs():
+    """Get recent scraper logs for notifications (legacy endpoint - kept for compatibility)."""
+    try:
+        # Use the new notification system
+        notifications = app_state.get_notifications()
+        
+        warnings = []
+        errors = []
+        
+        for notif in notifications:
+            if notif['type'] == 'warning':
+                warnings.append(notif['message'])
+            elif notif['type'] == 'error':
+                errors.append(notif['message'])
+        
+        return jsonify({
+            'warnings': warnings,
+            'errors': errors
+        })
+        
+    except Exception as e:
+        logger.error(f"Error getting scrape logs: {e}")
+        return jsonify({'warnings': [], 'errors': []})
 
 @app.route('/get-users', methods=['GET'])
 def get_users():
@@ -457,6 +592,8 @@ if __name__ == '__main__':
     AUTO_OPEN_BROWSER = os.getenv('AUTO_OPEN_BROWSER', 'true').lower() == 'true'
     
     cleanup_reports_directory()
+    open('app.log', 'w').close()
+    logger.info("Cleared app.log file")
     logger.info("Starting Flask application")
     logger.info(f"Server will be available at http://{BROWSER_HOST}:{PORT}")
     

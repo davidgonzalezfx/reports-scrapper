@@ -18,6 +18,10 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
+class ProductNotAvailableError(Exception):
+    """Exception raised when a product filter is not available for the user."""
+    pass
+
 # Constants
 REPORTS_DIR = 'reports'
 LOGIN_URL = 'https://accounts.learninga-z.com/ng/member/login?siteAbbr=rp'
@@ -207,6 +211,60 @@ def select_date_filter(page, label: str) -> bool:
         logger.error(f"Error selecting date filter '{label}': {e}")
         return False
 
+def select_products_filter(page, label: str, stop_on_error: bool = True) -> bool:
+    """Select a products filter option from the dropdown.
+    
+    Args:
+        page: Playwright page object
+        label: Products filter label to select
+        stop_on_error: If True, raise exception when product not found
+        
+    Returns:
+        True if selection successful, False otherwise
+        
+    Raises:
+        ProductNotAvailableError: When product filter is not available and stop_on_error is True
+    """
+    try:
+        logger.debug(f"Selecting products filter: {label}")
+        
+        # Click on the products filter dropdown
+        page.wait_for_selector('#mat-select-2', timeout=DEFAULT_TIMEOUT)
+        page.click('#mat-select-2')
+        time.sleep(1)
+        
+        # Wait for options to appear and select the desired one
+        page.wait_for_selector('mat-option .mat-option-text', timeout=DEFAULT_TIMEOUT)
+        options = page.locator('mat-option .mat-option-text')
+        
+        option_found = False
+        for i in range(options.count()):
+            option_text = options.nth(i).inner_text().strip()
+            if option_text == label:
+                options.nth(i).click()
+                logger.info(f"Selected products filter: {label}")
+                option_found = True
+                break
+                
+        if not option_found:
+            error_msg = f"Products filter option '{label}' not found - user may not have access to this product"
+            logger.error(error_msg)
+            if stop_on_error and label != "All":  # Don't stop for "All" filter
+                raise ProductNotAvailableError(error_msg)
+            return False
+            
+        time.sleep(2)  # Allow filter to apply
+        return True
+        
+    except ProductNotAvailableError:
+        raise  # Re-raise our custom exception
+    except PlaywrightTimeoutError as e:
+        logger.error(f"Timeout selecting products filter '{label}': {e}")
+        return False
+    except Exception as e:
+        logger.error(f"Error selecting products filter '{label}': {e}")
+        return False
+
 def download_report(page, username: str) -> bool:
     """Download the current report as CSV and convert to XLSX.
     
@@ -312,10 +370,11 @@ def get_config() -> Dict[str, Any]:
     """Load scraper configuration from file.
     
     Returns:
-        Configuration dictionary with date_filter and tabs settings
+        Configuration dictionary with date_filter, products_filter and tabs settings
     """
     default_config = {
         "date_filter": "Today",
+        "products_filter": "All",
         "tabs": {tab["name"]: True for tab in TABS}
     }
     
@@ -396,10 +455,24 @@ def login_and_download_reports_for_user(username: str, password: str) -> bool:
                     
                 # Load configuration
                 config = get_config()
-                selected_filter = config.get('date_filter', 'Today')
+                selected_date_filter = config.get('date_filter', 'Today')
+                selected_products_filter = config.get('products_filter', 'All')
                 selected_tabs = config.get('tabs', {tab["name"]: True for tab in TABS})
                 
-                logger.info(f"Using date filter: {selected_filter}")
+                logger.info(f"Using date filter: {selected_date_filter}")
+                logger.info(f"Using products filter: {selected_products_filter}")
+                
+                # Apply date filter
+                if not select_date_filter(page, selected_date_filter):
+                    logger.warning(f"Failed to set date filter to '{selected_date_filter}', continuing with current filter")
+                    
+                # Apply products filter
+                try:
+                    if not select_products_filter(page, selected_products_filter):
+                        logger.warning(f"Failed to set products filter to '{selected_products_filter}' - continuing with default filter")
+                except ProductNotAvailableError as e:
+                    logger.error(f"Product filter error for user {username}: {e}")
+                    return False  # Stop processing this user
                 
                 # Process each tab
                 successful_downloads = 0
