@@ -2,7 +2,7 @@ from PyInstaller.utils.hooks import collect_data_files, collect_dynamic_libs
 import os
 
 # Collect playwright data files - this helps PyInstaller find necessary files
-datas = collect_data_files('playwright')
+datas = collect_data_files('playwright-browsers')
 
 # Don't exclude browser binaries since we're bundling them manually
 hiddenimports = [

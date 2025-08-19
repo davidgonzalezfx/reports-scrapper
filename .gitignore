@@ -8,7 +8,7 @@ env/
 /dist
 /build
 /reports
-/playwright-browser
+/playwright-browsers
 /playwright
 
 .DS_STORE

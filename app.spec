@@ -12,8 +12,7 @@ a = Analysis(
     datas=[
         ('templates', 'templates'),
         ('users.json', '.'),
-        ('scraper_config.json', '.'),
-        ('playwright', 'playwright')  # Include Playwright browser binaries
+        ('scraper_config.json', '.')
     ],
     hiddenimports=[
         'playwright.sync_api',

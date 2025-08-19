@@ -400,9 +400,9 @@ def login_and_download_reports_for_user(username: str, password: str) -> bool:
         if getattr(sys, 'frozen', False):
             # For PyInstaller, check multiple possible locations
             possible_paths = [
-                os.path.join(sys._MEIPASS, 'playwright'),  # Bundled in _internal
-                os.path.join(os.path.dirname(sys.executable), 'playwright'),  # Next to exe
-                os.path.join(os.path.dirname(sys.executable), '_internal', 'playwright'),  # In _internal folder
+                os.path.join(sys._MEIPASS, 'playwright-browsers'),  # Bundled in _internal
+                os.path.join(os.path.dirname(sys.executable), 'playwright-browsers'),  # Next to exe
+                os.path.join(os.path.dirname(sys.executable), '_internal', 'playwright-browsers'),  # In _internal folder
             ]
             
             bundled_playwright_path = None
@@ -417,7 +417,7 @@ def login_and_download_reports_for_user(username: str, password: str) -> bool:
                 raise FileNotFoundError("Playwright browsers not found in executable bundle")
         else:
             # Path for a normal Python environment
-            bundled_playwright_path = os.path.join(os.getcwd(), 'playwright')
+            bundled_playwright_path = os.path.join(os.getcwd(), 'playwright-browsers')
             if not os.path.exists(bundled_playwright_path):
                 logger.warning(f"Local playwright directory not found: {bundled_playwright_path}")
 
