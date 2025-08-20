@@ -116,7 +116,11 @@ def save_users(users: List[Dict[str, str]]) -> None:
     logger.info(f"Saved {len(users)} users successfully")
 
 def monitor_scraper_logs() -> None:
-    """Monitor scraper logs and add notifications for warnings/errors."""
+    """Monitor scraper logs for supplementary information.
+    
+    Note: Critical errors are now handled directly through ScraperResult.
+    This function now primarily captures supplementary log information.
+    """
     import time
     import os
     
@@ -134,29 +138,13 @@ def monitor_scraper_logs() -> None:
                 new_lines = f.readlines()
                 last_position = f.tell()
                 
-                for line in new_lines:
-                    line = line.strip()
-                    # Check for product filter warnings
-                    if 'scraper - ERROR' in line and 'Products filter option' in line and 'not found' in line:
-                        # Extract the message after scraper - ERROR -
-                        msg_start = line.find('scraper - ERROR - ')
-                        if msg_start != -1:
-                            msg = line[msg_start + len('scraper - ERROR - '):]
-                            app_state.add_notification(msg, 'error')
-                    elif 'scraper - WARNING' in line and ('products filter' in line.lower() or 'product' in line.lower()):
-                        msg_start = line.find('scraper - WARNING - ')
-                        if msg_start != -1:
-                            msg = line[msg_start + len('scraper - WARNING - '):]
-                            app_state.add_notification(msg, 'warning')
-                    elif 'scraper - ERROR' in line and 'Product filter error' in line:
-                        msg_start = line.find('scraper - ERROR - ')
-                        if msg_start != -1:
-                            msg = line[msg_start + len('scraper - ERROR - '):]
-                            app_state.add_notification(msg, 'error')
+                # Process any supplementary log messages if needed
+                # Most error handling is now done through ScraperResult
+                
         except Exception as e:
             logger.debug(f"Error monitoring logs: {e}")
         
-        time.sleep(1)  # Check every second
+        time.sleep(2)  # Check less frequently since primary errors come from ScraperResult
 
 def run_scraper() -> None:
     """Execute the scraper directly by importing and calling the scraper module."""
@@ -176,14 +164,48 @@ def run_scraper() -> None:
         
         # Import scraper module and call directly
         try:
-            from scraper import run_scraper_for_users
-            success = run_scraper_for_users(USERS_FILE, verbose=False)
+            from scraper import run_scraper_for_users, ScraperResult
+            result: ScraperResult = run_scraper_for_users(USERS_FILE, verbose=False)
             
-            if success:
+            # Process the result and add appropriate notifications
+            if result.success:
                 logger.info("Scraper completed successfully")
+                if result.users_processed < result.total_users:
+                    # Partial success - some users had errors
+                    app_state.add_notification(
+                        f"Scraper completed: {result.users_processed}/{result.total_users} users successful",
+                        'warning'
+                    )
+                else:
+                    # Complete success
+                    app_state.add_notification(
+                        f"All {result.users_processed} users processed successfully",
+                        'success'
+                    )
             else:
                 logger.error("Scraper failed - no users processed successfully")
-                app_state.add_notification("Scraper failed - no users processed successfully", 'error')
+                # Get detailed error information
+                error_summary = result.get_error_summary()
+                app_state.add_notification(error_summary, 'error')
+            
+            # Add individual user errors as separate notifications for visibility
+            for user_result in result.user_results:
+                if not user_result.success:
+                    if user_result.error_type == 'product_access':
+                        # Priority notification for product access errors
+                        app_state.add_notification(
+                            f"User '{user_result.username}': {user_result.error}",
+                            'error'
+                        )
+                    elif user_result.error_type == 'login':
+                        app_state.add_notification(
+                            f"User '{user_result.username}': Login failed - check credentials",
+                            'error'
+                        )
+            
+            # Add any warnings
+            for warning in result.warnings:
+                app_state.add_notification(warning, 'warning')
                 
         except ImportError as e:
             logger.error(f"Failed to import scraper module: {e}")

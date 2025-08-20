@@ -9,6 +9,7 @@ import time
 import logging
 import argparse
 import json
+from dataclasses import dataclass, field
 from typing import List, Dict, Any, Optional
 
 import pandas as pd
@@ -21,6 +22,57 @@ load_dotenv()
 class ProductNotAvailableError(Exception):
     """Exception raised when a product filter is not available for the user."""
     pass
+
+@dataclass
+class UserResult:
+    """Result of processing a single user."""
+    username: str
+    success: bool
+    error: Optional[str] = None
+    error_type: Optional[str] = None  # 'login', 'product_access', 'navigation', 'download', 'unexpected'
+    reports_downloaded: int = 0
+    reports_attempted: int = 0
+
+@dataclass
+class ScraperResult:
+    """Overall result of the scraper execution."""
+    success: bool
+    users_processed: int
+    total_users: int
+    user_results: List[UserResult] = field(default_factory=list)
+    warnings: List[str] = field(default_factory=list)
+    
+    def get_error_summary(self) -> str:
+        """Get a summary of all errors."""
+        if not self.user_results:
+            return "No users were processed"
+        
+        errors = [r for r in self.user_results if not r.success]
+        if not errors:
+            return f"All {self.users_processed} users processed successfully"
+        
+        # Group errors by type
+        error_groups = {}
+        for result in errors:
+            error_type = result.error_type or 'unknown'
+            if error_type not in error_groups:
+                error_groups[error_type] = []
+            error_groups[error_type].append(result)
+        
+        # Build summary
+        summaries = []
+        for error_type, results in error_groups.items():
+            if error_type == 'product_access':
+                for result in results:
+                    summaries.append(f"User '{result.username}': {result.error}")
+            elif error_type == 'login':
+                usernames = [r.username for r in results]
+                summaries.append(f"Login failed for: {', '.join(usernames)}")
+            else:
+                usernames = [r.username for r in results]
+                summaries.append(f"{error_type.replace('_', ' ').title()} error for: {', '.join(usernames)}")
+        
+        return " | ".join(summaries) if summaries else "Errors occurred during processing"
 
 # Constants
 REPORTS_DIR = 'reports'
@@ -383,7 +435,7 @@ def get_config() -> Dict[str, Any]:
     logger.info("Loaded scraper configuration")
     return config
 
-def login_and_download_reports_for_user(username: str, password: str) -> bool:
+def login_and_download_reports_for_user(username: str, password: str) -> UserResult:
     """Login and download reports for a specific user.
     
     Args:
@@ -391,7 +443,7 @@ def login_and_download_reports_for_user(username: str, password: str) -> bool:
         password: User's login password
         
     Returns:
-        True if process completed successfully, False otherwise
+        UserResult object with details about the processing
     """
     logger.info(f"Starting report download process for user: {username}")
     
@@ -446,12 +498,22 @@ def login_and_download_reports_for_user(username: str, password: str) -> bool:
                 # Perform login
                 if not login(page, username, password):
                     logger.error(f"Login failed for user: {username}")
-                    return False
+                    return UserResult(
+                        username=username,
+                        success=False,
+                        error="Failed to login - please check credentials",
+                        error_type="login"
+                    )
                     
                 # Navigate to reports section
                 if not navigate_to_reports(page):
                     logger.error(f"Failed to navigate to reports for user: {username}")
-                    return False
+                    return UserResult(
+                        username=username,
+                        success=False,
+                        error="Failed to navigate to reports section",
+                        error_type="navigation"
+                    )
                     
                 # Load configuration
                 config = get_config()
@@ -472,7 +534,16 @@ def login_and_download_reports_for_user(username: str, password: str) -> bool:
                         logger.warning(f"Failed to set products filter to '{selected_products_filter}' - continuing with default filter")
                 except ProductNotAvailableError as e:
                     logger.error(f"Product filter error for user {username}: {e}")
-                    return False  # Stop processing this user
+                    error_msg = str(e)
+                    # Extract just the essential part of the error message
+                    if "not found" in error_msg:
+                        error_msg = f"Product '{selected_products_filter}' not available - user may not have access to this product"
+                    return UserResult(
+                        username=username,
+                        success=False,
+                        error=error_msg,
+                        error_type="product_access"
+                    )
                 
                 # Process each tab
                 successful_downloads = 0
@@ -500,16 +571,37 @@ def login_and_download_reports_for_user(username: str, password: str) -> bool:
                         logger.error(f"Error processing {tab_name} report: {e}")
                         
                 logger.info(f"Completed report download for {username}: {successful_downloads}/{total_tabs} successful")
-                return successful_downloads > 0
+                
+                if successful_downloads == 0:
+                    return UserResult(
+                        username=username,
+                        success=False,
+                        error=f"No reports could be downloaded (0/{total_tabs} successful)",
+                        error_type="download",
+                        reports_downloaded=successful_downloads,
+                        reports_attempted=total_tabs
+                    )
+                
+                return UserResult(
+                    username=username,
+                    success=True,
+                    reports_downloaded=successful_downloads,
+                    reports_attempted=total_tabs
+                )
                 
             finally:
                 browser.close()
                 
     except Exception as e:
         logger.error(f"Unexpected error during report download for {username}: {e}")
-        return False
+        return UserResult(
+            username=username,
+            success=False,
+            error=f"Unexpected error: {str(e)}",
+            error_type="unexpected"
+        )
 
-def run_scraper_for_users(users_file: str = USERS_FILE, verbose: bool = False) -> bool:
+def run_scraper_for_users(users_file: str = USERS_FILE, verbose: bool = False) -> ScraperResult:
     """Run the scraper for all users in the users file.
     
     Args:
@@ -517,7 +609,7 @@ def run_scraper_for_users(users_file: str = USERS_FILE, verbose: bool = False) -
         verbose: Enable verbose logging
         
     Returns:
-        True if at least one user was processed successfully, False otherwise
+        ScraperResult object with details about the entire scraping operation
     """
     # Set logging level based on verbose flag
     if verbose:
@@ -530,33 +622,66 @@ def run_scraper_for_users(users_file: str = USERS_FILE, verbose: bool = False) -
     users = load_users(users_file)
     if not users:
         logger.error("No users found. Please check the users file.")
-        return False
+        return ScraperResult(
+            success=False,
+            users_processed=0,
+            total_users=0,
+            warnings=["No users found in configuration file"]
+        )
     
     logger.info(f"Found {len(users)} users to process")
     
+    # Initialize result object
+    result = ScraperResult(
+        success=False,
+        users_processed=0,
+        total_users=len(users),
+        user_results=[],
+        warnings=[]
+    )
+    
     # Process each user
-    successful_users = 0
     for i, user in enumerate(users, 1):
         username = user.get('username')
         password = user.get('password')
         
         if not username or not password:
             logger.error(f"User {i}: Missing username or password, skipping")
+            result.warnings.append(f"User {i}: Missing credentials, skipped")
             continue
             
         logger.info(f"Processing user {i}/{len(users)}: {username}")
         
         try:
-            if login_and_download_reports_for_user(username, password):
-                successful_users += 1
+            user_result = login_and_download_reports_for_user(username, password)
+            result.user_results.append(user_result)
+            
+            if user_result.success:
+                result.users_processed += 1
                 logger.info(f"Successfully processed user: {username}")
             else:
-                logger.error(f"Failed to process user: {username}")
+                logger.error(f"Failed to process user: {username} - {user_result.error}")
+                
         except Exception as e:
             logger.error(f"Unexpected error processing user {username}: {e}")
+            result.user_results.append(UserResult(
+                username=username,
+                success=False,
+                error=f"Unexpected error: {str(e)}",
+                error_type="unexpected"
+            ))
     
-    logger.info(f"Scraper completed: {successful_users}/{len(users)} users processed successfully")
-    return successful_users > 0
+    # Set overall success based on whether any users were processed successfully
+    result.success = result.users_processed > 0
+    
+    logger.info(f"Scraper completed: {result.users_processed}/{result.total_users} users processed successfully")
+    
+    # Log error summary if there were failures
+    if not result.success or result.users_processed < result.total_users:
+        error_summary = result.get_error_summary()
+        logger.info(f"Error summary: {error_summary}")
+    
+    return result
 
 def main() -> None:
     """Main function for command-line execution."""
@@ -586,10 +711,10 @@ def main() -> None:
     args = parser.parse_args()
     
     # Run the scraper
-    success = run_scraper_for_users(args.users, args.verbose)
+    result = run_scraper_for_users(args.users, args.verbose)
     
     # Exit with appropriate code
-    sys.exit(0 if success else 1)
+    sys.exit(0 if result.success else 1)
 
 if __name__ == '__main__':
     try:

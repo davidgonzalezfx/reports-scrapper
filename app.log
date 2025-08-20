@@ -1,84 +1,76 @@
-2025-08-19 10:07:47,827 - __main__ - INFO - Cleared app.log file
-2025-08-19 10:07:47,827 - __main__ - INFO - Starting Flask application
-2025-08-19 10:07:47,828 - __main__ - INFO - Server will be available at http://localhost:5000
-2025-08-19 10:07:47,828 - __main__ - INFO - Browser will open automatically in 1.5 seconds...
-2025-08-19 10:07:47,831 - waitress - INFO - Serving on http://0.0.0.0:5000
-2025-08-19 10:07:49,328 - __main__ - INFO - Opening browser to http://localhost:5000
-2025-08-19 10:07:49,566 - utils - WARNING - Reports directory not found: /Users/david.gonzalez01/Personal/reports-scrapper/dist/app/_internal/reports
-2025-08-19 10:07:49,567 - __main__ - INFO - Configuration loaded successfully
-2025-08-19 10:07:49,568 - __main__ - INFO - Loaded 1 users successfully
-2025-08-19 10:07:54,388 - __main__ - INFO - Starting new scrape job
-2025-08-19 10:07:54,388 - __main__ - INFO - Cleared all notifications
-2025-08-19 10:07:54,389 - __main__ - INFO - Starting scraper process
-2025-08-19 10:07:54,390 - __main__ - INFO - Loaded 1 users successfully
-2025-08-19 10:07:55,069 - scraper - INFO - Starting scraper execution
-2025-08-19 10:07:55,070 - scraper - INFO - Loaded 1 users from users.json
-2025-08-19 10:07:55,070 - scraper - INFO - Found 1 users to process
-2025-08-19 10:07:55,070 - scraper - INFO - Processing user 1/1: ycaicedo
-2025-08-19 10:07:55,070 - scraper - INFO - Starting report download process for user: ycaicedo
-2025-08-19 10:07:55,070 - scraper - INFO - Found playwright browsers at: /Users/david.gonzalez01/Personal/reports-scrapper/dist/app/_internal/playwright-browsers
-2025-08-19 10:07:55,070 - scraper - INFO - Set PLAYWRIGHT_BROWSERS_PATH to: /Users/david.gonzalez01/Personal/reports-scrapper/dist/app/_internal/playwright-browsers
-2025-08-19 10:08:01,117 - scraper - INFO - Attempting login for user: ycaicedo
-2025-08-19 10:08:08,493 - scraper - INFO - Login successful for user: ycaicedo
-2025-08-19 10:08:17,097 - scraper - INFO - Successfully navigated to reports section: https://www.kidsa-z.com/main/reports#!/student-usage
-2025-08-19 10:08:20,102 - scraper - INFO - Loaded scraper configuration
-2025-08-19 10:08:20,102 - scraper - INFO - Using date filter: Today
-2025-08-19 10:08:20,102 - scraper - INFO - Using products filter: Español
-2025-08-19 10:08:21,267 - scraper - INFO - Selected date filter: Today
-2025-08-19 10:08:24,351 - scraper - ERROR - Products filter option 'Español' not found - user may not have access to this product
-2025-08-19 10:08:24,351 - scraper - ERROR - Product filter error for user ycaicedo: Products filter option 'Español' not found - user may not have access to this product
-2025-08-19 10:08:24,419 - scraper - ERROR - Failed to process user: ycaicedo
-2025-08-19 10:08:24,419 - scraper - INFO - Scraper completed: 0/1 users processed successfully
-2025-08-19 10:08:24,419 - __main__ - ERROR - Scraper failed - no users processed successfully
-2025-08-19 10:08:24,419 - __main__ - INFO - Added notification: error - Scraper failed - no users processed successfully
-2025-08-19 10:08:24,419 - __main__ - INFO - Scraper process finished
-2025-08-19 10:08:25,891 - utils - WARNING - Reports directory not found: /Users/david.gonzalez01/Personal/reports-scrapper/dist/app/_internal/reports
-2025-08-19 10:08:25,892 - __main__ - INFO - Configuration loaded successfully
-2025-08-19 10:08:25,893 - __main__ - INFO - Loaded 1 users successfully
-2025-08-19 10:08:40,642 - utils - WARNING - Reports directory not found: /Users/david.gonzalez01/Personal/reports-scrapper/dist/app/_internal/reports
-2025-08-19 10:08:40,643 - __main__ - INFO - Configuration loaded successfully
-2025-08-19 10:08:40,644 - __main__ - INFO - Loaded 1 users successfully
-2025-08-19 10:09:24,081 - __main__ - INFO - Configuration loaded successfully
-2025-08-19 10:09:24,084 - __main__ - INFO - Configuration saved successfully
-2025-08-19 10:09:24,084 - __main__ - INFO - Filter configuration updated: date=Today, products=All, tabs: ['Student Usage']
-2025-08-19 10:09:24,091 - utils - WARNING - Reports directory not found: /Users/david.gonzalez01/Personal/reports-scrapper/dist/app/_internal/reports
-2025-08-19 10:09:24,094 - __main__ - INFO - Configuration loaded successfully
-2025-08-19 10:09:24,094 - __main__ - INFO - Loaded 1 users successfully
-2025-08-19 10:09:29,073 - __main__ - INFO - Starting new scrape job
-2025-08-19 10:09:29,073 - __main__ - INFO - Cleared all notifications
-2025-08-19 10:09:29,074 - __main__ - INFO - Starting scraper process
-2025-08-19 10:09:29,075 - __main__ - INFO - Loaded 1 users successfully
-2025-08-19 10:09:29,075 - __main__ - INFO - Added notification: error - Products filter option 'Español' not found - user may not have access to this product
-2025-08-19 10:09:29,075 - scraper - INFO - Starting scraper execution
-2025-08-19 10:09:29,075 - __main__ - INFO - Added notification: error - Product filter error for user ycaicedo: Products filter option 'Español' not found - user may not have access to this product
-2025-08-19 10:09:29,076 - scraper - INFO - Loaded 1 users from users.json
-2025-08-19 10:09:29,076 - scraper - INFO - Found 1 users to process
-2025-08-19 10:09:29,076 - scraper - INFO - Processing user 1/1: ycaicedo
-2025-08-19 10:09:29,076 - scraper - INFO - Starting report download process for user: ycaicedo
-2025-08-19 10:09:29,077 - scraper - INFO - Found playwright browsers at: /Users/david.gonzalez01/Personal/reports-scrapper/dist/app/_internal/playwright-browsers
-2025-08-19 10:09:29,077 - scraper - INFO - Set PLAYWRIGHT_BROWSERS_PATH to: /Users/david.gonzalez01/Personal/reports-scrapper/dist/app/_internal/playwright-browsers
-2025-08-19 10:09:29,868 - scraper - INFO - Attempting login for user: ycaicedo
-2025-08-19 10:09:37,069 - scraper - INFO - Login successful for user: ycaicedo
-2025-08-19 10:09:43,724 - scraper - INFO - Successfully navigated to reports section: https://www.kidsa-z.com/main/reports#!/student-usage
-2025-08-19 10:09:46,729 - scraper - INFO - Loaded scraper configuration
-2025-08-19 10:09:46,730 - scraper - INFO - Using date filter: Today
-2025-08-19 10:09:46,730 - scraper - INFO - Using products filter: All
-2025-08-19 10:09:47,918 - scraper - INFO - Selected date filter: Today
-2025-08-19 10:09:51,349 - scraper - INFO - Selected products filter: All
-2025-08-19 10:09:53,353 - scraper - INFO - Processing Student Usage report
-2025-08-19 10:09:55,431 - scraper - INFO - Successfully switched to tab: Student Usage
-2025-08-19 10:09:56,737 - scraper - INFO - Downloaded CSV report: ycaicedo_Student Usage_All_2025-08-19_2025-08-19.csv
-2025-08-19 10:09:59,783 - utils - INFO - Successfully converted to XLSX: ycaicedo_Student Usage_All_2025-08-19_2025-08-19.xlsx
-2025-08-19 10:09:59,784 - scraper - INFO - Successfully downloaded Student Usage report
-2025-08-19 10:09:59,784 - scraper - INFO - Skipping Skill report (not selected)
-2025-08-19 10:09:59,784 - scraper - INFO - Skipping Assignment report (not selected)
-2025-08-19 10:09:59,784 - scraper - INFO - Skipping Assessment report (not selected)
-2025-08-19 10:09:59,784 - scraper - INFO - Skipping Level Up Progress report (not selected)
-2025-08-19 10:09:59,785 - scraper - INFO - Completed report download for ycaicedo: 1/1 successful
-2025-08-19 10:09:59,960 - scraper - INFO - Successfully processed user: ycaicedo
-2025-08-19 10:09:59,960 - scraper - INFO - Scraper completed: 1/1 users processed successfully
-2025-08-19 10:09:59,961 - __main__ - INFO - Scraper completed successfully
-2025-08-19 10:09:59,961 - __main__ - INFO - Scraper process finished
-2025-08-19 10:10:01,476 - __main__ - INFO - Configuration loaded successfully
-2025-08-19 10:10:01,478 - __main__ - INFO - Loaded 1 users successfully
-2025-08-19 10:10:36,194 - __main__ - INFO - Cleared all notifications
+2025-08-19 21:05:09,725 - __main__ - INFO - Cleared app.log file
+2025-08-19 21:05:09,726 - __main__ - INFO - Starting Flask application
+2025-08-19 21:05:09,726 - __main__ - INFO - Server will be available at http://localhost:5000
+2025-08-19 21:05:09,726 - __main__ - INFO - Browser will open automatically in 1.5 seconds...
+2025-08-19 21:05:09,730 - waitress - INFO - Serving on http://0.0.0.0:5000
+2025-08-19 21:05:11,227 - __main__ - INFO - Opening browser to http://localhost:5000
+2025-08-19 21:05:11,458 - __main__ - INFO - Configuration loaded successfully
+2025-08-19 21:05:11,460 - __main__ - INFO - Loaded 1 users successfully
+2025-08-19 21:05:18,531 - __main__ - INFO - Starting new scrape job
+2025-08-19 21:05:18,531 - __main__ - INFO - Cleared all notifications
+2025-08-19 21:05:18,532 - __main__ - INFO - Starting scraper process
+2025-08-19 21:05:18,533 - __main__ - INFO - Loaded 1 users successfully
+2025-08-19 21:05:18,686 - scraper - INFO - Starting scraper execution
+2025-08-19 21:05:18,687 - scraper - INFO - Loaded 1 users from users.json
+2025-08-19 21:05:18,687 - scraper - INFO - Found 1 users to process
+2025-08-19 21:05:18,687 - scraper - INFO - Processing user 1/1: ycaicedo
+2025-08-19 21:05:18,687 - scraper - INFO - Starting report download process for user: ycaicedo
+2025-08-19 21:05:18,687 - scraper - INFO - Set PLAYWRIGHT_BROWSERS_PATH to: /Users/david.gonzalez01/Personal/reports-scrapper/playwright-browsers
+2025-08-19 21:05:19,988 - scraper - INFO - Attempting login for user: ycaicedo
+2025-08-19 21:05:27,288 - scraper - INFO - Login successful for user: ycaicedo
+2025-08-19 21:05:33,313 - scraper - INFO - Successfully navigated to reports section: https://www.kidsa-z.com/main/reports#!/student-usage
+2025-08-19 21:05:36,314 - scraper - INFO - Loaded scraper configuration
+2025-08-19 21:05:36,315 - scraper - INFO - Using date filter: Today
+2025-08-19 21:05:36,315 - scraper - INFO - Using products filter: Español
+2025-08-19 21:05:37,483 - scraper - INFO - Selected date filter: Today
+2025-08-19 21:05:40,575 - scraper - ERROR - Products filter option 'Español' not found - user may not have access to this product
+2025-08-19 21:05:40,576 - scraper - ERROR - Product filter error for user ycaicedo: Products filter option 'Español' not found - user may not have access to this product
+2025-08-19 21:05:40,650 - scraper - ERROR - Failed to process user: ycaicedo - Product 'Español' not available - user may not have access to this product
+2025-08-19 21:05:40,650 - scraper - INFO - Scraper completed: 0/1 users processed successfully
+2025-08-19 21:05:40,651 - scraper - INFO - Error summary: User 'ycaicedo': Product 'Español' not available - user may not have access to this product
+2025-08-19 21:05:40,651 - __main__ - ERROR - Scraper failed - no users processed successfully
+2025-08-19 21:05:40,651 - __main__ - INFO - Added notification: error - User 'ycaicedo': Product 'Español' not available - user may not have access to this product
+2025-08-19 21:05:40,651 - __main__ - INFO - Added notification: error - User 'ycaicedo': Product 'Español' not available - user may not have access to this product
+2025-08-19 21:05:40,651 - __main__ - INFO - Scraper process finished
+2025-08-19 21:05:41,709 - __main__ - INFO - Configuration loaded successfully
+2025-08-19 21:05:41,711 - __main__ - INFO - Loaded 1 users successfully
+2025-08-19 21:07:00,462 - __main__ - INFO - Configuration loaded successfully
+2025-08-19 21:07:00,464 - __main__ - INFO - Configuration saved successfully
+2025-08-19 21:07:00,464 - __main__ - INFO - Filter configuration updated: date=Today, products=All, tabs: ['Student Usage']
+2025-08-19 21:07:00,477 - __main__ - INFO - Configuration loaded successfully
+2025-08-19 21:07:00,477 - __main__ - INFO - Loaded 1 users successfully
+2025-08-19 21:07:03,729 - __main__ - INFO - Starting new scrape job
+2025-08-19 21:07:03,729 - __main__ - INFO - Cleared all notifications
+2025-08-19 21:07:03,730 - __main__ - INFO - Starting scraper process
+2025-08-19 21:07:03,731 - __main__ - INFO - Loaded 1 users successfully
+2025-08-19 21:07:03,731 - scraper - INFO - Starting scraper execution
+2025-08-19 21:07:03,732 - scraper - INFO - Loaded 1 users from users.json
+2025-08-19 21:07:03,732 - scraper - INFO - Found 1 users to process
+2025-08-19 21:07:03,732 - scraper - INFO - Processing user 1/1: ycaicedo
+2025-08-19 21:07:03,732 - scraper - INFO - Starting report download process for user: ycaicedo
+2025-08-19 21:07:03,732 - scraper - INFO - Set PLAYWRIGHT_BROWSERS_PATH to: /Users/david.gonzalez01/Personal/reports-scrapper/playwright-browsers
+2025-08-19 21:07:04,498 - scraper - INFO - Attempting login for user: ycaicedo
+2025-08-19 21:07:11,201 - scraper - INFO - Login successful for user: ycaicedo
+2025-08-19 21:07:17,101 - scraper - INFO - Successfully navigated to reports section: https://www.kidsa-z.com/main/reports#!/student-usage
+2025-08-19 21:07:20,104 - scraper - INFO - Loaded scraper configuration
+2025-08-19 21:07:20,104 - scraper - INFO - Using date filter: Today
+2025-08-19 21:07:20,104 - scraper - INFO - Using products filter: All
+2025-08-19 21:07:21,278 - scraper - INFO - Selected date filter: Today
+2025-08-19 21:07:24,720 - scraper - INFO - Selected products filter: All
+2025-08-19 21:07:26,723 - scraper - INFO - Processing Student Usage report
+2025-08-19 21:07:28,835 - scraper - INFO - Successfully switched to tab: Student Usage
+2025-08-19 21:07:30,104 - scraper - INFO - Downloaded CSV report: ycaicedo_Student Usage_All_2025-08-19_2025-08-19.csv
+2025-08-19 21:07:30,353 - utils - INFO - Successfully converted to XLSX: ycaicedo_Student Usage_All_2025-08-19_2025-08-19.xlsx
+2025-08-19 21:07:30,353 - scraper - INFO - Successfully downloaded Student Usage report
+2025-08-19 21:07:30,353 - scraper - INFO - Skipping Skill report (not selected)
+2025-08-19 21:07:30,353 - scraper - INFO - Skipping Assignment report (not selected)
+2025-08-19 21:07:30,353 - scraper - INFO - Skipping Assessment report (not selected)
+2025-08-19 21:07:30,353 - scraper - INFO - Skipping Level Up Progress report (not selected)
+2025-08-19 21:07:30,354 - scraper - INFO - Completed report download for ycaicedo: 1/1 successful
+2025-08-19 21:07:30,413 - scraper - INFO - Successfully processed user: ycaicedo
+2025-08-19 21:07:30,414 - scraper - INFO - Scraper completed: 1/1 users processed successfully
+2025-08-19 21:07:30,414 - __main__ - INFO - Scraper completed successfully
+2025-08-19 21:07:30,414 - __main__ - INFO - Added notification: success - All 1 users processed successfully
+2025-08-19 21:07:30,414 - __main__ - INFO - Scraper process finished
+2025-08-19 21:07:31,924 - __main__ - INFO - Configuration loaded successfully
+2025-08-19 21:07:31,925 - __main__ - INFO - Loaded 1 users successfully
