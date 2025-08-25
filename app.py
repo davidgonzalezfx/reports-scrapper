@@ -262,6 +262,9 @@ def index():
         REPORTS_DIR_TMP = os.path.join(base_path, 'reports')  # Adjust based on how reports are bundled
         raw_files = get_report_files(REPORTS_DIR_TMP)
         
+        # Filter out combined reports from the main file list
+        raw_files = [f for f in raw_files if not f.startswith('Combined')]
+        
         # Parse file information for better display
         files_with_info = [parse_file_info(f) for f in raw_files]
         
@@ -272,6 +275,26 @@ def index():
             if user not in files_by_user:
                 files_by_user[user] = []
             files_by_user[user].append(file_info)
+        
+        # Check for combined Student Usage report
+        combined_report_info = None
+        try:
+            combined_files = sorted(
+                [f for f in os.listdir(REPORTS_DIR_TMP) if f.startswith('Combined_Student_Usage_')],
+                reverse=True
+            )
+            if combined_files:
+                latest_combined = combined_files[0]
+                file_path = os.path.join(REPORTS_DIR_TMP, latest_combined)
+                if os.path.exists(file_path):
+                    file_stats = os.stat(file_path)
+                    combined_report_info = {
+                        'filename': latest_combined,
+                        'size': file_stats.st_size,
+                        'modified': datetime.fromtimestamp(file_stats.st_mtime)
+                    }
+        except Exception as e:
+            logger.debug(f"Error checking for combined report: {e}")
         
         config = load_config()
         selected_date_filter = config.get('date_filter', DATE_FILTERS[0])
@@ -284,6 +307,7 @@ def index():
             files=raw_files,  # Keep for backward compatibility
             files_with_info=files_with_info,
             files_by_user=files_by_user,
+            combined_report=combined_report_info,
             download_in_progress=app_state.get_download_status(),
             date_filters=DATE_FILTERS,
             selected_date_filter=selected_date_filter,
@@ -410,6 +434,80 @@ def download_all_zip():
     except Exception as e:
         logger.error(f"Error creating zip download: {e}")
         return jsonify({'error': 'Failed to create zip file'}), 500
+
+@app.route('/download-combined-student-usage')
+def download_combined_student_usage():
+    """Download the most recent combined Student Usage report."""
+    try:
+        if getattr(sys, 'frozen', False):  # If running as a frozen executable
+            base_path = sys._MEIPASS
+        else:
+            base_path = os.path.abspath('.')
+        REPORTS_DIR_TMP = os.path.join(base_path, 'reports')
+        
+        # Find the most recent combined Student Usage file
+        combined_files = sorted(
+            [f for f in os.listdir(REPORTS_DIR_TMP) if f.startswith('Combined_Student_Usage_')],
+            reverse=True
+        )
+        
+        if not combined_files:
+            logger.info("No combined Student Usage report available")
+            return jsonify({'error': 'No combined Student Usage report available'}), 404
+        
+        # Get the most recent file
+        latest_combined = combined_files[0]
+        
+        # Security check: ensure filename doesn't contain path traversal
+        if not validate_filename(latest_combined):
+            logger.warning(f"Potentially malicious filename: {latest_combined}")
+            return jsonify({'error': 'Invalid filename'}), 400
+        
+        file_path = os.path.join(REPORTS_DIR_TMP, latest_combined)
+        if not os.path.exists(file_path):
+            logger.warning(f"Combined file not found: {latest_combined}")
+            return jsonify({'error': 'File not found'}), 404
+        
+        logger.info(f"Downloading combined Student Usage report: {latest_combined}")
+        return send_from_directory(REPORTS_DIR_TMP, latest_combined, as_attachment=True)
+        
+    except Exception as e:
+        logger.error(f"Error downloading combined Student Usage report: {e}")
+        return jsonify({'error': 'Download failed'}), 500
+
+@app.route('/get-combined-student-usage-status')
+def get_combined_student_usage_status():
+    """Check if a combined Student Usage report exists."""
+    try:
+        if getattr(sys, 'frozen', False):
+            base_path = sys._MEIPASS
+        else:
+            base_path = os.path.abspath('.')
+        REPORTS_DIR_TMP = os.path.join(base_path, 'reports')
+        
+        # Find combined Student Usage files
+        combined_files = sorted(
+            [f for f in os.listdir(REPORTS_DIR_TMP) if f.startswith('Combined_Student_Usage_')],
+            reverse=True
+        )
+        
+        if combined_files:
+            latest_file = combined_files[0]
+            file_path = os.path.join(REPORTS_DIR_TMP, latest_file)
+            file_stats = os.stat(file_path)
+            
+            return jsonify({
+                'exists': True,
+                'filename': latest_file,
+                'size': file_stats.st_size,
+                'modified': datetime.fromtimestamp(file_stats.st_mtime).isoformat()
+            })
+        else:
+            return jsonify({'exists': False})
+            
+    except Exception as e:
+        logger.error(f"Error checking combined report status: {e}")
+        return jsonify({'exists': False, 'error': str(e)})
 
 @app.route('/scrape', methods=['POST'])
 def scrape():
