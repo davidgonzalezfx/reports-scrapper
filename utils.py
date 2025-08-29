@@ -232,25 +232,39 @@ def combine_student_usage_reports_with_results(directory: Union[str, Path]) -> O
     """Combine all Student Usage reports into a single multi-sheet XLSX file with results summary.
     
     Args:
-        directory: Path to the reports directory
+        directory: Path to the reports directory (can be relative or absolute)
         
     Returns:
         Path to the combined file if successful, None otherwise
     """
     import sys
+    import os
     from openpyxl import Workbook
     from openpyxl.utils.dataframe import dataframe_to_rows
     from openpyxl.styles import Font, Alignment, PatternFill
     
-    directory = Path(directory)
+    # Handle both relative and absolute paths, with PyInstaller compatibility
+    if os.path.isabs(str(directory)):
+        # If absolute path, use as-is
+        reports_directory = Path(directory)
+    else:
+        # For relative paths, resolve against the correct base directory
+        if getattr(sys, 'frozen', False):
+            # Running as PyInstaller executable
+            base_path = sys._MEIPASS
+        else:
+            # Running in development
+            base_path = os.path.abspath('.')
+        
+        reports_directory = Path(base_path) / directory
     
-    if not directory.exists():
-        logger.warning(f"Reports directory not found: {directory}")
+    if not reports_directory.exists():
+        logger.warning(f"Reports directory not found: {reports_directory}")
         return None
     
     try:
         # Find all Student Usage report files
-        student_usage_files = list(directory.glob('*_Student Usage*.xlsx'))
+        student_usage_files = list(reports_directory.glob('*_Student Usage*.xlsx'))
         
         if not student_usage_files:
             logger.info("No Student Usage reports found to combine")
@@ -434,24 +448,38 @@ def combine_student_usage_reports(directory: Union[str, Path]) -> Optional[str]:
     """Combine all Student Usage reports into a single multi-sheet XLSX file.
     
     Args:
-        directory: Path to the reports directory
+        directory: Path to the reports directory (can be relative or absolute)
         
     Returns:
         Path to the combined file if successful, None otherwise
     """
     import sys
+    import os
     from openpyxl import Workbook
     from openpyxl.utils.dataframe import dataframe_to_rows
     
-    directory = Path(directory)
+    # Handle both relative and absolute paths, with PyInstaller compatibility
+    if os.path.isabs(str(directory)):
+        # If absolute path, use as-is
+        reports_directory = Path(directory)
+    else:
+        # For relative paths, resolve against the correct base directory
+        if getattr(sys, 'frozen', False):
+            # Running as PyInstaller executable
+            base_path = sys._MEIPASS
+        else:
+            # Running in development
+            base_path = os.path.abspath('.')
+        
+        reports_directory = Path(base_path) / directory
     
-    if not directory.exists():
-        logger.warning(f"Reports directory not found: {directory}")
+    if not reports_directory.exists():
+        logger.warning(f"Reports directory not found: {reports_directory}")
         return None
     
     try:
         # Find all Student Usage report files
-        student_usage_files = list(directory.glob('*_Student Usage*.xlsx'))
+        student_usage_files = list(reports_directory.glob('*_Student Usage*.xlsx'))
         
         if not student_usage_files:
             logger.info("No Student Usage reports found to combine")
