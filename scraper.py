@@ -681,20 +681,20 @@ def run_scraper_for_users(users_file: str = USERS_FILE, verbose: bool = False) -
 				error_summary = result.get_error_summary()
 				logger.info(f"Error summary: {error_summary}")
 		
-		# Combine Student Usage reports with results summary if scraping was successful
+		# Combine all reports by type if scraping was successful
 		if result.success:
-				logger.info("Attempting to combine Student Usage reports with results summary...")
+				logger.info("Attempting to combine all reports by type...")
 				try:
-						from utils import combine_student_usage_reports_with_results
-						combined_file = combine_student_usage_reports_with_results(REPORTS_DIR)
+						from utils import combine_all_reports
+						combined_file = combine_all_reports(REPORTS_DIR)
 						if combined_file:
-								logger.info(f"Successfully created combined Student Usage report with results: {combined_file}")
-								result.warnings.append(f"Combined Student Usage reports with results saved to: {os.path.basename(combined_file)}")
+								logger.info(f"Successfully created combined all reports file: {combined_file}")
+								result.warnings.append(f"Combined all reports saved to: {os.path.basename(combined_file)}")
 						else:
-								logger.info("No Student Usage reports to combine or combination failed")
+								logger.info("No reports to combine or combination failed")
 				except Exception as e:
-						logger.error(f"Error combining Student Usage reports: {e}")
-						result.warnings.append(f"Failed to combine Student Usage reports: {str(e)}")
+						logger.error(f"Error combining reports: {e}")
+						result.warnings.append(f"Failed to combine reports: {str(e)}")
 		
 		return result
 

@@ -3,7 +3,7 @@
   "tabs": {
     "Student Usage": true,
     "Skill": false,
-    "Assignment": false,
+    "Assignment": true,
     "Assessment": false,
     "Level Up Progress": false
   },
