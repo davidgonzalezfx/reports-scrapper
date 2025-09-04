@@ -118,6 +118,7 @@ def combine_all_reports(directory: Union[str, Path]) -> Optional[str]:
 		from openpyxl import Workbook
 		from openpyxl.utils.dataframe import dataframe_to_rows
 		from openpyxl.styles import PatternFill, Font, Alignment
+		from openpyxl.formatting.rule import DataBarRule
 		
 		# Handle both relative and absolute paths, with PyInstaller compatibility
 		if os.path.isabs(str(directory)):
@@ -339,6 +340,36 @@ def combine_all_reports(directory: Union[str, Path]) -> Optional[str]:
 												except Exception as format_error:
 														logger.debug(f"Error adjusting column widths for {report_type}: {format_error}")
 														# Continue without column adjustment
+												
+												# Add visual data bars for Skill sheet column D
+												if report_type == "Skill":
+														try:
+																# Find the range for column D with data (excluding header)
+																if ws.max_row > 1:  # Check if we have data rows beyond header
+																		# Column D is the 4th column
+																		data_start_row = 2  # Start from row 2 (after header)
+																		data_end_row = ws.max_row
+																		
+																		# Create range string for column D data
+																		data_range = f"D{data_start_row}:D{data_end_row}"
+																		
+																		# Create data bar rule with blue color and custom settings
+																		data_bar_rule = DataBarRule(
+																				start_type='num', start_value=0,
+																				end_type='num', end_value=100,
+																				color="4472C4",  # Blue color matching Excel's default
+																				showValue=True,   # Show the actual values
+																				minLength=0,      # Minimum bar length
+																				maxLength=100     # Maximum bar length
+																		)
+																		
+																		# Apply the data bar rule to column D
+																		ws.conditional_formatting.add(data_range, data_bar_rule)
+																		
+																		logger.debug(f"Added data bars to Skill sheet column D for range {data_range}")
+														except Exception as bar_error:
+																logger.debug(f"Error adding data bars to Skill sheet: {bar_error}")
+																# Continue without data bars rather than failing
 												
 												successful_sheets += 1
 												logger.debug(f"Successfully added sheet for {report_type}")
