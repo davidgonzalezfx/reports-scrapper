@@ -117,6 +117,7 @@ def combine_all_reports(directory: Union[str, Path]) -> Optional[str]:
 		import os
 		from openpyxl import Workbook
 		from openpyxl.utils.dataframe import dataframe_to_rows
+		from openpyxl.styles import PatternFill, Font, Alignment
 		
 		# Handle both relative and absolute paths, with PyInstaller compatibility
 		if os.path.isabs(str(directory)):
@@ -166,6 +167,11 @@ def combine_all_reports(directory: Union[str, Path]) -> Optional[str]:
 				# Remove the default sheet
 				combined_wb.remove(combined_wb.active)
 				
+				# Define styling for headers
+				header_fill = PatternFill(start_color="D4E6F1", end_color="D4E6F1", fill_type="solid")
+				header_font = Font(bold=True, color="000000")
+				header_alignment = Alignment(horizontal="center", vertical="center")
+				
 				# Process each report type
 				successful_sheets = 0
 				
@@ -193,6 +199,7 @@ def combine_all_reports(directory: Union[str, Path]) -> Optional[str]:
 								# Process all files of this type and combine their data
 								all_data = []
 								headers_written = False
+								header_row_num = None
 								
 								for file_path in sorted(files):
 										try:
@@ -212,17 +219,11 @@ def combine_all_reports(directory: Union[str, Path]) -> Optional[str]:
 														logger.warning(f"Excel file {file_path} contains no data, skipping")
 														continue
 												
-												# Add a separator row with username if this isn't the first file
-												if all_data:
-														# Add separator row with username from filename
-														username = file_path.stem.split('_')[0]
-														separator_row = [f"--- {username} ---"] + [''] * (len(df.columns) - 1)
-														all_data.append(separator_row)
-												
 												# Write headers only once
 												if not headers_written:
 														# Write column headers
 														ws.append(list(df.columns))
+														header_row_num = ws.max_row
 														headers_written = True
 												
 												# Write the data rows
@@ -241,25 +242,28 @@ def combine_all_reports(directory: Union[str, Path]) -> Optional[str]:
 												for row_data in all_data:
 														ws.append(row_data)
 												
-												# Add summary rows for Student Usage sheet only
+												# Apply header styling
+												if header_row_num:
+														try:
+																for cell in ws[header_row_num]:
+																		cell.fill = header_fill
+																		cell.font = header_font
+																		cell.alignment = header_alignment
+														except Exception as style_error:
+																logger.debug(f"Error applying header styling: {style_error}")
+												
+												# Add totals row for Student Usage sheet only - placed directly below data
 												if report_type == "Student Usage":
 														try:
-																# Calculate totals (excluding separator rows)
-																total_students = 0
+																# Calculate totals from the actual data
+																total_students = len(all_data)  # Count all data rows
+																total_teachers = len(files)  # Count unique teachers/users (one file per teacher)
 																total_listens = 0
 																total_reads = 0
-																total_quiz = 0
+																total_quizzes = 0
 																
-																# Process each data row (skip separator rows)
-																for i, row_data in enumerate(all_data):
-																		# Skip separator rows (they start with "---")
-																		if isinstance(row_data[0], str) and row_data[0].startswith("---"):
-																				continue
-																		
-																		# Count students (first column)
-																		if len(row_data) > 0 and pd.notna(row_data[0]) and row_data[0] != '':
-																				total_students += 1
-																		
+																# Process each data row
+																for row_data in all_data:
 																		# Sum listens (6th column, index 5)
 																		if len(row_data) > 5 and pd.notna(row_data[5]):
 																				try:
@@ -274,37 +278,58 @@ def combine_all_reports(directory: Union[str, Path]) -> Optional[str]:
 																				except (ValueError, TypeError):
 																						pass
 																		
-																		# Sum quiz (8th column, index 7)
+																		# Sum quizzes (8th column, index 7)
 																		if len(row_data) > 7 and pd.notna(row_data[7]):
 																				try:
-																						total_quiz += float(row_data[7])
+																						total_quizzes += float(row_data[7])
 																				except (ValueError, TypeError):
 																						pass
 																
-																# Calculate grand total
-																grand_total = total_listens + total_reads + total_quiz
+																# Calculate total activities
+																total_activities = total_listens + total_reads + total_quizzes
+																
+																# Get the number of columns to create proper rows
+																num_cols = len(df.columns) if 'df' in locals() else 8
 																
 																# Add empty row for spacing
-																ws.append([])
+																ws.append([''] * num_cols)
 																
-																# Add summary rows
+																# Create summary rows in columns A and B
 																summary_rows = [
-																		["SUMMARY", "", "", "", "", "", "", ""],
-																		["Total Students", total_students, "", "", "", "", "", ""],
-																		["Total Listens", "", "", "", "", total_listens, "", ""],
-																		["Total Reads", "", "", "", "", "", total_reads, ""],
-																		["Total Quiz", "", "", "", "", "", "", total_quiz],
-																		["GRAND TOTAL", "", "", "", "", grand_total, "", ""]
+																		['Total Teachers', total_teachers],
+																		['Total Students', total_students],
+																		['Total Listens', int(total_listens)],
+																		['Total Reads', int(total_reads)],
+																		['Total Quizzes', int(total_quizzes)],
+																		['Total', int(total_activities)]
 																]
 																
-																for summary_row in summary_rows:
-																		ws.append(summary_row)
+																# Add each summary row with empty cells for other columns
+																for label, value in summary_rows:
+																		row = [''] * num_cols
+																		row[0] = label  # Column A
+																		row[1] = value  # Column B
+																		ws.append(row)
+																		
+																		# Apply styling to the summary row
+																		row_num = ws.max_row
+																		try:
+																				# Style only columns A and B
+																				ws[f'A{row_num}'].fill = header_fill
+																				ws[f'A{row_num}'].font = header_font
+																				ws[f'A{row_num}'].alignment = Alignment(horizontal="left", vertical="center")
+																				
+																				ws[f'B{row_num}'].fill = header_fill
+																				ws[f'B{row_num}'].font = header_font
+																				ws[f'B{row_num}'].alignment = Alignment(horizontal="right", vertical="center")
+																		except Exception as style_error:
+																				logger.debug(f"Error applying summary row styling: {style_error}")
 																
-																logger.debug(f"Added summary rows to Student Usage sheet: Students={total_students}, Listens={total_listens}, Reads={total_reads}, Quiz={total_quiz}, Total={grand_total}")
+																logger.debug(f"Added totals row to Student Usage sheet: Students={total_students}, Teachers={total_teachers}, Listens={total_listens}, Reads={total_reads}, Quizzes={total_quizzes}")
 																
-														except Exception as summary_error:
-																logger.debug(f"Error adding summary rows to Student Usage sheet: {summary_error}")
-																# Continue without summary rows rather than failing
+														except Exception as totals_error:
+																logger.debug(f"Error adding totals row to Student Usage sheet: {totals_error}")
+																# Continue without totals rather than failing
 												
 												# Auto-adjust column widths with error handling
 												try:
