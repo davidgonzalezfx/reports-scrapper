@@ -16,3 +16,6 @@ env/
 # Configuration files with sensitive data
 ui.json
 users.json
+
+# docx files
+*.docx

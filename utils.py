@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Dict, List, Any, Optional, Union
 import pandas as pd
 import logging
+from docx import Document
 
 logger = logging.getLogger(__name__)
 
@@ -104,6 +105,53 @@ def get_report_files(directory: Union[str, Path]) -> List[str]:
 				logger.error(f"Error reading reports directory: {e}")
 				return []
 
+def update_docx_template(template_path: Union[str, Path], data: Dict[str, Any]):
+    """Update a .docx template by replacing placeholders with data.
+
+    Args:
+        template_path: Path to the .docx template file.
+        data: Dictionary with placeholder names as keys and their values.
+    """
+    try:
+        template_path = Path(template_path)
+        if not template_path.exists():
+            logger.error(f"DOCX template not found: {template_path}")
+            return
+
+        doc = Document(template_path)
+
+        # Replace in paragraphs
+        for p in doc.paragraphs:
+          for key, value in data.items():
+            placeholder = f"{{{{{key}}}}}"
+            # Check if the placeholder exists in the paragraph text (including spaces)
+            if placeholder in p.text:
+              # Log placeholder information
+              inline = p.runs
+              # Join the runs into a single string to handle the case where the placeholder
+              # may be split across multiple runs.
+              full_text = ''.join(run.text for run in inline)
+
+              if placeholder in full_text:
+                # Now replace the placeholder in the full text (this will handle cases 
+                # where the placeholder is split across multiple runs).
+                new_full_text = full_text.replace(placeholder, str(value))
+
+                # Rebuild the runs from the modified full text
+                start = 0
+                for run in inline:
+                  end = start + len(run.text)
+                  run.text = new_full_text[start:end]
+                  start = end
+
+                logger.debug(f"Replaced {placeholder} with {value} in paragraph")
+
+        doc.save(template_path)
+        logger.info(f"Successfully updated DOCX template: {template_path.name}")
+
+    except Exception as e:
+        logger.error(f"Failed to update DOCX template: {e}")
+
 def combine_all_reports(directory: Union[str, Path]) -> Optional[str]:
 		"""Combine all reports by type into a single multi-sheet XLSX file.
 		
@@ -120,6 +168,8 @@ def combine_all_reports(directory: Union[str, Path]) -> Optional[str]:
 		from openpyxl.styles import PatternFill, Font, Alignment
 		from openpyxl.formatting.rule import DataBarRule
 		
+		summary_data = None
+
 		# Handle both relative and absolute paths, with PyInstaller compatibility
 		if os.path.isabs(str(directory)):
 				# If absolute path, use as-is
@@ -289,6 +339,15 @@ def combine_all_reports(directory: Union[str, Path]) -> Optional[str]:
 																# Calculate total activities
 																total_activities = total_listens + total_reads + total_quizzes
 																
+																summary_data = {
+																		"all_teachers": total_teachers,
+																		"all_students": total_students,
+																		"total_listen": int(total_listens),
+																		"total_read": int(total_reads),
+																		"total_quizzes": int(total_quizzes),
+																		"total_activities": int(total_activities),
+																}
+
 																# Get the number of columns to create proper rows
 																num_cols = len(df.columns) if 'df' in locals() else 8
 																
@@ -406,6 +465,11 @@ def combine_all_reports(directory: Union[str, Path]) -> Optional[str]:
 				logger.info(f"Successfully created combined report: {combined_filename}")
 				logger.info(f"Combined {successful_sheets} report type sheets into single file")
 				
+				# Update the DOCX template
+				docx_template_path = Path(base_path) / 'Reporte Colegios.docx'
+				if summary_data:
+						update_docx_template(docx_template_path, summary_data)
+
 				return str(combined_file_path)
 				
 		except Exception as e:

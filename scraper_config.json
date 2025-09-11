@@ -2,7 +2,7 @@
   "date_filter": "Today",
   "tabs": {
     "Student Usage": true,
-    "Skill": false,
+    "Skill": true,
     "Assignment": true,
     "Assessment": false,
     "Level Up Progress": false
