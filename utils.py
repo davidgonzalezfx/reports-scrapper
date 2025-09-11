@@ -146,7 +146,10 @@ def update_docx_template(template_path: Union[str, Path], data: Dict[str, Any]):
 
                 logger.debug(f"Replaced {placeholder} with {value} in paragraph")
 
-        doc.save(template_path)
+        # Create a new filename for the updated document
+        output_path = template_path.parent / f"Reporte Colegios.docx"
+        doc.save(output_path)
+        logger.info(f"Saved updated document to: {output_path}")
         logger.info(f"Successfully updated DOCX template: {template_path.name}")
 
     except Exception as e:
@@ -466,7 +469,7 @@ def combine_all_reports(directory: Union[str, Path]) -> Optional[str]:
 				logger.info(f"Combined {successful_sheets} report type sheets into single file")
 				
 				# Update the DOCX template
-				docx_template_path = Path(base_path) / 'Reporte Colegios.docx'
+				docx_template_path = Path(base_path) / 'original.docx'
 				if summary_data:
 						update_docx_template(docx_template_path, summary_data)
 
