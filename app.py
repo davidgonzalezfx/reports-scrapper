@@ -295,6 +295,49 @@ def index():
 										}
 				except Exception as e:
 						logger.debug(f"Error checking for combined report: {e}")
+
+				# Check for Reporte Colegios.docx file
+				colegios_report_info = None
+				colegios_filename = 'Reporte Colegios.docx'
+				try:
+						# Check internal directory first
+						internal_file_path = os.path.join(REPORTS_DIR_TMP, colegios_filename)
+						file_found = False
+
+						if os.path.exists(internal_file_path):
+								file_stats = os.stat(internal_file_path)
+								colegios_report_info = {
+										'filename': colegios_filename,
+										'size': file_stats.st_size,
+										'modified': datetime.fromtimestamp(file_stats.st_mtime)
+										}
+								file_found = True
+
+								# If running as executable and file is only in internal, copy it to external for user access
+								if getattr(sys, 'frozen', False):
+										external_reports_dir = os.path.join(os.path.dirname(sys.executable), 'reports')
+										os.makedirs(external_reports_dir, exist_ok=True)
+										external_file_path = os.path.join(external_reports_dir, colegios_filename)
+
+										# Copy file if it doesn't exist in external or is older
+										if not os.path.exists(external_file_path) or os.path.getmtime(external_file_path) < os.path.getmtime(internal_file_path):
+												import shutil
+												shutil.copy2(internal_file_path, external_file_path)
+												logger.info(f"Copied colegios report to external directory: {external_file_path}")
+
+						# If not found in internal, check external directory
+						if not file_found:
+								external_reports_dir = os.path.join(os.path.dirname(sys.executable), 'reports') if getattr(sys, 'frozen', False) else REPORTS_DIR_TMP
+								external_file_path = os.path.join(external_reports_dir, colegios_filename)
+								if os.path.exists(external_file_path):
+										file_stats = os.stat(external_file_path)
+										colegios_report_info = {
+												'filename': colegios_filename,
+												'size': file_stats.st_size,
+												'modified': datetime.fromtimestamp(file_stats.st_mtime)
+										}
+				except Exception as e:
+						logger.debug(f"Error checking for colegios report: {e}")
 				
 				config = load_config()
 				selected_date_filter = config.get('date_filter', DATE_FILTERS[0])
@@ -303,18 +346,19 @@ def index():
 				users = load_users()
 				
 				return render_template(
-						'scrapper.html', 
+						'scrapper.html',
 						files=raw_files,  # Keep for backward compatibility
 						files_with_info=files_with_info,
 						files_by_user=files_by_user,
 						combined_report=combined_report_info,
+						colegios_report=colegios_report_info,
 						download_in_progress=app_state.get_download_status(),
 						date_filters=DATE_FILTERS,
 						selected_date_filter=selected_date_filter,
 						products_filters=PRODUCTS_FILTERS,
 						selected_products_filter=selected_products_filter,
-						tabs=TABS, 
-						selected_tabs=selected_tabs, 
+						tabs=TABS,
+						selected_tabs=selected_tabs,
 						users=users
 				)
 		except Exception as e:
@@ -484,18 +528,18 @@ def get_combined_reports_status():
 				else:
 						base_path = os.path.abspath('.')
 				REPORTS_DIR_TMP = os.path.join(base_path, 'reports')
-				
+
 				# Find combined all reports files
 				combined_files = sorted(
 						[f for f in os.listdir(REPORTS_DIR_TMP) if f.startswith('Combined_All_Reports_')],
 						reverse=True
 				)
-				
+
 				if combined_files:
 						latest_file = combined_files[0]
 						file_path = os.path.join(REPORTS_DIR_TMP, latest_file)
 						file_stats = os.stat(file_path)
-						
+
 						return jsonify({
 								'exists': True,
 								'filename': latest_file,
@@ -504,9 +548,105 @@ def get_combined_reports_status():
 						})
 				else:
 						return jsonify({'exists': False})
-						
+
 		except Exception as e:
 				logger.error(f"Error checking combined reports status: {e}")
+				return jsonify({'exists': False, 'error': str(e)})
+
+@app.route('/download-colegios-report')
+def download_colegios_report():
+		"""Download the Reporte Colegios.docx file."""
+		try:
+				if getattr(sys, 'frozen', False):
+						base_path = sys._MEIPASS
+				else:
+						base_path = os.path.abspath('.')
+				REPORTS_DIR_TMP = os.path.join(base_path, 'reports')
+
+				# Look for Reporte Colegios.docx in both internal and external directories
+				colegios_filename = 'Reporte Colegios.docx'
+				file_found = False
+				file_path = None
+
+				# Check internal directory first (where it's generated)
+				internal_file_path = os.path.join(REPORTS_DIR_TMP, colegios_filename)
+				if os.path.exists(internal_file_path):
+						file_path = internal_file_path
+						file_found = True
+
+				# If not found in internal, check external directory
+				if not file_found:
+						external_reports_dir = os.path.join(os.path.dirname(sys.executable), 'reports') if getattr(sys, 'frozen', False) else REPORTS_DIR_TMP
+						external_file_path = os.path.join(external_reports_dir, colegios_filename)
+						if os.path.exists(external_file_path):
+								file_path = external_file_path
+								file_found = True
+
+				if not file_found:
+						logger.info("Reporte Colegios.docx file not available")
+						return jsonify({'error': 'Reporte Colegios.docx file not available'}), 404
+
+				# Security check: ensure filename doesn't contain path traversal
+				if not validate_filename(colegios_filename):
+						logger.warning(f"Potentially malicious filename: {colegios_filename}")
+						return jsonify({'error': 'Invalid filename'}), 400
+
+				# Get file stats for response
+				file_stats = os.stat(file_path)
+
+				logger.info(f"Downloading Reporte Colegios.docx file from: {file_path}")
+				return send_file(
+						file_path,
+						as_attachment=True,
+						download_name=colegios_filename,
+						mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+				)
+
+		except Exception as e:
+				logger.error(f"Error downloading Reporte Colegios.docx file: {e}")
+				return jsonify({'error': 'Download failed'}), 500
+
+@app.route('/get-colegios-report-status')
+def get_colegios_report_status():
+		"""Check if a Reporte Colegios.docx file exists."""
+		try:
+				if getattr(sys, 'frozen', False):
+						base_path = sys._MEIPASS
+				else:
+						base_path = os.path.abspath('.')
+				REPORTS_DIR_TMP = os.path.join(base_path, 'reports')
+
+				colegios_filename = 'Reporte Colegios.docx'
+				file_found = False
+				file_path = None
+
+				# Check internal directory first
+				internal_file_path = os.path.join(REPORTS_DIR_TMP, colegios_filename)
+				if os.path.exists(internal_file_path):
+						file_path = internal_file_path
+						file_found = True
+
+				# If not found in internal, check external directory
+				if not file_found:
+						external_reports_dir = os.path.join(os.path.dirname(sys.executable), 'reports') if getattr(sys, 'frozen', False) else REPORTS_DIR_TMP
+						external_file_path = os.path.join(external_reports_dir, colegios_filename)
+						if os.path.exists(external_file_path):
+								file_path = external_file_path
+								file_found = True
+
+				if file_found:
+						file_stats = os.stat(file_path)
+						return jsonify({
+								'exists': True,
+								'filename': colegios_filename,
+								'size': file_stats.st_size,
+								'modified': datetime.fromtimestamp(file_stats.st_mtime).isoformat()
+						})
+				else:
+						return jsonify({'exists': False})
+
+		except Exception as e:
+				logger.error(f"Error checking colegios report status: {e}")
 				return jsonify({'exists': False, 'error': str(e)})
 
 @app.route('/scrape', methods=['POST'])
@@ -664,23 +804,50 @@ def upload_users():
 def cleanup_reports_directory() -> None:
 		"""Clean up the reports directory on startup."""
 		try:
-				os.makedirs(REPORTS_DIR, exist_ok=True)
-				
-				# Delete all files in the reports directory
-				files_removed = 0
-				for f in os.listdir(REPORTS_DIR):
-						file_path = os.path.join(REPORTS_DIR, f)
-						if os.path.isfile(file_path):
-								os.remove(file_path)
-								files_removed += 1
-				
-				if files_removed > 0:
-						logger.info(f"Cleaned up {files_removed} files from reports directory")
+				# Determine which directories to clean based on execution context
+				directories_to_clean = []
+
+				if getattr(sys, 'frozen', False):
+						# Running as PyInstaller executable - clean both directories
+						base_path = sys._MEIPASS
+						external_reports_dir = os.path.join(os.path.dirname(sys.executable), REPORTS_DIR)
+						internal_reports_dir = os.path.join(base_path, REPORTS_DIR)
+						directories_to_clean = [external_reports_dir, internal_reports_dir]
 				else:
-						logger.info("Reports directory is clean")
-						
+						# Running in development - clean only the local reports directory
+						directories_to_clean = [REPORTS_DIR]
+
+				total_files_removed = 0
+
+				for reports_dir in directories_to_clean:
+						try:
+								os.makedirs(reports_dir, exist_ok=True)
+
+								# Delete all files in the reports directory
+								files_removed = 0
+								for f in os.listdir(reports_dir):
+										file_path = os.path.join(reports_dir, f)
+										if os.path.isfile(file_path):
+												os.remove(file_path)
+												files_removed += 1
+
+								if files_removed > 0:
+										logger.info(f"Cleaned up {files_removed} files from {reports_dir}")
+										total_files_removed += files_removed
+								else:
+										logger.info(f"Reports directory {reports_dir} is clean")
+
+						except Exception as e:
+								logger.warning(f"Error cleaning up reports directory {reports_dir}: {e}")
+								# Continue with other directories
+
+				if total_files_removed > 0:
+						logger.info(f"Total cleaned up {total_files_removed} files from all reports directories")
+				else:
+						logger.info("All reports directories are clean")
+
 		except Exception as e:
-				logger.error(f"Error cleaning up reports directory: {e}")
+				logger.error(f"Error in cleanup_reports_directory: {e}")
 
 def open_browser(host: str = 'localhost', port: int = 5000, delay: float = 1.5) -> None:
 		"""Open the default web browser to the application URL.

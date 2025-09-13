@@ -1,81 +1,50 @@
-2025-08-29 17:12:32,922 - __main__ - INFO - Cleared app.log file
-2025-08-29 17:12:32,922 - __main__ - INFO - Starting Flask application
-2025-08-29 17:12:32,923 - __main__ - INFO - Server will be available at http://localhost:5000
-2025-08-29 17:12:32,923 - __main__ - INFO - Browser will open automatically in 1.5 seconds...
-2025-08-29 17:12:32,927 - waitress - INFO - Serving on http://0.0.0.0:5000
-2025-08-29 17:12:34,424 - __main__ - INFO - Opening browser to http://localhost:5000
-2025-08-29 17:12:34,767 - __main__ - INFO - Configuration loaded successfully
-2025-08-29 17:12:34,774 - __main__ - INFO - Loaded 2 users successfully
-2025-08-29 17:12:38,109 - __main__ - INFO - Starting new scrape job
-2025-08-29 17:12:38,110 - __main__ - INFO - Cleared all notifications
-2025-08-29 17:12:38,110 - __main__ - INFO - Starting scraper process
-2025-08-29 17:12:38,112 - __main__ - INFO - Loaded 2 users successfully
-2025-08-29 17:12:38,275 - scraper - INFO - Starting scraper execution
-2025-08-29 17:12:38,276 - scraper - INFO - Loaded 2 users from users.json
-2025-08-29 17:12:38,276 - scraper - INFO - Found 2 users to process
-2025-08-29 17:12:38,276 - scraper - INFO - Processing user 1/2: ycaicedo
-2025-08-29 17:12:38,276 - scraper - INFO - Starting report download process for user: ycaicedo
-2025-08-29 17:12:38,276 - scraper - INFO - Set PLAYWRIGHT_BROWSERS_PATH to: /Users/david.gonzalez01/Personal/reports-scrapper/playwright-browsers
-2025-08-29 17:12:39,635 - scraper - INFO - Attempting login for user: ycaicedo
-2025-08-29 17:12:46,845 - scraper - INFO - Login successful for user: ycaicedo
-2025-08-29 17:12:53,874 - scraper - INFO - Successfully navigated to reports section: https://www.kidsa-z.com/main/reports#!/student-usage
-2025-08-29 17:12:56,880 - scraper - INFO - Loaded scraper configuration
-2025-08-29 17:12:56,880 - scraper - INFO - Using date filter: Today
-2025-08-29 17:12:56,880 - scraper - INFO - Using products filter: All
-2025-08-29 17:12:58,047 - scraper - INFO - Selected date filter: Today
-2025-08-29 17:13:01,455 - scraper - INFO - Selected products filter: All
-2025-08-29 17:13:03,456 - scraper - INFO - Processing Student Usage report
-2025-08-29 17:13:05,566 - scraper - INFO - Successfully switched to tab: Student Usage
-2025-08-29 17:13:06,838 - scraper - INFO - Downloaded CSV report: ycaicedo_Student Usage_All_2025-08-29_2025-08-29.csv
-2025-08-29 17:13:07,101 - utils - INFO - Successfully converted to XLSX: ycaicedo_Student Usage_All_2025-08-29_2025-08-29.xlsx
-2025-08-29 17:13:07,101 - scraper - INFO - Successfully downloaded Student Usage report
-2025-08-29 17:13:07,102 - scraper - INFO - Skipping Skill report (not selected)
-2025-08-29 17:13:07,102 - scraper - INFO - Processing Assignment report
-2025-08-29 17:13:09,176 - scraper - INFO - Successfully switched to tab: Assignment
-2025-08-29 17:13:10,760 - scraper - INFO - Downloaded CSV report: ycaicedo_Assignment_All_2025-08-29_2025-08-29.csv
-2025-08-29 17:13:11,162 - utils - INFO - Successfully converted to XLSX: ycaicedo_Assignment_All_2025-08-29_2025-08-29.xlsx
-2025-08-29 17:13:11,162 - scraper - INFO - Successfully downloaded Assignment report
-2025-08-29 17:13:11,162 - scraper - INFO - Skipping Assessment report (not selected)
-2025-08-29 17:13:11,162 - scraper - INFO - Skipping Level Up Progress report (not selected)
-2025-08-29 17:13:11,162 - scraper - INFO - Completed report download for ycaicedo: 2/2 successful
-2025-08-29 17:13:11,234 - scraper - INFO - Successfully processed user: ycaicedo
-2025-08-29 17:13:11,235 - scraper - INFO - Processing user 2/2: AnaCDemo2
-2025-08-29 17:13:11,235 - scraper - INFO - Starting report download process for user: AnaCDemo2
-2025-08-29 17:13:11,235 - scraper - INFO - Set PLAYWRIGHT_BROWSERS_PATH to: /Users/david.gonzalez01/Personal/reports-scrapper/playwright-browsers
-2025-08-29 17:13:12,176 - scraper - INFO - Attempting login for user: AnaCDemo2
-2025-08-29 17:13:18,926 - scraper - INFO - Login successful for user: AnaCDemo2
-2025-08-29 17:13:24,949 - scraper - INFO - Successfully navigated to reports section: https://www.kidsa-z.com/main/reports#!/student-usage
-2025-08-29 17:13:27,954 - scraper - INFO - Loaded scraper configuration
-2025-08-29 17:13:27,954 - scraper - INFO - Using date filter: Today
-2025-08-29 17:13:27,954 - scraper - INFO - Using products filter: All
-2025-08-29 17:13:29,119 - scraper - INFO - Selected date filter: Today
-2025-08-29 17:13:32,342 - scraper - INFO - Selected products filter: All
-2025-08-29 17:13:34,346 - scraper - INFO - Processing Student Usage report
-2025-08-29 17:13:36,398 - scraper - INFO - Successfully switched to tab: Student Usage
-2025-08-29 17:13:37,602 - scraper - INFO - Downloaded CSV report: AnaCDemo2_Student Usage_All_2025-08-29_2025-08-29.csv
-2025-08-29 17:13:37,628 - utils - INFO - Successfully converted to XLSX: AnaCDemo2_Student Usage_All_2025-08-29_2025-08-29.xlsx
-2025-08-29 17:13:37,629 - scraper - INFO - Successfully downloaded Student Usage report
-2025-08-29 17:13:37,629 - scraper - INFO - Skipping Skill report (not selected)
-2025-08-29 17:13:37,629 - scraper - INFO - Processing Assignment report
-2025-08-29 17:13:39,673 - scraper - INFO - Successfully switched to tab: Assignment
-2025-08-29 17:13:41,664 - scraper - INFO - Downloaded CSV report: AnaCDemo2_Assignment_All_2025-08-29_2025-08-29.csv
-2025-08-29 17:13:42,642 - utils - INFO - Successfully converted to XLSX: AnaCDemo2_Assignment_All_2025-08-29_2025-08-29.xlsx
-2025-08-29 17:13:42,643 - scraper - INFO - Successfully downloaded Assignment report
-2025-08-29 17:13:42,643 - scraper - INFO - Skipping Assessment report (not selected)
-2025-08-29 17:13:42,643 - scraper - INFO - Skipping Level Up Progress report (not selected)
-2025-08-29 17:13:42,643 - scraper - INFO - Completed report download for AnaCDemo2: 2/2 successful
-2025-08-29 17:13:42,705 - scraper - INFO - Successfully processed user: AnaCDemo2
-2025-08-29 17:13:42,705 - scraper - INFO - Scraper completed: 2/2 users processed successfully
-2025-08-29 17:13:42,706 - scraper - INFO - Attempting to combine all reports by type...
-2025-08-29 17:13:42,708 - utils - INFO - Found 2 Student Usage reports
-2025-08-29 17:13:42,709 - utils - INFO - Found 2 Assignment reports
-2025-08-29 17:13:44,966 - utils - INFO - Successfully created combined report: Combined_All_Reports_20250829_171344.xlsx
-2025-08-29 17:13:44,966 - utils - INFO - Combined 2 report type sheets into single file
-2025-08-29 17:13:44,967 - scraper - INFO - Successfully created combined all reports file: /Users/david.gonzalez01/Personal/reports-scrapper/reports/Combined_All_Reports_20250829_171344.xlsx
-2025-08-29 17:13:44,967 - __main__ - INFO - Scraper completed successfully
-2025-08-29 17:13:44,967 - __main__ - INFO - Added notification: success - All 2 users processed successfully
-2025-08-29 17:13:44,967 - __main__ - INFO - Added notification: warning - Combined all reports saved to: Combined_All_Reports_20250829_171344.xlsx
-2025-08-29 17:13:44,967 - __main__ - INFO - Scraper process finished
-2025-08-29 17:13:46,019 - __main__ - INFO - Configuration loaded successfully
-2025-08-29 17:13:46,020 - __main__ - INFO - Loaded 2 users successfully
-2025-08-29 17:13:47,714 - __main__ - INFO - Downloading combined all reports file: Combined_All_Reports_20250829_171344.xlsx
+2025-09-12 22:30:25,873 - __main__ - INFO - Cleared app.log file
+2025-09-12 22:30:25,874 - __main__ - INFO - Starting Flask application
+2025-09-12 22:30:25,874 - __main__ - INFO - Server will be available at http://localhost:5000
+2025-09-12 22:30:25,875 - __main__ - INFO - Browser will open automatically in 1.5 seconds...
+2025-09-12 22:30:25,889 - waitress - INFO - Serving on http://0.0.0.0:5000
+2025-09-12 22:30:27,375 - __main__ - INFO - Opening browser to http://localhost:5000
+2025-09-12 22:30:28,186 - __main__ - INFO - Using default configuration
+2025-09-12 22:30:28,187 - __main__ - INFO - Loaded 8 users successfully
+2025-09-12 22:30:45,486 - __main__ - INFO - Saved 1 users successfully
+2025-09-12 22:30:45,487 - __main__ - INFO - Saved 1 users via API
+2025-09-12 22:30:53,933 - __main__ - INFO - Using default configuration
+2025-09-12 22:30:53,935 - __main__ - INFO - Configuration saved successfully
+2025-09-12 22:30:53,936 - __main__ - INFO - Filter configuration updated: date=Today, products=All, tabs: ['Student Usage']
+2025-09-12 22:30:53,972 - __main__ - INFO - Configuration loaded successfully
+2025-09-12 22:30:53,992 - __main__ - INFO - Loaded 1 users successfully
+2025-09-12 22:30:56,611 - __main__ - INFO - Starting new scrape job
+2025-09-12 22:30:56,612 - __main__ - INFO - Cleared all notifications
+2025-09-12 22:30:56,612 - __main__ - INFO - Starting scraper process
+2025-09-12 22:30:56,614 - __main__ - INFO - Loaded 1 users successfully
+2025-09-12 22:30:56,837 - scraper - INFO - Starting scraper execution
+2025-09-12 22:30:56,838 - scraper - INFO - Loaded 1 users from users.json
+2025-09-12 22:30:56,838 - scraper - INFO - Found 1 users to process
+2025-09-12 22:30:56,838 - scraper - INFO - Processing user 1/1: CR-PRIMERO
+2025-09-12 22:30:56,838 - scraper - INFO - Starting report download process for user: CR-PRIMERO
+2025-09-12 22:30:56,838 - scraper - INFO - Set PLAYWRIGHT_BROWSERS_PATH to: C:\Users\Usuario\Downloads\david\reports-scrapper-main\playwright
+2025-09-12 22:30:59,172 - scraper - INFO - Attempting login for user: CR-PRIMERO
+2025-09-12 22:31:16,217 - scraper - INFO - Login successful for user: CR-PRIMERO
+2025-09-12 22:31:26,080 - scraper - INFO - Successfully navigated to reports section: https://www.kidsa-z.com/main/reports#!/student-usage
+2025-09-12 22:31:29,082 - scraper - INFO - Loaded scraper configuration
+2025-09-12 22:31:29,082 - scraper - INFO - Using date filter: Today
+2025-09-12 22:31:29,083 - scraper - INFO - Using products filter: All
+2025-09-12 22:31:30,269 - scraper - INFO - Selected date filter: Today
+2025-09-12 22:31:33,409 - scraper - INFO - Selected products filter: All
+2025-09-12 22:31:35,411 - scraper - INFO - Processing Student Usage report
+2025-09-12 22:31:37,475 - scraper - INFO - Successfully switched to tab: Student Usage
+2025-09-12 22:31:37,487 - scraper - WARNING - No results for filter criteria, skipping download
+2025-09-12 22:31:37,488 - scraper - WARNING - Failed to download Student Usage report
+2025-09-12 22:31:37,488 - scraper - INFO - Skipping Skill report (not selected)
+2025-09-12 22:31:37,489 - scraper - INFO - Skipping Assignment report (not selected)
+2025-09-12 22:31:37,489 - scraper - INFO - Skipping Assessment report (not selected)
+2025-09-12 22:31:37,489 - scraper - INFO - Skipping Level Up Progress report (not selected)
+2025-09-12 22:31:37,490 - scraper - INFO - Completed report download for CR-PRIMERO: 0/1 successful
+2025-09-12 22:31:37,603 - scraper - ERROR - Failed to process user: CR-PRIMERO - No reports could be downloaded (0/1 successful)
+2025-09-12 22:31:37,604 - scraper - INFO - Scraper completed: 0/1 users processed successfully
+2025-09-12 22:31:37,604 - scraper - INFO - Error summary: Download error for: CR-PRIMERO
+2025-09-12 22:31:37,604 - __main__ - ERROR - Scraper failed - no users processed successfully
+2025-09-12 22:31:37,605 - __main__ - INFO - Added notification: error - Download error for: CR-PRIMERO
+2025-09-12 22:31:37,605 - __main__ - INFO - Scraper process finished
+2025-09-12 22:31:39,190 - __main__ - INFO - Configuration loaded successfully
+2025-09-12 22:31:39,191 - __main__ - INFO - Loaded 1 users successfully

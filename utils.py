@@ -88,22 +88,60 @@ def validate_user_data(user: Dict[str, Any]) -> bool:
 
 def get_report_files(directory: Union[str, Path]) -> List[str]:
 		"""Get list of XLSX report files in directory."""
-		directory = Path(directory)
-		
-		if not directory.exists():
-				logger.warning(f"Reports directory not found: {directory}")
-				return []
-		
-		try:
-				files = [f.name for f in directory.glob('*.xlsx') if f.is_file()]
-				files.sort(reverse=True)  # Sort newest first
-				
-				logger.debug(f"Found {len(files)} report files")
-				return files
-				
-		except OSError as e:
-				logger.error(f"Error reading reports directory: {e}")
-				return []
+		import sys
+		import os
+
+		# Handle PyInstaller executable case
+		if getattr(sys, 'frozen', False):
+				# When running as executable, check both internal and external reports directories
+				base_path = sys._MEIPASS
+				external_dir = Path(os.path.join(os.path.dirname(sys.executable), str(directory)))
+				internal_dir = Path(base_path) / directory
+
+				all_files = []
+
+				# Check external directory first (priority for user downloads)
+				if external_dir.exists():
+						try:
+								files = [f.name for f in external_dir.glob('*.xlsx') if f.is_file()]
+								all_files.extend(files)
+								logger.debug(f"Found {len(files)} report files in external directory: {external_dir}")
+						except OSError as e:
+								logger.warning(f"Error reading external reports directory {external_dir}: {e}")
+
+				# Check internal directory
+				if internal_dir.exists():
+						try:
+								files = [f.name for f in internal_dir.glob('*.xlsx') if f.is_file()]
+								all_files.extend(files)
+								logger.debug(f"Found {len(files)} report files in internal directory: {internal_dir}")
+						except OSError as e:
+								logger.warning(f"Error reading internal reports directory {internal_dir}: {e}")
+
+				# Remove duplicates and sort by name (newest first based on timestamp in filename)
+				unique_files = list(set(all_files))
+				unique_files.sort(reverse=True)
+
+				logger.debug(f"Total found {len(unique_files)} unique report files")
+				return unique_files
+		else:
+				# Running in development mode - use original logic
+				directory = Path(directory)
+
+				if not directory.exists():
+						logger.warning(f"Reports directory not found: {directory}")
+						return []
+
+				try:
+						files = [f.name for f in directory.glob('*.xlsx') if f.is_file()]
+						files.sort(reverse=True)  # Sort newest first
+
+						logger.debug(f"Found {len(files)} report files")
+						return files
+
+				except OSError as e:
+						logger.error(f"Error reading reports directory: {e}")
+						return []
 
 def update_docx_template(template_path: Union[str, Path], data: Dict[str, Any]):
     """Update a .docx template by replacing placeholders with data.
@@ -147,9 +185,37 @@ def update_docx_template(template_path: Union[str, Path], data: Dict[str, Any]):
                 logger.debug(f"Replaced {placeholder} with {value} in paragraph")
 
         # Create a new filename for the updated document
-        output_path = template_path.parent / f"Reporte Colegios.docx"
-        doc.save(output_path)
-        logger.info(f"Saved updated document to: {output_path}")
+        # Save to reports directory instead of template directory for better web interface access
+        import sys
+        import os
+
+        if getattr(sys, 'frozen', False):
+            # Running as PyInstaller executable - save to both internal and external reports directories
+            base_path = sys._MEIPASS
+            internal_reports_dir = Path(base_path) / 'reports'
+            external_reports_dir = Path(os.path.dirname(sys.executable)) / 'reports'
+
+            # Ensure directories exist
+            internal_reports_dir.mkdir(parents=True, exist_ok=True)
+            external_reports_dir.mkdir(parents=True, exist_ok=True)
+
+            # Save to internal directory (where the app expects it)
+            output_path = internal_reports_dir / f"Reporte Colegios.docx"
+            doc.save(output_path)
+
+            # Also copy to external directory for user access
+            external_output_path = external_reports_dir / f"Reporte Colegios.docx"
+            doc.save(external_output_path)
+
+            logger.info(f"Saved updated document to internal: {output_path}")
+            logger.info(f"Saved updated document to external: {external_output_path}")
+        else:
+            # Running in development - save to local reports directory
+            reports_dir = Path('reports')
+            reports_dir.mkdir(parents=True, exist_ok=True)
+            output_path = reports_dir / f"Reporte Colegios.docx"
+            doc.save(output_path)
+            logger.info(f"Saved updated document to: {output_path}")
         logger.info(f"Successfully updated DOCX template: {template_path.name}")
 
     except Exception as e:
