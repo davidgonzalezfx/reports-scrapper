@@ -393,7 +393,7 @@ def switch_tab(page, tab_name: str) -> bool:
 				tab_buttons = page.locator('button[role="tab"]')
 				tab_found = False
 				available_tabs = []
-				
+
 				for i in range(tab_buttons.count()):
 						button_text = tab_buttons.nth(i).inner_text().strip()
 						available_tabs.append(button_text)
@@ -481,7 +481,7 @@ def login_and_download_reports_for_user(username: str, password: str) -> UserRes
 				with sync_playwright() as p:
 						# Launch browser with proper configuration
 						browser = p.chromium.launch(
-								headless=True,
+								headless=False,
 								args=['--no-sandbox', '--disable-dev-shm-usage']
 						)
 						

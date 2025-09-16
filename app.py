@@ -103,6 +103,129 @@ def load_config() -> Dict[str, Any]:
 				logger.info("Configuration loaded successfully")
 		return config
 
+def get_mock_report_data() -> Dict[str, Any]:
+		"""Generate mock data for the report presentation."""
+		return {
+				# Slide 1 data
+				'report_title': 'REPORTE DE USO',
+				'institution': 'Unidad Educativa XXXXX',
+				'date_range': '01 Marzo - 01 Junio 2025',
+				'logos': [
+						{'icon': 'school', 'text': 'b1 tech'},
+						{'icon': 'menu_book', 'text': 'Learning A-Z'},
+						{'icon': 'analytics', 'text': 'Raz-Kids'}
+				],
+
+				# Slide 2 data
+				'school_overview': {
+						'title': 'School General Overview',
+						'subtitle': 'Marzo - Abril 2025',
+						'stats': [
+								{'number': '2500', 'label': 'Docentes'},
+								{'number': '2500', 'label': 'Estudiantes'}
+						],
+						'activities': [
+								{'number': '1500', 'name': 'Listen'},
+								{'number': '1800', 'name': 'Read'},
+								{'number': '1900', 'name': 'Quiz'}
+						],
+						'total_activities': '15,682',
+						'activity_descriptions': [
+								{'icon': 'headphones', 'text': 'Listen: Número de audiciones completadas'},
+								{'icon': 'menu_book', 'text': 'Read: Número de lecturas completadas'},
+								{'icon': 'quiz', 'text': 'Quiz: Número de cuestionarios completados'}
+						],
+						'chart_data': [28.8, 34.6, 36.5]
+				},
+
+				# Slide 3 data
+				'detailed_activities': {
+						'title': 'Detalle Total Actividades',
+						'subtitle': 'Marzo - Abril 2025',
+						'activity_summary': [
+								{'icon': 'headphones', 'number': '1900', 'name': 'Listen'},
+								{'icon': 'menu_book', 'number': '1900', 'name': 'Read'},
+								{'icon': 'quiz', 'number': '1900', 'name': 'Quiz'}
+						],
+						'classrooms': [
+								{'name': '1 Básica A', 'students': 25, 'usage': 85, 'listen': 320, 'read': 310, 'quiz': 340},
+								{'name': '1 Básica B', 'students': 28, 'usage': 92, 'listen': 350, 'read': 360, 'quiz': 370},
+								{'name': '2 Básica A', 'students': 30, 'usage': 78, 'listen': 300, 'read': 310, 'quiz': 320},
+								{'name': '2 Básica B', 'students': 26, 'usage': 88, 'listen': 330, 'read': 340, 'quiz': 350},
+								{'name': '3 Básica A', 'students': 32, 'usage': 90, 'listen': 360, 'read': 370, 'quiz': 380},
+								{'name': '3 Básica B', 'students': 29, 'usage': 82, 'listen': 340, 'read': 330, 'quiz': 350},
+								{'name': '4 Básica A', 'students': 27, 'usage': 95, 'listen': 370, 'read': 380, 'quiz': 390},
+								{'name': '4 Básica B', 'students': 31, 'usage': 87, 'listen': 350, 'read': 360, 'quiz': 370},
+								{'name': '5 Básica A', 'students': 30, 'usage': 91, 'listen': 360, 'read': 370, 'quiz': 380},
+						],
+						'total': {'students': 258, 'usage': 88, 'listen': 3080, 'read': 3130, 'quiz': 3250}
+				},
+
+				# Slide 4 data (will be repeated twice with different classrooms)
+				'reading_skills': [
+						{
+								'classroom': '1 Básica A',
+								'skills': [
+										{'name': 'Literal/Recall - Science Question Type', 'category': 'Ciencias', 'correct': 18, 'total': 20, 'accuracy': 90},
+										{'name': 'Inferential - Science Question Type', 'category': 'Ciencias', 'correct': 15, 'total': 20, 'accuracy': 75},
+										{'name': 'Critical Evaluation - Science Question Type', 'category': 'Ciencias', 'correct': 12, 'total': 20, 'accuracy': 60},
+										{'name': 'Literal/Recall - Literature Question Type', 'category': 'Literatura', 'correct': 17, 'total': 20, 'accuracy': 85},
+										{'name': 'Inferential - Literature Question Type', 'category': 'Literatura', 'correct': 14, 'total': 20, 'accuracy': 70},
+										{'name': 'Critical Evaluation - Literature Question Type', 'category': 'Literatura', 'correct': 11, 'total': 20, 'accuracy': 55},
+										{'name': 'Vocabulary in Context', 'category': 'Comprensión', 'correct': 16, 'total': 20, 'accuracy': 80},
+										{'name': 'Main Idea and Details', 'category': 'Comprensión', 'correct': 13, 'total': 20, 'accuracy': 65},
+										{'name': 'Sequence of Events', 'category': 'Comprensión', 'correct': 19, 'total': 20, 'accuracy': 95}
+								]
+						},
+						{
+								'classroom': '2 Básica B',
+								'skills': [
+										{'name': 'Literal/Recall - Science Question Type', 'category': 'Ciencias', 'correct': 16, 'total': 20, 'accuracy': 80},
+										{'name': 'Inferential - Science Question Type', 'category': 'Ciencias', 'correct': 17, 'total': 20, 'accuracy': 85},
+										{'name': 'Critical Evaluation - Science Question Type', 'category': 'Ciencias', 'correct': 14, 'total': 20, 'accuracy': 70},
+										{'name': 'Literal/Recall - Literature Question Type', 'category': 'Literatura', 'correct': 19, 'total': 20, 'accuracy': 95},
+										{'name': 'Inferential - Literature Question Type', 'category': 'Literatura', 'correct': 16, 'total': 20, 'accuracy': 80},
+										{'name': 'Critical Evaluation - Literature Question Type', 'category': 'Literatura', 'correct': 13, 'total': 20, 'accuracy': 65},
+										{'name': 'Vocabulary in Context', 'category': 'Comprensión', 'correct': 18, 'total': 20, 'accuracy': 90},
+										{'name': 'Main Idea and Details', 'category': 'Comprensión', 'correct': 15, 'total': 20, 'accuracy': 75},
+										{'name': 'Sequence of Events', 'category': 'Comprensión', 'correct': 17, 'total': 20, 'accuracy': 85}
+								]
+						}
+				],
+
+				# Slide 5 data
+				'top_readers': {
+						'title': 'Top Lectores por Aula',
+						'subtitle': 'Marzo - Abril 2025',
+						'classrooms': [
+								{
+										'name': '1A Pilar Diaz',
+										'students': [
+												{'name': 'GARIN MADRID CLARA JOSEFA', 'score': 119},
+												{'name': 'LOPEZ GARCIA MARIA', 'score': 108},
+												{'name': 'MARTINEZ RUIZ ANA', 'score': 95}
+										]
+								},
+								{
+										'name': '2A Ángela Molina',
+										'students': [
+												{'name': 'SERRANO PINA MARTIN EDUAI', 'score': 152, 'top': True},
+												{'name': 'FERNANDEZ LOPEZ LAURA', 'score': 134},
+												{'name': 'GONZALEZ SANCHEZ CARLOS', 'score': 127}
+										]
+								},
+								{
+										'name': '3B Juan Carlos',
+										'students': [
+												{'name': 'RAMIREZ HERNANDEZ SOFIA', 'score': 143},
+												{'name': 'DIAZ MORENO PABLO', 'score': 136},
+												{'name': 'TORRES VARGAS LUCIA', 'score': 121}
+										]
+								}
+						]
+				}
+		}
+
 def load_users() -> List[Dict[str, str]]:
 		"""Load users from file with fallback to empty list."""
 		users = load_json(USERS_FILE, [])
@@ -800,6 +923,16 @@ def upload_users():
 		except Exception as e:
 				logger.error(f"Error processing uploaded file: {e}")
 				return jsonify({'error': f'Error processing file: {str(e)}'}), 500
+
+@app.route('/report')
+def report():
+		"""Display the professional report presentation."""
+		try:
+			data = get_mock_report_data()
+			return render_template('report.html', **data)
+		except Exception as e:
+			logger.error(f"Error rendering report: {e}")
+			return jsonify({'error': 'Internal server error'}), 500
 
 def cleanup_reports_directory() -> None:
 		"""Clean up the reports directory on startup."""
