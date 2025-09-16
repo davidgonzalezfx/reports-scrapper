@@ -7,6 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
     <style>
         * {
             margin: 0;
@@ -1101,6 +1102,7 @@
         }
 
         // Initialize Chart.js for slide 2
+        Chart.register(ChartDataLabels);
         const ctx = document.getElementById('activityChart').getContext('2d');
         const activityChart = new Chart(ctx, {
             type: 'pie',
@@ -1135,6 +1137,16 @@
                             label: function (context) {
                                 return context.label + ': ' + context.raw + '%';
                             }
+                        }
+                    },
+                    datalabels: {
+                        formatter: (value, ctx) => {
+                            return value + '%';
+                        },
+                        color: 'white',
+                        font: {
+                            size: 14,
+                            weight: 'bold'
                         }
                     }
                 }

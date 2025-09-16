@@ -1,11 +1,11 @@
 {
-  "date_filter": "Today",
+  "date_filter": "Last 90 Days",
   "tabs": {
     "Student Usage": true,
-    "Skill": false,
-    "Assignment": false,
-    "Assessment": false,
-    "Level Up Progress": false
+    "Skill": true,
+    "Assignment": true,
+    "Assessment": true,
+    "Level Up Progress": true
   },
   "products_filter": "All"
 }

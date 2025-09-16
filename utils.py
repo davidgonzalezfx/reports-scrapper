@@ -460,3 +460,113 @@ def combine_all_reports(directory: Union[str, Path]) -> Optional[str]:
 		except Exception as e:
 				logger.error(f"Error combining reports: {e}")
 				return None
+
+def get_school_summary(directory: Union[str, Path]) -> Optional[Dict[str, Any]]:
+		"""Get summary data for school overview from Student Usage reports.
+		
+		Args:
+				directory: Path to the reports directory
+				
+		Returns:
+				Dict with summary data or None if no data found
+		"""
+		import sys
+		import os
+		
+		# Handle path resolution like in combine_all_reports
+		if os.path.isabs(str(directory)):
+				reports_directory = Path(directory)
+		else:
+				if getattr(sys, 'frozen', False):
+						base_path = sys._MEIPASS
+				else:
+						base_path = os.path.abspath('.')
+				
+				reports_directory = Path(base_path) / directory
+		
+		if not reports_directory.exists():
+				logger.warning(f"Reports directory not found: {reports_directory}")
+				return None
+		
+		try:
+				# Find Student Usage files
+				pattern = "*_Student Usage_*.xlsx"
+				files = list(reports_directory.glob(pattern))
+				
+				if not files:
+						logger.info("No Student Usage reports found")
+						return None
+				
+				logger.info(f"Found {len(files)} Student Usage reports")
+				
+				# Process all files
+				all_data = []
+				
+				for file_path in sorted(files):
+						try:
+								if not file_path.exists() or file_path.stat().st_size == 0:
+										logger.warning(f"File {file_path} is empty or doesn't exist, skipping")
+										continue
+								
+								df = pd.read_excel(file_path, engine='openpyxl')
+								
+								if df.empty:
+										logger.warning(f"Excel file {file_path} contains no data, skipping")
+										continue
+								
+								# Collect data rows
+								for _, row in df.iterrows():
+										cleaned_row = [cell if pd.notna(cell) else '' for cell in row]
+										all_data.append(cleaned_row)
+										
+						except Exception as e:
+								logger.error(f"Error processing file {file_path}: {e}")
+								continue
+				
+				if not all_data:
+						logger.info("No data found in Student Usage reports")
+						return None
+				
+				# Calculate totals
+				total_students = len(all_data)
+				total_teachers = len(files)
+				total_listens = 0
+				total_reads = 0
+				total_quizzes = 0
+				
+				for row_data in all_data:
+						if len(row_data) > 5 and pd.notna(row_data[5]):
+								try:
+										total_listens += float(row_data[5])
+								except (ValueError, TypeError):
+										pass
+						
+						if len(row_data) > 6 and pd.notna(row_data[6]):
+								try:
+										total_reads += float(row_data[6])
+								except (ValueError, TypeError):
+										pass
+						
+						if len(row_data) > 7 and pd.notna(row_data[7]):
+								try:
+										total_quizzes += float(row_data[7])
+								except (ValueError, TypeError):
+										pass
+				
+				total_activities = total_listens + total_reads + total_quizzes
+				
+				summary_data = {
+						"all_teachers": total_teachers,
+						"all_students": total_students,
+						"total_listen": int(total_listens),
+						"total_read": int(total_reads),
+						"total_quizzes": int(total_quizzes),
+						"total_activities": int(total_activities),
+				}
+				
+				logger.debug(f"Calculated summary: {summary_data}")
+				return summary_data
+				
+		except Exception as e:
+				logger.error(f"Error getting school summary: {e}")
+				return None

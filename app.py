@@ -11,7 +11,7 @@ from typing import Dict, List, Any, Optional
 from waitress import serve
 import sys
 
-from utils import load_json, save_json, validate_filename, validate_user_data, get_report_files
+from utils import load_json, save_json, validate_filename, validate_user_data, get_report_files, get_school_summary
 
 # Constants
 USERS_FILE = 'users.json'
@@ -105,6 +105,10 @@ def load_config() -> Dict[str, Any]:
 
 def get_mock_report_data() -> Dict[str, Any]:
 		"""Generate mock data for the report presentation."""
+
+		# Get real summary data from reports
+		summary = get_school_summary(REPORTS_DIR)
+
 		return {
 				# Slide 1 data
 				'report_title': 'REPORTE DE USO',
@@ -121,21 +125,25 @@ def get_mock_report_data() -> Dict[str, Any]:
 						'title': 'School General Overview',
 						'subtitle': 'Marzo - Abril 2025',
 						'stats': [
-								{'number': '2500', 'label': 'Docentes'},
-								{'number': '2500', 'label': 'Estudiantes'}
+								{'number': str(summary['all_teachers']) if summary else '2500', 'label': 'Docentes'},
+								{'number': str(summary['all_students']) if summary else '2500', 'label': 'Estudiantes'}
 						],
 						'activities': [
-								{'number': '1500', 'name': 'Listen'},
-								{'number': '1800', 'name': 'Read'},
-								{'number': '1900', 'name': 'Quiz'}
+								{'number': str(summary['total_listen']) if summary else '1500', 'name': 'Listen'},
+								{'number': str(summary['total_read']) if summary else '1800', 'name': 'Read'},
+								{'number': str(summary['total_quizzes']) if summary else '1900', 'name': 'Quiz'}
 						],
-						'total_activities': '15,682',
+						'total_activities': f"{summary['total_activities']:,}" if summary else '15,682',
 						'activity_descriptions': [
 								{'icon': 'headphones', 'text': 'Listen: Número de audiciones completadas'},
 								{'icon': 'menu_book', 'text': 'Read: Número de lecturas completadas'},
 								{'icon': 'quiz', 'text': 'Quiz: Número de cuestionarios completados'}
 						],
-						'chart_data': [28.8, 34.6, 36.5]
+						'chart_data': [
+								round(summary['total_listen'] / summary['total_activities'] * 100, 1) if summary and summary['total_activities'] > 0 else 28.8,
+								round(summary['total_read'] / summary['total_activities'] * 100, 1) if summary and summary['total_activities'] > 0 else 34.6,
+								round(summary['total_quizzes'] / summary['total_activities'] * 100, 1) if summary and summary['total_activities'] > 0 else 36.5
+						]
 				},
 
 				# Slide 3 data
