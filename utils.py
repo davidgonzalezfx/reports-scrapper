@@ -2,7 +2,6 @@
 
 import json
 import os
-import zipfile
 import tempfile
 from datetime import datetime
 from pathlib import Path

@@ -552,56 +552,6 @@ def download(filename: str):
 				logger.error(f"Error downloading file {filename}: {e}")
 				return jsonify({'error': 'Download failed'}), 500
 
-@app.route('/download-all-zip')
-def download_all_zip():
-		"""Create and download a zip file containing all reports."""
-		import tempfile
-		import zipfile
-		
-		try:
-				files = get_report_files(REPORTS_DIR)
-				
-				if not files:
-						logger.info("No files available for zip download")
-						return jsonify({'error': 'No files available for download'}), 404
-				
-				# Create a temporary zip file (using original approach)
-				temp_zip = tempfile.NamedTemporaryFile(delete=False, suffix='.zip')
-				
-				try:
-						with zipfile.ZipFile(temp_zip.name, 'w', zipfile.ZIP_DEFLATED) as zipf:
-								for file in files:
-										file_path = os.path.join(REPORTS_DIR, file)
-										if os.path.exists(file_path):
-												zipf.write(file_path, file)
-												logger.debug(f"Added {file} to zip")
-						
-						# Generate timestamp for filename
-						timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-						zip_filename = f'reports_{timestamp}.zip'
-						
-						logger.info(f"Created zip file with {len(files)} reports: {zip_filename}")
-						
-						return send_file(
-								temp_zip.name,
-								as_attachment=True,
-								download_name=zip_filename,
-								mimetype='application/zip'
-						)
-				finally:
-						# Clean up temp file after sending
-						def cleanup():
-								try:
-										os.unlink(temp_zip.name)
-										logger.debug(f"Cleaned up temporary zip file: {temp_zip.name}")
-								except OSError as e:
-										logger.warning(f"Failed to cleanup temp file {temp_zip.name}: {e}")
-						threading.Thread(target=cleanup).start()
-						
-		except Exception as e:
-				logger.error(f"Error creating zip download: {e}")
-				return jsonify({'error': 'Failed to create zip file'}), 500
-
 @app.route('/download-combined-reports')
 def download_combined_reports():
 		"""Download the most recent combined all reports file."""
