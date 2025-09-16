@@ -142,84 +142,6 @@ def get_report_files(directory: Union[str, Path]) -> List[str]:
 						logger.error(f"Error reading reports directory: {e}")
 						return []
 
-def update_docx_template(template_path: Union[str, Path], data: Dict[str, Any]):
-    """Update a .docx template by replacing placeholders with data.
-
-    Args:
-        template_path: Path to the .docx template file.
-        data: Dictionary with placeholder names as keys and their values.
-    """
-    try:
-        template_path = Path(template_path)
-        if not template_path.exists():
-            logger.error(f"DOCX template not found: {template_path}")
-            return
-
-        doc = Document(template_path)
-
-        # Replace in paragraphs
-        for p in doc.paragraphs:
-          for key, value in data.items():
-            placeholder = f"{{{{{key}}}}}"
-            # Check if the placeholder exists in the paragraph text (including spaces)
-            if placeholder in p.text:
-              # Log placeholder information
-              inline = p.runs
-              # Join the runs into a single string to handle the case where the placeholder
-              # may be split across multiple runs.
-              full_text = ''.join(run.text for run in inline)
-
-              if placeholder in full_text:
-                # Now replace the placeholder in the full text (this will handle cases 
-                # where the placeholder is split across multiple runs).
-                new_full_text = full_text.replace(placeholder, str(value))
-
-                # Rebuild the runs from the modified full text
-                start = 0
-                for run in inline:
-                  end = start + len(run.text)
-                  run.text = new_full_text[start:end]
-                  start = end
-
-                logger.debug(f"Replaced {placeholder} with {value} in paragraph")
-
-        # Create a new filename for the updated document
-        # Save to reports directory instead of template directory for better web interface access
-        import sys
-        import os
-
-        if getattr(sys, 'frozen', False):
-            # Running as PyInstaller executable - save to both internal and external reports directories
-            base_path = sys._MEIPASS
-            internal_reports_dir = Path(base_path) / 'reports'
-            external_reports_dir = Path(os.path.dirname(sys.executable)) / 'reports'
-
-            # Ensure directories exist
-            internal_reports_dir.mkdir(parents=True, exist_ok=True)
-            external_reports_dir.mkdir(parents=True, exist_ok=True)
-
-            # Save to internal directory (where the app expects it)
-            output_path = internal_reports_dir / f"Reporte Colegios.docx"
-            doc.save(output_path)
-
-            # Also copy to external directory for user access
-            external_output_path = external_reports_dir / f"Reporte Colegios.docx"
-            doc.save(external_output_path)
-
-            logger.info(f"Saved updated document to internal: {output_path}")
-            logger.info(f"Saved updated document to external: {external_output_path}")
-        else:
-            # Running in development - save to local reports directory
-            reports_dir = Path('reports')
-            reports_dir.mkdir(parents=True, exist_ok=True)
-            output_path = reports_dir / f"Reporte Colegios.docx"
-            doc.save(output_path)
-            logger.info(f"Saved updated document to: {output_path}")
-        logger.info(f"Successfully updated DOCX template: {template_path.name}")
-
-    except Exception as e:
-        logger.error(f"Failed to update DOCX template: {e}")
-
 def combine_all_reports(directory: Union[str, Path]) -> Optional[str]:
 		"""Combine all reports by type into a single multi-sheet XLSX file.
 		
@@ -532,11 +454,6 @@ def combine_all_reports(directory: Union[str, Path]) -> Optional[str]:
 				combined_wb.save(combined_file_path)
 				logger.info(f"Successfully created combined report: {combined_filename}")
 				logger.info(f"Combined {successful_sheets} report type sheets into single file")
-				
-				# Update the DOCX template
-				docx_template_path = Path(base_path) / 'original.docx'
-				if summary_data:
-						update_docx_template(docx_template_path, summary_data)
 
 				return str(combined_file_path)
 				
