@@ -604,6 +604,15 @@
 							<span class="text-orange-700 font-medium">{{ files|length }} files ready</span>
 						</div>
 					</div>
+
+					{% if files|length > 0 %}
+					<a href="/report"
+						class="group relative inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-medium rounded-lg shadow-md hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-4 focus:ring-indigo-300 transition-all duration-200">
+						<i class="fas fa-chart-line"></i>
+						<span>View Report</span>
+						<div class="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 rounded-lg transition-opacity duration-200"></div>
+					</a>
+					{% endif %}
 				</div>
 			</div>
 
