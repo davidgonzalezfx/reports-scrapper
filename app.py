@@ -11,7 +11,7 @@ from typing import Dict, List, Any, Optional
 from waitress import serve
 import sys
 
-from utils import load_json, save_json, validate_filename, validate_user_data, get_report_files, get_school_summary
+from utils import load_json, save_json, validate_filename, validate_user_data, get_report_files, get_school_summary, get_classroom_summaries
 
 # Constants
 USERS_FILE = 'users.json'
@@ -109,6 +109,9 @@ def get_mock_report_data() -> Dict[str, Any]:
 		# Get real summary data from reports
 		summary = get_school_summary(REPORTS_DIR)
 
+		# Get real classroom data from reports
+		classroom_summaries = get_classroom_summaries(REPORTS_DIR)
+
 		return {
 				# Slide 1 data
 				'report_title': 'REPORTE DE USO',
@@ -151,11 +154,25 @@ def get_mock_report_data() -> Dict[str, Any]:
 						'title': 'Detalle Total Actividades',
 						'subtitle': 'Marzo - Abril 2025',
 						'activity_summary': [
+								{'icon': 'headphones', 'number': str(int(sum(c['listen'] for c in (classroom_summaries if classroom_summaries else [])))), 'name': 'Listen'},
+								{'icon': 'menu_book', 'number': str(int(sum(c['read'] for c in (classroom_summaries if classroom_summaries else [])))), 'name': 'Read'},
+								{'icon': 'quiz', 'number': str(int(sum(c['quiz'] for c in (classroom_summaries if classroom_summaries else [])))), 'name': 'Quiz'}
+						] if classroom_summaries else [
 								{'icon': 'headphones', 'number': '1900', 'name': 'Listen'},
 								{'icon': 'menu_book', 'number': '1900', 'name': 'Read'},
 								{'icon': 'quiz', 'number': '1900', 'name': 'Quiz'}
 						],
 						'classrooms': [
+								{
+										'name': classroom['name'],
+										'students': classroom['students'],
+										'usage': classroom['usage'],
+										'listen': int(classroom['listen']),
+										'read': int(classroom['read']),
+										'quiz': int(classroom['quiz'])
+								}
+								for classroom in (classroom_summaries if classroom_summaries else [])
+						] if classroom_summaries else [
 								{'name': '1 Básica A', 'students': 25, 'usage': 85, 'listen': 320, 'read': 310, 'quiz': 340},
 								{'name': '1 Básica B', 'students': 28, 'usage': 92, 'listen': 350, 'read': 360, 'quiz': 370},
 								{'name': '2 Básica A', 'students': 30, 'usage': 78, 'listen': 300, 'read': 310, 'quiz': 320},
@@ -166,7 +183,13 @@ def get_mock_report_data() -> Dict[str, Any]:
 								{'name': '4 Básica B', 'students': 31, 'usage': 87, 'listen': 350, 'read': 360, 'quiz': 370},
 								{'name': '5 Básica A', 'students': 30, 'usage': 91, 'listen': 360, 'read': 370, 'quiz': 380},
 						],
-						'total': {'students': 258, 'usage': 88, 'listen': 3080, 'read': 3130, 'quiz': 3250}
+						'total': {
+								'students': sum(c['students'] for c in (classroom_summaries if classroom_summaries else [])),
+								'usage': 88,  # Keep hardcoded as requested
+								'listen': int(sum(c['listen'] for c in (classroom_summaries if classroom_summaries else []))),
+								'read': int(sum(c['read'] for c in (classroom_summaries if classroom_summaries else []))),
+								'quiz': int(sum(c['quiz'] for c in (classroom_summaries if classroom_summaries else [])))
+						} if classroom_summaries else {'students': 258, 'usage': 88, 'listen': 3080, 'read': 3130, 'quiz': 3250}
 				},
 
 				# Slide 4 data (will be repeated twice with different classrooms)

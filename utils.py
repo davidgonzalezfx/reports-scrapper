@@ -566,7 +566,137 @@ def get_school_summary(directory: Union[str, Path]) -> Optional[Dict[str, Any]]:
 				
 				logger.debug(f"Calculated summary: {summary_data}")
 				return summary_data
-				
+
 		except Exception as e:
 				logger.error(f"Error getting school summary: {e}")
+				return None
+
+def get_classroom_summaries(directory: Union[str, Path]) -> Optional[List[Dict[str, Any]]]:
+		"""Get per-classroom summary data from all Student Usage reports.
+
+		Args:
+				directory: Path to the reports directory
+
+		Returns:
+				List of classroom summary dictionaries or None if no data found
+		"""
+		import sys
+		import os
+
+		# Handle path resolution like in other functions
+		if os.path.isabs(str(directory)):
+				reports_directory = Path(directory)
+		else:
+				if getattr(sys, 'frozen', False):
+						base_path = sys._MEIPASS
+				else:
+						base_path = os.path.abspath('.')
+
+				reports_directory = Path(base_path) / directory
+
+		if not reports_directory.exists():
+				logger.warning(f"Reports directory not found: {reports_directory}")
+				return None
+
+		try:
+				# Find Student Usage files
+				pattern = "*_Student Usage_*.xlsx"
+				files = list(reports_directory.glob(pattern))
+
+				if not files:
+						logger.info("No Student Usage reports found")
+						return None
+
+				logger.info(f"Found {len(files)} Student Usage reports for classroom summaries")
+
+				# Dictionary to accumulate data per classroom
+				classroom_data = {}
+
+				for file_path in sorted(files):
+						try:
+								if not file_path.exists() or file_path.stat().st_size == 0:
+										logger.warning(f"File {file_path} is empty or doesn't exist, skipping")
+										continue
+
+								df = pd.read_excel(file_path, engine='openpyxl')
+
+								if df.empty:
+										logger.warning(f"Excel file {file_path} contains no data, skipping")
+										continue
+
+								# Process each row in the file
+								for _, row in df.iterrows():
+										cleaned_row = [cell if pd.notna(cell) else '' for cell in row]
+
+										# Extract classroom name from column 2 (District School Id)
+										classroom_name = str(cleaned_row[1]).strip() if len(cleaned_row) > 1 else 'Unknown'
+
+										# Initialize classroom data if not exists
+										if classroom_name not in classroom_data:
+												classroom_data[classroom_name] = {
+														'name': classroom_name,
+														'students': 0,
+														'listen': 0,
+														'read': 0,
+														'quiz': 0,
+														'interactivity': 0,
+														'practice_recording': 0,
+														'usage': 85  # Hardcoded as requested
+												}
+
+										# Increment student count
+										classroom_data[classroom_name]['students'] += 1
+
+										# Sum listens (column 6, index 5)
+										if len(cleaned_row) > 5 and pd.notna(cleaned_row[5]):
+												try:
+														classroom_data[classroom_name]['listen'] += float(cleaned_row[5])
+												except (ValueError, TypeError):
+														pass
+
+										# Sum reads (column 7, index 6)
+										if len(cleaned_row) > 6 and pd.notna(cleaned_row[6]):
+												try:
+														classroom_data[classroom_name]['read'] += float(cleaned_row[6])
+												except (ValueError, TypeError):
+														pass
+
+										# Sum quizzes (column 8, index 7)
+										if len(cleaned_row) > 7 and pd.notna(cleaned_row[7]):
+												try:
+														classroom_data[classroom_name]['quiz'] += float(cleaned_row[7])
+												except (ValueError, TypeError):
+														pass
+
+										# Sum interactivity (column 9, index 8)
+										if len(cleaned_row) > 8 and pd.notna(cleaned_row[8]):
+												try:
+														classroom_data[classroom_name]['interactivity'] += float(cleaned_row[8])
+												except (ValueError, TypeError):
+														pass
+
+										# Sum practice recording (column 10, index 9)
+										if len(cleaned_row) > 9 and pd.notna(cleaned_row[9]):
+												try:
+														classroom_data[classroom_name]['practice_recording'] += float(cleaned_row[9])
+												except (ValueError, TypeError):
+														pass
+
+						except Exception as e:
+								logger.error(f"Error processing file {file_path}: {e}")
+								continue
+
+				if not classroom_data:
+						logger.info("No classroom data found in Student Usage reports")
+						return None
+
+				# Convert to list and sort by classroom name
+				classroom_summaries = list(classroom_data.values())
+				classroom_summaries.sort(key=lambda x: x['name'])
+
+				logger.debug(f"Calculated summaries for {len(classroom_summaries)} classrooms")
+				return classroom_summaries
+
+		except Exception as e:
+				logger.error(f"Error getting classroom summaries: {e}")
 				return None
