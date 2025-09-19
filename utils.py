@@ -700,3 +700,108 @@ def get_classroom_summaries(directory: Union[str, Path]) -> Optional[List[Dict[s
 		except Exception as e:
 				logger.error(f"Error getting classroom summaries: {e}")
 				return None
+def get_reading_skills_data(directory: Union[str, Path]) -> Optional[List[Dict[str, Any]]]:
+		"""Get reading skills data from Skill reports for each classroom.
+
+		Args:
+				directory: Path to the reports directory
+
+		Returns:
+				List of classroom skill dictionaries or None if no data found
+		"""
+		import sys
+		import os
+
+		# Handle path resolution like in other functions
+		if os.path.isabs(str(directory)):
+				reports_directory = Path(directory)
+		else:
+				if getattr(sys, 'frozen', False):
+						base_path = sys._MEIPASS
+				else:
+						base_path = os.path.abspath('.')
+
+				reports_directory = Path(base_path) / directory
+
+		if not reports_directory.exists():
+				logger.warning(f"Reports directory not found: {reports_directory}")
+				return None
+
+		try:
+				# Find Skill files
+				pattern = "*_Skill_*.xlsx"
+				files = list(reports_directory.glob(pattern))
+
+				if not files:
+						logger.info("No Skill reports found")
+						return None
+
+				logger.info(f"Found {len(files)} Skill reports")
+
+				# Dictionary to accumulate data per classroom
+				classroom_data = {}
+
+				for file_path in sorted(files):
+						try:
+								if not file_path.exists() or file_path.stat().st_size == 0:
+										logger.warning(f"File {file_path} is empty or doesn't exist, skipping")
+										continue
+
+								# Extract classroom name from filename (before "_Skill")
+								filename = file_path.name
+								if "_Skill_" in filename:
+										classroom_name = filename.split("_Skill_")[0]
+								else:
+										logger.warning(f"Could not extract classroom name from {filename}, skipping")
+										continue
+
+								df = pd.read_excel(file_path, engine='openpyxl')
+
+								if df.empty:
+										logger.warning(f"Excel file {file_path} contains no data, skipping")
+										continue
+
+								# Initialize classroom data if not exists
+								if classroom_name not in classroom_data:
+										classroom_data[classroom_name] = {
+												'classroom': classroom_name,
+												'skills': []
+										}
+
+								# Process each row in the file
+								for _, row in df.iterrows():
+										cleaned_row = [cell if pd.notna(cell) else '' for cell in row]
+
+										# Extract skill data from columns 1-4 (indices 0-3)
+										if len(cleaned_row) >= 4:
+												skill_data = {
+														'name': str(cleaned_row[0]).strip(),
+														'correct': int(cleaned_row[1]) if pd.notna(cleaned_row[1]) and str(cleaned_row[1]).isdigit() else 0,
+														'total': int(cleaned_row[2]) if pd.notna(cleaned_row[2]) and str(cleaned_row[2]).isdigit() else 0,
+														'accuracy': float(cleaned_row[3]) if pd.notna(cleaned_row[3]) else 0.0
+												}
+
+												# Calculate accuracy if not provided
+												if skill_data['total'] > 0 and skill_data['accuracy'] == 0.0:
+														skill_data['accuracy'] = round((skill_data['correct'] / skill_data['total']) * 100, 1)
+
+												classroom_data[classroom_name]['skills'].append(skill_data)
+
+						except Exception as e:
+								logger.error(f"Error processing file {file_path}: {e}")
+								continue
+
+				if not classroom_data:
+						logger.info("No classroom data found in Skill reports")
+						return None
+
+				# Convert to list and sort by classroom name
+				reading_skills_data = list(classroom_data.values())
+				reading_skills_data.sort(key=lambda x: x['classroom'])
+
+				logger.debug(f"Calculated skills data for {len(reading_skills_data)} classrooms")
+				return reading_skills_data
+
+		except Exception as e:
+				logger.error(f"Error getting reading skills data: {e}")
+				return None

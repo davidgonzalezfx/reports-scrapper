@@ -806,7 +806,8 @@
             </div>
         </div>
 
-        <!-- Slide 4: Reading Skills (First classroom) -->
+        <!-- Reading Skills Slides (Dynamic - one per classroom) -->
+        {% for classroom_data in reading_skills %}
         <div class="slide slide-4">
             <div class="slide-content">
                 <div class="header">
@@ -816,7 +817,7 @@
                 <div class="content">
                     <div class="classroom-info">
                         <i class="material-icons classroom-icon">groups</i>
-                        <div class="classroom-name">Aula: {{ reading_skills[0].classroom }}</div>
+                        <div class="classroom-name">Aula: {{ classroom_data.classroom }}</div>
                     </div>
 
                     <div class="skills-table-container">
@@ -830,11 +831,10 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for skill in reading_skills[0].skills %}
+                                {% for skill in classroom_data.skills %}
                                 <tr>
                                     <td>
                                         <div class="skill-name">{{ skill.name }}</div>
-                                        <div class="skill-category">{{ skill.category }}</div>
                                     </td>
                                     <td class="correct-answers">{{ skill.correct }}</td>
                                     <td class="total-questions">{{ skill.total }}</td>
@@ -859,60 +859,7 @@
                 </div>
             </div>
         </div>
-
-        <!-- Slide 5: Reading Skills (Second classroom) -->
-        <div class="slide slide-4">
-            <div class="slide-content">
-                <div class="header">
-                    <div class="title">HABILIDADES DE COMPRENSIÓN LECTORA</div>
-                    <div class="subtitle">Análisis de habilidades de lectura por aula</div>
-                </div>
-                <div class="content">
-                    <div class="classroom-info">
-                        <i class="material-icons classroom-icon">groups</i>
-                        <div class="classroom-name">Aula: {{ reading_skills[1].classroom }}</div>
-                    </div>
-
-                    <div class="skills-table-container">
-                        <table class="skills-table">
-                            <thead>
-                                <tr>
-                                    <th>Skill</th>
-                                    <th>Correct</th>
-                                    <th>Total</th>
-                                    <th>Accuracy (percent)</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for skill in reading_skills[1].skills %}
-                                <tr>
-                                    <td>
-                                        <div class="skill-name">{{ skill.name }}</div>
-                                        <div class="skill-category">{{ skill.category }}</div>
-                                    </td>
-                                    <td class="correct-answers">{{ skill.correct }}</td>
-                                    <td class="total-questions">{{ skill.total }}</td>
-                                    <td>
-                                        <div class="accuracy-container">
-                                            <div class="accuracy-percentage
-                                                {% if skill.accuracy >= 80 %}high-accuracy
-                                                {% elif skill.accuracy >= 60 %}medium-accuracy
-                                                {% else %}low-accuracy{% endif %}">
-                                                {{ skill.accuracy }}%
-                                            </div>
-                                            <div class="progress-bar-container">
-                                                <div class="progress-bar" style="width: {{ skill.accuracy }}%"></div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
+        {% endfor %}
 
         <!-- Slide 6: Top Readers -->
         <div class="slide slide-5">

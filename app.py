@@ -11,7 +11,7 @@ from typing import Dict, List, Any, Optional
 from waitress import serve
 import sys
 
-from utils import load_json, save_json, validate_filename, validate_user_data, get_report_files, get_school_summary, get_classroom_summaries
+from utils import load_json, save_json, validate_filename, validate_user_data, get_report_files, get_school_summary, get_classroom_summaries, get_reading_skills_data
 
 # Constants
 USERS_FILE = 'users.json'
@@ -112,6 +112,9 @@ def get_mock_report_data() -> Dict[str, Any]:
 		# Get real classroom data from reports
 		classroom_summaries = get_classroom_summaries(REPORTS_DIR)
 
+		# Get real reading skills data from reports
+		reading_skills_data = get_reading_skills_data(REPORTS_DIR)
+
 		return {
 				# Slide 1 data
 				'report_title': 'REPORTE DE USO',
@@ -192,34 +195,34 @@ def get_mock_report_data() -> Dict[str, Any]:
 						} if classroom_summaries else {'students': 258, 'usage': 88, 'listen': 3080, 'read': 3130, 'quiz': 3250}
 				},
 
-				# Slide 4 data (will be repeated twice with different classrooms)
-				'reading_skills': [
+				# Slide 4 data (reading skills from reports)
+				'reading_skills': reading_skills_data if reading_skills_data else [
 						{
 								'classroom': '1 Básica A',
 								'skills': [
-										{'name': 'Literal/Recall - Science Question Type', 'category': 'Ciencias', 'correct': 18, 'total': 20, 'accuracy': 90},
-										{'name': 'Inferential - Science Question Type', 'category': 'Ciencias', 'correct': 15, 'total': 20, 'accuracy': 75},
-										{'name': 'Critical Evaluation - Science Question Type', 'category': 'Ciencias', 'correct': 12, 'total': 20, 'accuracy': 60},
-										{'name': 'Literal/Recall - Literature Question Type', 'category': 'Literatura', 'correct': 17, 'total': 20, 'accuracy': 85},
-										{'name': 'Inferential - Literature Question Type', 'category': 'Literatura', 'correct': 14, 'total': 20, 'accuracy': 70},
-										{'name': 'Critical Evaluation - Literature Question Type', 'category': 'Literatura', 'correct': 11, 'total': 20, 'accuracy': 55},
-										{'name': 'Vocabulary in Context', 'category': 'Comprensión', 'correct': 16, 'total': 20, 'accuracy': 80},
-										{'name': 'Main Idea and Details', 'category': 'Comprensión', 'correct': 13, 'total': 20, 'accuracy': 65},
-										{'name': 'Sequence of Events', 'category': 'Comprensión', 'correct': 19, 'total': 20, 'accuracy': 95}
+										{'name': 'Literal/Recall - Science Question Type', 'correct': 18, 'total': 20, 'accuracy': 90},
+										{'name': 'Inferential - Science Question Type', 'correct': 15, 'total': 20, 'accuracy': 75},
+										{'name': 'Critical Evaluation - Science Question Type', 'correct': 12, 'total': 20, 'accuracy': 60},
+										{'name': 'Literal/Recall - Literature Question Type', 'correct': 17, 'total': 20, 'accuracy': 85},
+										{'name': 'Inferential - Literature Question Type', 'correct': 14, 'total': 20, 'accuracy': 70},
+										{'name': 'Critical Evaluation - Literature Question Type', 'correct': 11, 'total': 20, 'accuracy': 55},
+										{'name': 'Vocabulary in Context', 'correct': 16, 'total': 20, 'accuracy': 80},
+										{'name': 'Main Idea and Details', 'correct': 13, 'total': 20, 'accuracy': 65},
+										{'name': 'Sequence of Events', 'correct': 19, 'total': 20, 'accuracy': 95}
 								]
 						},
 						{
 								'classroom': '2 Básica B',
 								'skills': [
-										{'name': 'Literal/Recall - Science Question Type', 'category': 'Ciencias', 'correct': 16, 'total': 20, 'accuracy': 80},
-										{'name': 'Inferential - Science Question Type', 'category': 'Ciencias', 'correct': 17, 'total': 20, 'accuracy': 85},
-										{'name': 'Critical Evaluation - Science Question Type', 'category': 'Ciencias', 'correct': 14, 'total': 20, 'accuracy': 70},
-										{'name': 'Literal/Recall - Literature Question Type', 'category': 'Literatura', 'correct': 19, 'total': 20, 'accuracy': 95},
-										{'name': 'Inferential - Literature Question Type', 'category': 'Literatura', 'correct': 16, 'total': 20, 'accuracy': 80},
-										{'name': 'Critical Evaluation - Literature Question Type', 'category': 'Literatura', 'correct': 13, 'total': 20, 'accuracy': 65},
-										{'name': 'Vocabulary in Context', 'category': 'Comprensión', 'correct': 18, 'total': 20, 'accuracy': 90},
-										{'name': 'Main Idea and Details', 'category': 'Comprensión', 'correct': 15, 'total': 20, 'accuracy': 75},
-										{'name': 'Sequence of Events', 'category': 'Comprensión', 'correct': 17, 'total': 20, 'accuracy': 85}
+										{'name': 'Literal/Recall - Science Question Type', 'correct': 16, 'total': 20, 'accuracy': 80},
+										{'name': 'Inferential - Science Question Type', 'correct': 17, 'total': 20, 'accuracy': 85},
+										{'name': 'Critical Evaluation - Science Question Type', 'correct': 14, 'total': 20, 'accuracy': 70},
+										{'name': 'Literal/Recall - Literature Question Type', 'correct': 19, 'total': 20, 'accuracy': 95},
+										{'name': 'Inferential - Literature Question Type', 'correct': 16, 'total': 20, 'accuracy': 80},
+										{'name': 'Critical Evaluation - Literature Question Type', 'correct': 13, 'total': 20, 'accuracy': 65},
+										{'name': 'Vocabulary in Context', 'correct': 18, 'total': 20, 'accuracy': 90},
+										{'name': 'Main Idea and Details', 'correct': 15, 'total': 20, 'accuracy': 75},
+										{'name': 'Sequence of Events', 'correct': 17, 'total': 20, 'accuracy': 85}
 								]
 						}
 				],
