@@ -752,6 +752,15 @@ def report():
 			logger.error(f"Error rendering report: {e}")
 			return jsonify({'error': 'Internal server error'}), 500
 
+@app.route('/templates/images/<filename>')
+def serve_template_image(filename):
+		"""Serve images from templates/images directory."""
+		try:
+			return send_from_directory('templates/images', filename)
+		except Exception as e:
+			logger.error(f"Error serving image {filename}: {e}")
+			return jsonify({'error': 'Image not found'}), 404
+
 def cleanup_reports_directory() -> None:
 		"""Clean up the reports directory on startup."""
 		try:
