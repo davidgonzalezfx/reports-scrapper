@@ -157,13 +157,9 @@ def get_mock_report_data() -> Dict[str, Any]:
 						'title': 'Detalle Total Actividades',
 						'subtitle': 'Marzo - Abril 2025',
 						'activity_summary': [
-								{'icon': 'headphones', 'number': str(int(sum(c['listen'] for c in (classroom_summaries if classroom_summaries else [])))), 'name': 'Listen'},
-								{'icon': 'menu_book', 'number': str(int(sum(c['read'] for c in (classroom_summaries if classroom_summaries else [])))), 'name': 'Read'},
-								{'icon': 'quiz', 'number': str(int(sum(c['quiz'] for c in (classroom_summaries if classroom_summaries else [])))), 'name': 'Quiz'}
-						] if classroom_summaries else [
-								{'icon': 'headphones', 'number': '1900', 'name': 'Listen'},
-								{'icon': 'menu_book', 'number': '1900', 'name': 'Read'},
-								{'icon': 'quiz', 'number': '1900', 'name': 'Quiz'}
+								{'icon': 'headphones', 'number': str(int(sum(c['listen'] for c in classroom_summaries))) if classroom_summaries else '0', 'name': 'Listen'},
+								{'icon': 'menu_book', 'number': str(int(sum(c['read'] for c in classroom_summaries))) if classroom_summaries else '0', 'name': 'Read'},
+								{'icon': 'quiz', 'number': str(int(sum(c['quiz'] for c in classroom_summaries))) if classroom_summaries else '0', 'name': 'Quiz'}
 						],
 						'classrooms': [
 								{
@@ -175,57 +171,18 @@ def get_mock_report_data() -> Dict[str, Any]:
 										'quiz': int(classroom['quiz'])
 								}
 								for classroom in (classroom_summaries if classroom_summaries else [])
-						] if classroom_summaries else [
-								{'name': '1 Básica A', 'students': 25, 'usage': 85, 'listen': 320, 'read': 310, 'quiz': 340},
-								{'name': '1 Básica B', 'students': 28, 'usage': 92, 'listen': 350, 'read': 360, 'quiz': 370},
-								{'name': '2 Básica A', 'students': 30, 'usage': 78, 'listen': 300, 'read': 310, 'quiz': 320},
-								{'name': '2 Básica B', 'students': 26, 'usage': 88, 'listen': 330, 'read': 340, 'quiz': 350},
-								{'name': '3 Básica A', 'students': 32, 'usage': 90, 'listen': 360, 'read': 370, 'quiz': 380},
-								{'name': '3 Básica B', 'students': 29, 'usage': 82, 'listen': 340, 'read': 330, 'quiz': 350},
-								{'name': '4 Básica A', 'students': 27, 'usage': 95, 'listen': 370, 'read': 380, 'quiz': 390},
-								{'name': '4 Básica B', 'students': 31, 'usage': 87, 'listen': 350, 'read': 360, 'quiz': 370},
-								{'name': '5 Básica A', 'students': 30, 'usage': 91, 'listen': 360, 'read': 370, 'quiz': 380},
 						],
 						'total': {
-								'students': sum(c['students'] for c in (classroom_summaries if classroom_summaries else [])),
+								'students': sum(c['students'] for c in classroom_summaries) if classroom_summaries else 0,
 								'usage': 88,  # Keep hardcoded as requested
-								'listen': int(sum(c['listen'] for c in (classroom_summaries if classroom_summaries else []))),
-								'read': int(sum(c['read'] for c in (classroom_summaries if classroom_summaries else []))),
-								'quiz': int(sum(c['quiz'] for c in (classroom_summaries if classroom_summaries else [])))
-						} if classroom_summaries else {'students': 258, 'usage': 88, 'listen': 3080, 'read': 3130, 'quiz': 3250}
+								'listen': int(sum(c['listen'] for c in classroom_summaries)) if classroom_summaries else 0,
+								'read': int(sum(c['read'] for c in classroom_summaries)) if classroom_summaries else 0,
+								'quiz': int(sum(c['quiz'] for c in classroom_summaries)) if classroom_summaries else 0
+						}
 				},
 
 				# Slide 4 data (reading skills from reports)
-				'reading_skills': reading_skills_data if reading_skills_data else [
-						{
-								'classroom': '1 Básica A',
-								'skills': [
-										{'name': 'Literal/Recall - Science Question Type', 'correct': 18, 'total': 20, 'accuracy': 90},
-										{'name': 'Inferential - Science Question Type', 'correct': 15, 'total': 20, 'accuracy': 75},
-										{'name': 'Critical Evaluation - Science Question Type', 'correct': 12, 'total': 20, 'accuracy': 60},
-										{'name': 'Literal/Recall - Literature Question Type', 'correct': 17, 'total': 20, 'accuracy': 85},
-										{'name': 'Inferential - Literature Question Type', 'correct': 14, 'total': 20, 'accuracy': 70},
-										{'name': 'Critical Evaluation - Literature Question Type', 'correct': 11, 'total': 20, 'accuracy': 55},
-										{'name': 'Vocabulary in Context', 'correct': 16, 'total': 20, 'accuracy': 80},
-										{'name': 'Main Idea and Details', 'correct': 13, 'total': 20, 'accuracy': 65},
-										{'name': 'Sequence of Events', 'correct': 19, 'total': 20, 'accuracy': 95}
-								]
-						},
-						{
-								'classroom': '2 Básica B',
-								'skills': [
-										{'name': 'Literal/Recall - Science Question Type', 'correct': 16, 'total': 20, 'accuracy': 80},
-										{'name': 'Inferential - Science Question Type', 'correct': 17, 'total': 20, 'accuracy': 85},
-										{'name': 'Critical Evaluation - Science Question Type', 'correct': 14, 'total': 20, 'accuracy': 70},
-										{'name': 'Literal/Recall - Literature Question Type', 'correct': 19, 'total': 20, 'accuracy': 95},
-										{'name': 'Inferential - Literature Question Type', 'correct': 16, 'total': 20, 'accuracy': 80},
-										{'name': 'Critical Evaluation - Literature Question Type', 'correct': 13, 'total': 20, 'accuracy': 65},
-										{'name': 'Vocabulary in Context', 'correct': 18, 'total': 20, 'accuracy': 90},
-										{'name': 'Main Idea and Details', 'correct': 15, 'total': 20, 'accuracy': 75},
-										{'name': 'Sequence of Events', 'correct': 17, 'total': 20, 'accuracy': 85}
-								]
-						}
-				],
+				'reading_skills': reading_skills_data if reading_skills_data else [],
 
 				# Slide 5 data
 				'top_readers': {
