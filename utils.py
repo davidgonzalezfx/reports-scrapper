@@ -804,4 +804,133 @@ def get_reading_skills_data(directory: Union[str, Path]) -> Optional[List[Dict[s
 
 		except Exception as e:
 				logger.error(f"Error getting reading skills data: {e}")
+def get_top_readers_per_classroom(directory: Union[str, Path]) -> Optional[List[Dict[str, Any]]]:
+		"""Get top 3 readers per classroom from Student Usage reports.
+
+		Args:
+				directory: Path to the reports directory
+
+		Returns:
+				List of classroom dictionaries with top readers or None if no data found
+		"""
+		import sys
+		import os
+
+		# Handle path resolution like in other functions
+		if os.path.isabs(str(directory)):
+				reports_directory = Path(directory)
+		else:
+				if getattr(sys, 'frozen', False):
+						base_path = sys._MEIPASS
+				else:
+						base_path = os.path.abspath('.')
+
+				reports_directory = Path(base_path) / directory
+
+		if not reports_directory.exists():
+				logger.warning(f"Reports directory not found: {reports_directory}")
+				return None
+
+		try:
+				# Find Student Usage files
+				pattern = "*_Student Usage_*.xlsx"
+				files = list(reports_directory.glob(pattern))
+
+				if not files:
+						logger.info("No Student Usage reports found")
+						return None
+
+				logger.info(f"Found {len(files)} Student Usage reports for top readers")
+
+				# Dictionary to accumulate students per classroom
+				classroom_students = {}
+
+				for file_path in sorted(files):
+						try:
+								if not file_path.exists() or file_path.stat().st_size == 0:
+										logger.warning(f"File {file_path} is empty or doesn't exist, skipping")
+										continue
+
+								df = pd.read_excel(file_path, engine='openpyxl')
+
+								if df.empty:
+										logger.warning(f"Excel file {file_path} contains no data, skipping")
+										continue
+
+								# Process each row in the file
+								for _, row in df.iterrows():
+										cleaned_row = [cell if pd.notna(cell) else '' for cell in row]
+
+										# Extract student name (column 1, index 0), classroom (column 2, index 1)
+										student_name = str(cleaned_row[0]).strip() if len(cleaned_row) > 0 else ''
+										classroom_name = str(cleaned_row[1]).strip() if len(cleaned_row) > 1 else 'Unknown'
+
+										if not student_name:
+												continue
+
+										# Extract listen and read values
+										listen = 0
+										read = 0
+
+										if len(cleaned_row) > 5 and pd.notna(cleaned_row[5]):
+												try:
+														listen = float(cleaned_row[5])
+												except (ValueError, TypeError):
+														pass
+
+										if len(cleaned_row) > 6 and pd.notna(cleaned_row[6]):
+												try:
+														read = float(cleaned_row[6])
+												except (ValueError, TypeError):
+														pass
+
+										score = listen + read
+
+										# Initialize classroom if not exists
+										if classroom_name not in classroom_students:
+												classroom_students[classroom_name] = []
+
+										# Add student to classroom
+										classroom_students[classroom_name].append({
+												'name': student_name,
+												'score': score
+										})
+
+						except Exception as e:
+								logger.error(f"Error processing file {file_path}: {e}")
+								continue
+
+				if not classroom_students:
+						logger.info("No student data found in Student Usage reports")
+						return None
+
+				# Process each classroom to get top 3 readers
+				top_readers_data = []
+
+				for classroom_name, students in classroom_students.items():
+						# Filter out students with zero scores
+						valid_students = [s for s in students if s['score'] > 0]
+
+						# Skip classroom if all students have zero scores
+						if not valid_students:
+								continue
+
+						# Sort by score descending and take top 3
+						valid_students.sort(key=lambda x: x['score'], reverse=True)
+						top_students = valid_students[:3]
+
+						top_readers_data.append({
+								'name': classroom_name,
+								'students': top_students
+						})
+
+				# Sort classrooms by name
+				top_readers_data.sort(key=lambda x: x['name'])
+
+				logger.debug(f"Calculated top readers for {len(top_readers_data)} classrooms")
+				return top_readers_data
+
+		except Exception as e:
+				logger.error(f"Error getting top readers per classroom: {e}")
+				return None
 				return None

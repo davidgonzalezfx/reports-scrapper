@@ -867,7 +867,7 @@
         </div>
         {% endfor %}
 
-        <!-- Slide 6: Top Readers -->
+        <!-- Slide 5: Top Readers -->
         <div class="slide slide-5">
             <div class="slide-content">
                 <div class="header">
@@ -893,12 +893,9 @@
                                     {% for student in classroom.students %}
                                     <div class="student-item">
                                         <div class="student-name">
-                                            {% if student.top %}
-                                            <i class="material-icons medal">workspace_premium</i>
-                                            {% endif %}
                                             {{ student.name }}
                                         </div>
-                                        <div class="student-score {% if student.top %}top-score{% endif %}">
+                                        <div class="student-score">
                                             {{ student.score }}
                                         </div>
                                     </div>

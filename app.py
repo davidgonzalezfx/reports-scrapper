@@ -11,7 +11,7 @@ from typing import Dict, List, Any, Optional
 from waitress import serve
 import sys
 
-from utils import load_json, save_json, validate_filename, validate_user_data, get_report_files, get_school_summary, get_classroom_summaries, get_reading_skills_data
+from utils import load_json, save_json, validate_filename, validate_user_data, get_report_files, get_school_summary, get_classroom_summaries, get_reading_skills_data, get_top_readers_per_classroom
 
 # Constants
 USERS_FILE = 'users.json'
@@ -115,6 +115,9 @@ def get_mock_report_data() -> Dict[str, Any]:
 		# Get real reading skills data from reports
 		reading_skills_data = get_reading_skills_data(REPORTS_DIR)
 
+		# Get real top readers data from reports
+		top_readers_data = get_top_readers_per_classroom(REPORTS_DIR)
+
 		return {
 				# Slide 1 data
 				'report_title': 'REPORTE DE USO',
@@ -192,32 +195,7 @@ def get_mock_report_data() -> Dict[str, Any]:
 				'top_readers': {
 						'title': 'Top Lectores por Aula',
 						'subtitle': 'Marzo - Abril 2025',
-						'classrooms': [
-								{
-										'name': '1A Pilar Diaz',
-										'students': [
-												{'name': 'GARIN MADRID CLARA JOSEFA', 'score': 119},
-												{'name': 'LOPEZ GARCIA MARIA', 'score': 108},
-												{'name': 'MARTINEZ RUIZ ANA', 'score': 95}
-										]
-								},
-								{
-										'name': '2A Ángela Molina',
-										'students': [
-												{'name': 'SERRANO PINA MARTIN EDUAI', 'score': 152, 'top': True},
-												{'name': 'FERNANDEZ LOPEZ LAURA', 'score': 134},
-												{'name': 'GONZALEZ SANCHEZ CARLOS', 'score': 127}
-										]
-								},
-								{
-										'name': '3B Juan Carlos',
-										'students': [
-												{'name': 'RAMIREZ HERNANDEZ SOFIA', 'score': 143},
-												{'name': 'DIAZ MORENO PABLO', 'score': 136},
-												{'name': 'TORRES VARGAS LUCIA', 'score': 121}
-										]
-								}
-						]
+						'classrooms': top_readers_data if top_readers_data else []
 				}
 		}
 
