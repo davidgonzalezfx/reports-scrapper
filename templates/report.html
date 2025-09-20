@@ -667,6 +667,115 @@
             margin-right: 8px;
             color: #1565C0;
         }
+
+        /* Slide 6 styles - Level Up Progress */
+        .slide-6 {
+            background-color: white;
+        }
+
+        .slide-6 .content {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+        .slide-6 .classroom-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .slide-6 .classroom-icon {
+            color: #1565C0;
+            font-size: 36px;
+            margin-right: 15px;
+        }
+
+        .slide-6 .classroom-name {
+            font-size: 28px;
+            font-weight: 600;
+            color: #1565C0;
+        }
+
+        .slide-6 .level-up-table-container {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .slide-6 .level-up-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .slide-6 .level-up-table th {
+            background-color: #e3f2fd;
+            color: #1565C0;
+            font-weight: 600;
+            text-align: left;
+            padding: 12px 15px;
+            font-size: 18px;
+        }
+
+        .slide-6 .level-up-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 16px;
+            vertical-align: middle;
+        }
+
+        .slide-6 .level-up-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .slide-6 .student-name {
+            font-weight: 600;
+            max-width: 300px;
+        }
+
+        .slide-6 .level-info {
+            text-align: center;
+            font-weight: 600;
+            font-size: 18px;
+        }
+
+        .slide-6 .progress-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .slide-6 .progress-percentage {
+            min-width: 50px;
+            font-weight: 600;
+            margin-right: 10px;
+        }
+
+        .slide-6 .progress-bar-container {
+            flex-grow: 1;
+            height: 12px;
+            background-color: #e0e0e0;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .slide-6 .progress-bar {
+            height: 100%;
+            background-color: #1565C0;
+            border-radius: 6px;
+        }
+
+        .slide-6 .high-progress {
+            color: #2e7d32;
+        }
+
+        .slide-6 .medium-progress {
+            color: #f57c00;
+        }
+
+        .slide-6 .low-progress {
+            color: #c62828;
+        }
     </style>
 </head>
 <body>
@@ -854,6 +963,59 @@
                                             </div>
                                             <div class="progress-bar-container">
                                                 <div class="progress-bar" style="width: {{ skill.accuracy }}%"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+        <!-- Level Up Progress Slides (Dynamic - one per classroom) -->
+        {% for classroom_data in level_up_progress %}
+        <div class="slide slide-6">
+            <div class="slide-content">
+                <div class="header">
+                    <div class="title">PROGRESO DE NIVEL</div>
+                    <div class="subtitle">Análisis de progreso de nivel por aula</div>
+                </div>
+                <div class="content">
+                    <div class="classroom-info">
+                        <i class="material-icons classroom-icon">trending_up</i>
+                        <div class="classroom-name">Aula: {{ classroom_data.classroom }}</div>
+                    </div>
+
+                    <div class="level-up-table-container">
+                        <table class="level-up-table">
+                            <thead>
+                                <tr>
+                                    <th>Student</th>
+                                    <th>Level</th>
+                                    <th>Progress (%)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for student in classroom_data.students %}
+                                <tr>
+                                    <td>
+                                        <div class="student-name">{{ student.student }}</div>
+                                    </td>
+                                    <td class="level-info">{{ student.level }}</td>
+                                    <td>
+                                        <div class="progress-container">
+                                            <div class="progress-percentage
+                                                {% if student.progress >= 80 %}high-progress
+                                                {% elif student.progress >= 60 %}medium-progress
+                                                {% else %}low-progress{% endif %}">
+                                                {{ "%.1f"|format(student.progress) }}%
+                                            </div>
+                                            <div class="progress-bar-container">
+                                                <div class="progress-bar" style="width: {{ student.progress }}%"></div>
                                             </div>
                                         </div>
                                     </td>

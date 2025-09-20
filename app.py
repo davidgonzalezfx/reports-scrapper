@@ -11,7 +11,7 @@ from typing import Dict, List, Any, Optional
 from waitress import serve
 import sys
 
-from utils import load_json, save_json, validate_filename, validate_user_data, get_report_files, get_school_summary, get_classroom_summaries, get_reading_skills_data, get_top_readers_per_classroom
+from utils import load_json, save_json, validate_filename, validate_user_data, get_report_files, get_school_summary, get_classroom_summaries, get_reading_skills_data, get_top_readers_per_classroom, get_level_up_progress_data
 
 # Constants
 USERS_FILE = 'users.json'
@@ -115,6 +115,9 @@ def get_mock_report_data() -> Dict[str, Any]:
 		# Get real reading skills data from reports
 		reading_skills_data = get_reading_skills_data(REPORTS_DIR)
 
+		# Get real level up progress data from reports
+		level_up_progress_data = get_level_up_progress_data(REPORTS_DIR)
+
 		# Get real top readers data from reports
 		top_readers_data = get_top_readers_per_classroom(REPORTS_DIR)
 
@@ -190,6 +193,9 @@ def get_mock_report_data() -> Dict[str, Any]:
 
 				# Slide 4 data (reading skills from reports)
 				'reading_skills': reading_skills_data if reading_skills_data else [],
+
+				# Slide for level up progress
+				'level_up_progress': level_up_progress_data if level_up_progress_data else [],
 
 				# Slide 5 data
 				'top_readers': {

@@ -933,4 +933,113 @@ def get_top_readers_per_classroom(directory: Union[str, Path]) -> Optional[List[
 		except Exception as e:
 				logger.error(f"Error getting top readers per classroom: {e}")
 				return None
+def get_level_up_progress_data(directory: Union[str, Path]) -> Optional[List[Dict[str, Any]]]:
+		"""Get level up progress data from Level Up Progress reports for each classroom.
+
+		Args:
+				directory: Path to the reports directory
+
+		Returns:
+				List of classroom level up dictionaries or None if no data found
+		"""
+		import sys
+		import os
+
+		# Handle path resolution like in other functions
+		if os.path.isabs(str(directory)):
+				reports_directory = Path(directory)
+		else:
+				if getattr(sys, 'frozen', False):
+						base_path = sys._MEIPASS
+				else:
+						base_path = os.path.abspath('.')
+
+				reports_directory = Path(base_path) / directory
+
+		if not reports_directory.exists():
+				logger.warning(f"Reports directory not found: {reports_directory}")
+				return None
+
+		try:
+				# Find Level Up Progress files
+				pattern = "*_Level Up Progress_*.xlsx"
+				files = list(reports_directory.glob(pattern))
+
+				if not files:
+						logger.info("No Level Up Progress reports found")
+						return None
+
+				logger.info(f"Found {len(files)} Level Up Progress reports")
+
+				# Dictionary to accumulate data per classroom
+				classroom_data = {}
+
+				for file_path in sorted(files):
+						try:
+								if not file_path.exists() or file_path.stat().st_size == 0:
+										logger.warning(f"File {file_path} is empty or doesn't exist, skipping")
+										continue
+
+								# Extract classroom name from filename (before "_Level Up Progress")
+								filename = file_path.name
+								if "_Level Up Progress_" in filename:
+										classroom_name = filename.split("_Level Up Progress_")[0]
+								else:
+										logger.warning(f"Could not extract classroom name from {filename}, skipping")
+										continue
+
+								df = pd.read_excel(file_path, engine='openpyxl')
+
+								if df.empty:
+										logger.warning(f"Excel file {file_path} contains no data, skipping")
+										continue
+
+								# Initialize classroom data if not exists
+								if classroom_name not in classroom_data:
+										classroom_data[classroom_name] = {
+												'classroom': classroom_name,
+												'students': []
+										}
+
+								# Process each row in the file
+								for _, row in df.iterrows():
+										cleaned_row = [cell if pd.notna(cell) else '' for cell in row]
+
+										# Extract level up data from columns 6-8 (indices 5-7)
+										if len(cleaned_row) >= 8:
+												# Parse progress value (remove % and convert to float)
+												progress_str = str(cleaned_row[7]).strip()
+												if '%' in progress_str:
+														progress_str = progress_str.replace('%', '')
+												try:
+														progress_value = float(progress_str)
+												except (ValueError, TypeError):
+														progress_value = 0.0
+
+												student_data = {
+														'student': str(cleaned_row[5]).strip(),
+														'level': str(cleaned_row[6]).strip(),
+														'progress': progress_value
+												}
+
+												classroom_data[classroom_name]['students'].append(student_data)
+
+						except Exception as e:
+								logger.error(f"Error processing file {file_path}: {e}")
+								continue
+
+				if not classroom_data:
+						logger.info("No classroom data found in Level Up Progress reports")
+						return None
+
+				# Convert to list and sort by classroom name
+				level_up_progress_data = list(classroom_data.values())
+				level_up_progress_data.sort(key=lambda x: x['classroom'])
+
+				logger.debug(f"Calculated level up progress data for {len(level_up_progress_data)} classrooms")
+				return level_up_progress_data
+
+		except Exception as e:
+				logger.error(f"Error getting level up progress data: {e}")
+				return None
 				return None
