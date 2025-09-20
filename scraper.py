@@ -481,7 +481,7 @@ def login_and_download_reports_for_user(username: str, password: str) -> UserRes
 				with sync_playwright() as p:
 						# Launch browser with proper configuration
 						browser = p.chromium.launch(
-								headless=False,
+								headless=True,
 								args=['--no-sandbox', '--disable-dev-shm-usage']
 						)
 						
@@ -560,6 +560,9 @@ def login_and_download_reports_for_user(username: str, password: str) -> UserRes
 										
 										try:
 												if switch_tab(page, tab_name):
+														if tab_name == "Level Up Progress":
+															select_products_filter(page, "Raz-Plus")  # Force Raz-Plus for this tab
+
 														if download_report(page, username):
 																successful_downloads += 1
 																logger.info(f"Successfully downloaded {tab_name} report")
