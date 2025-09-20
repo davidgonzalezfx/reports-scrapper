@@ -773,6 +773,8 @@
                                     <th>Listen</th>
                                     <th>Read</th>
                                     <th>Quiz</th>
+                                    <th>Interactivity</th>
+                                    <th>Practice Recording</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -789,6 +791,8 @@
                                     <td>{{ classroom.listen }}</td>
                                     <td>{{ classroom.read }}</td>
                                     <td>{{ classroom.quiz }}</td>
+                                    <td>{{ classroom.interactivity }}</td>
+                                    <td>{{ classroom.practice_recording }}</td>
                                 </tr>
                                 {% endfor %}
                                 <tr class="total-row">
@@ -798,6 +802,8 @@
                                     <td><span class="highlight">{{ detailed_activities.total.listen }}</span></td>
                                     <td><span class="highlight">{{ detailed_activities.total.read }}</span></td>
                                     <td><span class="highlight">{{ detailed_activities.total.quiz }}</span></td>
+                                    <td><span class="highlight">{{ detailed_activities.total.interactivity }}</span></td>
+                                    <td><span class="highlight">{{ detailed_activities.total.practice_recording }}</span></td>
                                 </tr>
                             </tbody>
                         </table>
