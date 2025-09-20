@@ -1,9 +1,38 @@
-2025-09-15 23:17:25,068 - __main__ - INFO - Cleared app.log file
-2025-09-15 23:17:25,068 - __main__ - INFO - Starting Flask application
-2025-09-15 23:17:25,068 - __main__ - INFO - Server will be available at http://localhost:5000
-2025-09-15 23:17:25,068 - __main__ - INFO - Browser will open automatically in 1.5 seconds...
-2025-09-15 23:17:25,072 - waitress - INFO - Serving on http://0.0.0.0:5000
-2025-09-15 23:17:26,569 - __main__ - INFO - Opening browser to http://localhost:5000
-2025-09-15 23:17:26,790 - __main__ - INFO - Configuration loaded successfully
-2025-09-15 23:17:26,792 - __main__ - INFO - Loaded 8 users successfully
-2025-09-15 23:17:29,107 - utils - INFO - Found 8 Student Usage reports
+2025-09-20 11:44:09,260 - __main__ - INFO - Cleared app.log file
+2025-09-20 11:44:09,260 - __main__ - INFO - Starting Flask application
+2025-09-20 11:44:09,260 - __main__ - INFO - Server will be available at http://localhost:5000
+2025-09-20 11:44:09,260 - __main__ - INFO - Browser will open automatically in 1.5 seconds...
+2025-09-20 11:44:09,263 - waitress - INFO - Serving on http://0.0.0.0:5000
+2025-09-20 11:44:10,763 - __main__ - INFO - Opening browser to http://localhost:5000
+2025-09-20 11:44:10,973 - __main__ - INFO - Configuration loaded successfully
+2025-09-20 11:44:10,975 - __main__ - INFO - Loaded 1 users successfully
+2025-09-20 11:44:13,046 - __main__ - INFO - Configuration loaded successfully
+2025-09-20 11:44:13,046 - utils - INFO - Found 1 Student Usage reports
+2025-09-20 11:44:13,237 - utils - INFO - Found 1 Student Usage reports for classroom summaries
+2025-09-20 11:44:13,250 - utils - INFO - No Skill reports found
+2025-09-20 11:44:13,251 - utils - INFO - Found 1 Level Up Progress reports
+2025-09-20 11:44:13,265 - utils - INFO - Found 1 Student Usage reports for top readers
+2025-09-20 11:44:40,766 - __main__ - INFO - Configuration loaded successfully
+2025-09-20 11:44:40,767 - __main__ - INFO - Loaded 1 users successfully
+2025-09-20 11:44:48,006 - __main__ - INFO - Configuration loaded successfully
+2025-09-20 11:44:48,007 - __main__ - INFO - Configuration saved successfully
+2025-09-20 11:44:48,007 - __main__ - INFO - Filter configuration updated: date=Last 7 Days, products=All, tabs: ['Student Usage', 'Skill', 'Assignment', 'Assessment', 'Level Up Progress']
+2025-09-20 11:44:48,019 - __main__ - INFO - Configuration loaded successfully
+2025-09-20 11:44:48,020 - __main__ - INFO - Loaded 1 users successfully
+2025-09-20 11:44:50,314 - __main__ - INFO - Configuration loaded successfully
+2025-09-20 11:44:50,314 - utils - INFO - Found 1 Student Usage reports
+2025-09-20 11:44:50,330 - utils - INFO - Found 1 Student Usage reports for classroom summaries
+2025-09-20 11:44:50,343 - utils - INFO - No Skill reports found
+2025-09-20 11:44:50,344 - utils - INFO - Found 1 Level Up Progress reports
+2025-09-20 11:44:50,356 - utils - INFO - Found 1 Student Usage reports for top readers
+2025-09-20 11:44:58,505 - __main__ - INFO - Configuration loaded successfully
+2025-09-20 11:44:58,506 - __main__ - INFO - Configuration saved successfully
+2025-09-20 11:44:58,506 - __main__ - INFO - Filter configuration updated: date=Last 30 Days, products=All, tabs: ['Student Usage', 'Skill', 'Assignment', 'Assessment', 'Level Up Progress']
+2025-09-20 11:44:58,522 - __main__ - INFO - Configuration loaded successfully
+2025-09-20 11:44:58,523 - __main__ - INFO - Loaded 1 users successfully
+2025-09-20 11:45:01,940 - __main__ - INFO - Configuration loaded successfully
+2025-09-20 11:45:01,941 - utils - INFO - Found 1 Student Usage reports
+2025-09-20 11:45:01,956 - utils - INFO - Found 1 Student Usage reports for classroom summaries
+2025-09-20 11:45:01,970 - utils - INFO - No Skill reports found
+2025-09-20 11:45:01,971 - utils - INFO - Found 1 Level Up Progress reports
+2025-09-20 11:45:01,983 - utils - INFO - Found 1 Student Usage reports for top readers

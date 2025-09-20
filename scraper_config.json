@@ -1,5 +1,5 @@
 {
-  "date_filter": "Last 90 Days",
+  "date_filter": "Last 30 Days",
   "tabs": {
     "Student Usage": true,
     "Skill": true,
