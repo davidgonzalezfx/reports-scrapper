@@ -6,7 +6,7 @@ import threading
 import logging
 import webbrowser
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Dict, List, Any, Optional
 from waitress import serve
 import sys
@@ -26,6 +26,69 @@ TABS = [
 		{"name": "Assessment", "default": True},
 		{"name": "Level Up Progress", "default": True},
 ]
+
+def get_spanish_month(month: int) -> str:
+	"""Convert month number to Spanish month name."""
+	months = {
+			1: "Enero", 2: "Febrero", 3: "Marzo", 4: "Abril", 5: "Mayo", 6: "Junio",
+			7: "Julio", 8: "Agosto", 9: "Septiembre", 10: "Octubre", 11: "Noviembre", 12: "Diciembre"
+	}
+	return months.get(month, "Enero")
+
+def get_date_range_string(date_filter: str) -> str:
+	"""Generate date range string based on selected filter."""
+	today = datetime.now()
+
+	if date_filter == "Today":
+			start_date = end_date = today
+			return f"{start_date.day:02d} {get_spanish_month(start_date.month)} {start_date.year}"
+	elif date_filter == "Last 7 Days":
+			end_date = today
+			start_date = today - timedelta(days=7)
+	elif date_filter == "Last 30 Days":
+			end_date = today
+			start_date = today - timedelta(days=30)
+	elif date_filter == "Last 90 Days":
+			end_date = today
+			start_date = today - timedelta(days=90)
+	elif date_filter == "Last Year":
+			end_date = today
+			start_date = today - timedelta(days=365)
+	else:
+			start_date = end_date = today
+
+	start_str = f"{start_date.day:02d} {get_spanish_month(start_date.month)} {start_date.year}"
+	end_str = f"{end_date.day:02d} {get_spanish_month(end_date.month)} {end_date.year}"
+	return f"{start_str} - {end_str}"
+
+def get_subtitle_string(date_filter: str) -> str:
+	"""Generate subtitle string based on selected filter."""
+	today = datetime.now()
+
+	if date_filter == "Today":
+			return f"{get_spanish_month(today.month)} {today.year}"
+	elif date_filter == "Last 7 Days":
+			end_date = today
+			start_date = today - timedelta(days=7)
+	elif date_filter == "Last 30 Days":
+			end_date = today
+			start_date = today - timedelta(days=30)
+	elif date_filter == "Last 90 Days":
+			end_date = today
+			start_date = today - timedelta(days=90)
+	elif date_filter == "Last Year":
+			end_date = today
+			start_date = today - timedelta(days=365)
+	else:
+			start_date = end_date = today
+
+	if start_date.year == end_date.year:
+			if start_date.month == end_date.month:
+					return f"{get_spanish_month(start_date.month)} {start_date.year}"
+			else:
+					return f"{get_spanish_month(start_date.month)} - {get_spanish_month(end_date.month)} {end_date.year}"
+	else:
+			return f"{get_spanish_month(start_date.month)} {start_date.year} - {get_spanish_month(end_date.month)} {end_date.year}"
 
 # Configure logging
 logging.basicConfig(
@@ -106,6 +169,14 @@ def load_config() -> Dict[str, Any]:
 def get_mock_report_data() -> Dict[str, Any]:
 		"""Generate mock data for the report presentation."""
 
+		# Load configuration to get selected date filter
+		config = load_config()
+		date_filter = config.get('date_filter', DATE_FILTERS[0])
+
+		# Compute dynamic date strings based on selected filter
+		date_range = get_date_range_string(date_filter)
+		subtitle = get_subtitle_string(date_filter)
+
 		# Get real summary data from reports
 		summary = get_school_summary(REPORTS_DIR)
 
@@ -124,8 +195,8 @@ def get_mock_report_data() -> Dict[str, Any]:
 		return {
 				# Slide 1 data
 				'report_title': 'REPORTE DE USO',
-				'institution': 'Unidad Educativa XXXXX',
-				'date_range': '01 Marzo - 01 Junio 2025',
+				'institution': 'Unidad Educativa',
+				'date_range': date_range,
 				'logos': [
 						{'icon': 'school', 'text': 'b1 tech'},
 						{'icon': 'menu_book', 'text': 'Learning A-Z'},
@@ -135,7 +206,7 @@ def get_mock_report_data() -> Dict[str, Any]:
 				# Slide 2 data
 				'school_overview': {
 						'title': 'School General Overview',
-						'subtitle': 'Marzo - Abril 2025',
+						'subtitle': subtitle,
 						'stats': [
 								{'number': str(summary['all_teachers']) if summary else '2500', 'label': 'Docentes'},
 								{'number': str(summary['all_students']) if summary else '2500', 'label': 'Estudiantes'}
@@ -161,7 +232,7 @@ def get_mock_report_data() -> Dict[str, Any]:
 				# Slide 3 data
 				'detailed_activities': {
 						'title': 'Detalle Total Actividades',
-						'subtitle': 'Marzo - Abril 2025',
+						'subtitle': subtitle,
 						'activity_summary': [
 								{'icon': 'headphones', 'number': str(int(sum(c['listen'] for c in classroom_summaries))) if classroom_summaries else '0', 'name': 'Listen'},
 								{'icon': 'menu_book', 'number': str(int(sum(c['read'] for c in classroom_summaries))) if classroom_summaries else '0', 'name': 'Read'},
@@ -200,7 +271,7 @@ def get_mock_report_data() -> Dict[str, Any]:
 				# Slide 5 data
 				'top_readers': {
 						'title': 'Top Lectores por Aula',
-						'subtitle': 'Marzo - Abril 2025',
+						'subtitle': subtitle,
 						'classrooms': top_readers_data if top_readers_data else []
 				}
 		}
