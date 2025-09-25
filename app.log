@@ -1,9 +1,14 @@
-2025-09-15 23:17:25,068 - __main__ - INFO - Cleared app.log file
-2025-09-15 23:17:25,068 - __main__ - INFO - Starting Flask application
-2025-09-15 23:17:25,068 - __main__ - INFO - Server will be available at http://localhost:5000
-2025-09-15 23:17:25,068 - __main__ - INFO - Browser will open automatically in 1.5 seconds...
-2025-09-15 23:17:25,072 - waitress - INFO - Serving on http://0.0.0.0:5000
-2025-09-15 23:17:26,569 - __main__ - INFO - Opening browser to http://localhost:5000
-2025-09-15 23:17:26,790 - __main__ - INFO - Configuration loaded successfully
-2025-09-15 23:17:26,792 - __main__ - INFO - Loaded 8 users successfully
-2025-09-15 23:17:29,107 - utils - INFO - Found 8 Student Usage reports
+2025-09-24 19:00:19,039 - __main__ - INFO - Cleared app.log file
+2025-09-24 19:00:19,040 - __main__ - INFO - Starting Flask application
+2025-09-24 19:00:19,040 - __main__ - INFO - Server will be available at http://localhost:5000
+2025-09-24 19:00:19,040 - __main__ - INFO - Browser will open automatically in 1.5 seconds...
+2025-09-24 19:00:19,044 - waitress - INFO - Serving on http://0.0.0.0:5000
+2025-09-24 19:00:20,544 - __main__ - INFO - Opening browser to http://localhost:5000
+2025-09-24 19:00:20,844 - __main__ - INFO - Configuration loaded successfully
+2025-09-24 19:00:20,846 - __main__ - INFO - Loaded 1 users successfully
+2025-09-24 19:00:23,744 - __main__ - INFO - Configuration loaded successfully
+2025-09-24 19:00:23,746 - utils - INFO - Found 1 Student Usage reports
+2025-09-24 19:00:24,022 - utils - INFO - Found 1 Student Usage reports for classroom summaries
+2025-09-24 19:00:24,036 - utils - INFO - Found 1 Skill reports
+2025-09-24 19:00:24,047 - utils - INFO - Found 1 Level Up Progress reports
+2025-09-24 19:00:24,059 - utils - INFO - Found 1 Student Usage reports for top readers

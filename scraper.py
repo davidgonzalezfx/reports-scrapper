@@ -125,12 +125,12 @@ def load_users(users_file: str = USERS_FILE) -> List[Dict[str, str]]:
 
 def login(page, username: str, password: str) -> bool:
 		"""Perform login to the educational platform.
-		
+
 		Args:
 				page: Playwright page object
 				username: User's login username
 				password: User's login password
-				
+
 		Returns:
 				True if login successful, False otherwise
 		"""
@@ -138,38 +138,75 @@ def login(page, username: str, password: str) -> bool:
 				logger.info(f"Attempting login for user: {username}")
 				logger.debug("Navigating to login page")
 				page.goto(LOGIN_URL)
-				
+
 				logger.debug("Filling in credentials")
 				page.fill('input#username', username)
 				page.fill('input#password', password)
-				
+
 				logger.debug("Waiting for login button to be enabled")
 				page.wait_for_selector(
-						'button#memberLoginSubmitButton:not([disabled])', 
+						'button#memberLoginSubmitButton:not([disabled])',
 						timeout=LOGIN_TIMEOUT
 				)
-				
+
 				logger.debug("Clicking login button")
 				page.click('button#memberLoginSubmitButton')
 				page.wait_for_load_state('networkidle')
-				
+
 				# Check if login was successful
 				current_url = page.url
 				logger.debug(f"Post-login URL: {current_url}")
-				
+
 				if current_url.startswith(LOGIN_URL):
 						logger.error(f"Login failed for {username}: Still on login page")
 						return False
-						
+
 				logger.info(f"Login successful for user: {username}")
 				return True
-				
+
 		except PlaywrightTimeoutError as e:
 				logger.error(f"Login timeout for {username}: {e}")
 				return False
 		except Exception as e:
 				logger.error(f"Login error for {username}: {e}")
 				return False
+
+def get_institution_name(page) -> str:
+		"""Extract institution name by clicking account menu and My Profile.
+
+		Args:
+				page: Playwright page object
+
+		Returns:
+				Institution name string, or empty string if not found
+		"""
+		try:
+				logger.debug("Clicking account menu to access profile")
+
+				# Click the account menu button
+				page.wait_for_selector('button.account-menu-button', timeout=DEFAULT_TIMEOUT)
+				page.click('button.account-menu-button')
+				time.sleep(1)  # Wait for menu to appear
+
+				# Click the "My Profile" menu item
+				page.wait_for_selector('a.account-menu-item-link[href*="accountinfo.do"]', timeout=DEFAULT_TIMEOUT)
+				page.click('a.account-menu-item-link[href*="accountinfo.do"]')
+				page.wait_for_load_state('networkidle')
+
+				# Extract the value from the hidden input field
+				institution_input = page.locator('input#productSpecificInformation0\\.organizationName')
+				if institution_input.count() > 0:
+						institution_name = institution_input.get_attribute('value')
+						if institution_name:
+								logger.info(f"Extracted institution name: {institution_name}")
+								return institution_name.strip()
+
+				logger.warning("Institution name input field not found or empty")
+				return ""
+
+		except Exception as e:
+				logger.error(f"Error extracting institution name: {e}")
+				return ""
 
 def navigate_to_reports(page) -> bool:
 		"""Navigate to the reports section of the platform.
@@ -435,7 +472,7 @@ def get_config() -> Dict[str, Any]:
 		logger.info("Loaded scraper configuration")
 		return config
 
-def login_and_download_reports_for_user(username: str, password: str) -> UserResult:
+def login_and_download_reports_for_user(username: str, password: str, scrape_institution: bool = False) -> UserResult:
 		"""Login and download reports for a specific user.
 		
 		Args:
@@ -504,7 +541,35 @@ def login_and_download_reports_for_user(username: str, password: str) -> UserRes
 												error="Failed to login - please check credentials",
 												error_type="login"
 										)
-										
+
+								# Extract institution name from account info page if requested
+								institution_name = ""
+								if scrape_institution:
+										institution_name = get_institution_name(page)
+
+										# Navigate back to Raz-Plus
+										logger.debug("Navigating back to Raz-Plus main page")
+										page.goto("https://www.raz-plus.com/")
+										page.wait_for_load_state('networkidle')
+
+										# Save institution name to config file
+										if institution_name:
+												try:
+														config = get_config()
+														config['institution_name'] = institution_name
+														from utils import save_json
+														if save_json(config, CONFIG_FILE):
+																logger.info(f"Saved institution name '{institution_name}' to config")
+														else:
+																logger.error("Failed to save institution name to config")
+												except Exception as e:
+														logger.error(f"Error saving institution name to config: {e}")
+								else:
+										# Navigate back to Raz-Plus
+										logger.debug("Navigating back to Raz-Plus main page")
+										page.goto("https://www.raz-plus.com/")
+										page.wait_for_load_state('networkidle')
+
 								# Navigate to reports section
 								if not navigate_to_reports(page):
 										logger.error(f"Failed to navigate to reports for user: {username}")
@@ -647,16 +712,18 @@ def run_scraper_for_users(users_file: str = USERS_FILE, verbose: bool = False) -
 		for i, user in enumerate(users, 1):
 				username = user.get('username')
 				password = user.get('password')
-				
+
 				if not username or not password:
 						logger.error(f"User {i}: Missing username or password, skipping")
 						result.warnings.append(f"User {i}: Missing credentials, skipped")
 						continue
-						
+
 				logger.info(f"Processing user {i}/{len(users)}: {username}")
-				
+
 				try:
-						user_result = login_and_download_reports_for_user(username, password)
+						# Only scrape institution name for the first user
+						scrape_institution = (i == 1)
+						user_result = login_and_download_reports_for_user(username, password, scrape_institution)
 						result.user_results.append(user_result)
 						
 						if user_result.success:

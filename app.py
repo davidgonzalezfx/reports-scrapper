@@ -192,10 +192,14 @@ def get_mock_report_data() -> Dict[str, Any]:
 		# Get real top readers data from reports
 		top_readers_data = get_top_readers_per_classroom(REPORTS_DIR)
 
+		# Load institution name from scraper config
+		scraper_config = load_json(CONFIG_FILE, {})
+		institution_name = scraper_config.get('institution_name', 'Unidad Educativa')
+
 		return {
 				# Slide 1 data
 				'report_title': 'REPORTE DE USO',
-				'institution': 'Unidad Educativa',
+				'institution': institution_name,
 				'date_range': date_range,
 				'logos': [
 						{'icon': 'school', 'text': 'b1 tech'},
