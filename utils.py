@@ -636,37 +636,54 @@ def get_classroom_summaries(directory: Union[str, Path]) -> Optional[List[Dict[s
 												classroom_data[classroom_name] = {
 														'name': classroom_name,
 														'students': 0,
+														'students_used': 0,  # Track students who used the tool
 														'listen': 0,
 														'read': 0,
 														'quiz': 0,
 														'interactivity': 0,
 														'practice_recording': 0,
-														'usage': 85  # Hardcoded as requested
+														'usage': 0  # Will be calculated
 												}
 
 										# Increment student count
 										classroom_data[classroom_name]['students'] += 1
 
+										# Check if student used the tool (at least 1 in listen, read, or quiz)
+										student_used = False
+
 										# Sum listens (column 6, index 5)
 										if len(cleaned_row) > 5 and pd.notna(cleaned_row[5]):
 												try:
-														classroom_data[classroom_name]['listen'] += float(cleaned_row[5])
+														listen_val = float(cleaned_row[5])
+														classroom_data[classroom_name]['listen'] += listen_val
+														if listen_val > 0:
+																student_used = True
 												except (ValueError, TypeError):
 														pass
 
 										# Sum reads (column 7, index 6)
 										if len(cleaned_row) > 6 and pd.notna(cleaned_row[6]):
 												try:
-														classroom_data[classroom_name]['read'] += float(cleaned_row[6])
+														read_val = float(cleaned_row[6])
+														classroom_data[classroom_name]['read'] += read_val
+														if read_val > 0:
+																student_used = True
 												except (ValueError, TypeError):
 														pass
 
 										# Sum quizzes (column 8, index 7)
 										if len(cleaned_row) > 7 and pd.notna(cleaned_row[7]):
 												try:
-														classroom_data[classroom_name]['quiz'] += float(cleaned_row[7])
+														quiz_val = float(cleaned_row[7])
+														classroom_data[classroom_name]['quiz'] += quiz_val
+														if quiz_val > 0:
+																student_used = True
 												except (ValueError, TypeError):
 														pass
+
+										# Count student as used if they have activity in any of the three columns
+										if student_used:
+												classroom_data[classroom_name]['students_used'] += 1
 
 										# Sum interactivity (column 9, index 8)
 										if len(cleaned_row) > 8 and pd.notna(cleaned_row[8]):
@@ -689,6 +706,15 @@ def get_classroom_summaries(directory: Union[str, Path]) -> Optional[List[Dict[s
 				if not classroom_data:
 						logger.info("No classroom data found in Student Usage reports")
 						return None
+
+				# Calculate usage percentage for each classroom
+				for classroom in classroom_data.values():
+						total_students = classroom['students']
+						students_used = classroom['students_used']
+						if total_students > 0:
+								classroom['usage'] = round((students_used / total_students) * 100, 1)
+						else:
+								classroom['usage'] = 0
 
 				# Convert to list and sort by classroom name
 				classroom_summaries = list(classroom_data.values())

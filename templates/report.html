@@ -877,8 +877,9 @@
                             <thead>
                                 <tr>
                                     <th>Aula</th>
-                                    <th>Alumnos</th>
-                                    <th>Uso %</th>
+                                    <th>All Students</th>
+                                    <th>Students with activity</th>
+                                    <th>%</th>
                                     <th>Listen</th>
                                     <th>Read</th>
                                     <th>Quiz</th>
@@ -891,6 +892,7 @@
                                 <tr>
                                     <td>{{ classroom.name }}</td>
                                     <td>{{ classroom.students }}</td>
+                                    <td>{{ classroom.students_used }}</td>
                                     <td>
                                         <div>{{ classroom.usage }}%</div>
                                         <div class="usage-bar">
@@ -907,6 +909,7 @@
                                 <tr class="total-row">
                                     <td><span class="highlight">Total general</span></td>
                                     <td><span class="highlight">{{ detailed_activities.total.students }}</span></td>
+                                    <td><span class="highlight">{{ detailed_activities.total.students_used }}</span></td>
                                     <td><span class="highlight">{{ detailed_activities.total.usage }}%</span></td>
                                     <td><span class="highlight">{{ detailed_activities.total.listen }}</span></td>
                                     <td><span class="highlight">{{ detailed_activities.total.read }}</span></td>

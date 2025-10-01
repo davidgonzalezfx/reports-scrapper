@@ -246,6 +246,7 @@ def get_mock_report_data() -> Dict[str, Any]:
 								{
 										'name': classroom['name'],
 										'students': classroom['students'],
+										'students_used': classroom.get('students_used', 0),
 										'usage': classroom['usage'],
 										'listen': int(classroom['listen']),
 										'read': int(classroom['read']),
@@ -257,7 +258,8 @@ def get_mock_report_data() -> Dict[str, Any]:
 						],
 						'total': {
 								'students': sum(c['students'] for c in classroom_summaries) if classroom_summaries else 0,
-								'usage': 88,  # Keep hardcoded as requested
+								'students_used': sum(c.get('students_used', 0) for c in classroom_summaries) if classroom_summaries else 0,
+								'usage': round(sum(c['usage'] * c['students'] for c in classroom_summaries) / sum(c['students'] for c in classroom_summaries), 1) if classroom_summaries and sum(c['students'] for c in classroom_summaries) > 0 else 0,
 								'listen': int(sum(c['listen'] for c in classroom_summaries)) if classroom_summaries else 0,
 								'read': int(sum(c['read'] for c in classroom_summaries)) if classroom_summaries else 0,
 								'quiz': int(sum(c['quiz'] for c in classroom_summaries)) if classroom_summaries else 0,
