@@ -274,8 +274,8 @@ def select_date_filter(page, label: str) -> bool:
 				time.sleep(1)
 				
 				# Wait for options to appear and select the desired one
-				page.wait_for_selector('mat-option .mat-option-text', timeout=DEFAULT_TIMEOUT)
-				options = page.locator('mat-option .mat-option-text')
+				page.wait_for_selector('mat-option', timeout=DEFAULT_TIMEOUT)
+				options = page.locator('mat-option')
 				
 				option_found = False
 				for i in range(options.count()):
@@ -323,8 +323,8 @@ def select_products_filter(page, label: str, stop_on_error: bool = True) -> bool
 				time.sleep(1)
 				
 				# Wait for options to appear and select the desired one
-				page.wait_for_selector('mat-option .mat-option-text', timeout=DEFAULT_TIMEOUT)
-				options = page.locator('mat-option .mat-option-text')
+				page.wait_for_selector('mat-option', timeout=DEFAULT_TIMEOUT)
+				options = page.locator('mat-option')
 				
 				option_found = False
 				for i in range(options.count()):

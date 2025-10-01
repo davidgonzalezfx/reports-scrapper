@@ -700,6 +700,7 @@ def get_classroom_summaries(directory: Union[str, Path]) -> Optional[List[Dict[s
 		except Exception as e:
 				logger.error(f"Error getting classroom summaries: {e}")
 				return None
+
 def get_reading_skills_data(directory: Union[str, Path]) -> Optional[List[Dict[str, Any]]]:
 		"""Get reading skills data from Skill reports for each classroom.
 
@@ -785,7 +786,10 @@ def get_reading_skills_data(directory: Union[str, Path]) -> Optional[List[Dict[s
 												if skill_data['total'] > 0 and skill_data['accuracy'] == 0.0:
 														skill_data['accuracy'] = round((skill_data['correct'] / skill_data['total']) * 100, 1)
 
+												# Sort skill data by accuracy before appending
+												skill_data['accuracy'] = round(skill_data['accuracy'], 1)  # Ensure accuracy is rounded
 												classroom_data[classroom_name]['skills'].append(skill_data)
+												classroom_data[classroom_name]['skills'].sort(key=lambda s: s['accuracy'], reverse=True)
 
 						except Exception as e:
 								logger.error(f"Error processing file {file_path}: {e}")
@@ -799,11 +803,13 @@ def get_reading_skills_data(directory: Union[str, Path]) -> Optional[List[Dict[s
 				reading_skills_data = list(classroom_data.values())
 				reading_skills_data.sort(key=lambda x: x['classroom'])
 
+
 				logger.debug(f"Calculated skills data for {len(reading_skills_data)} classrooms")
 				return reading_skills_data
 
 		except Exception as e:
 				logger.error(f"Error getting reading skills data: {e}")
+
 def get_top_readers_per_classroom(directory: Union[str, Path]) -> Optional[List[Dict[str, Any]]]:
 		"""Get top 3 readers per classroom from Student Usage reports.
 
