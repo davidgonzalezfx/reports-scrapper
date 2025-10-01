@@ -1074,4 +1074,30 @@ def get_level_up_progress_data(directory: Union[str, Path]) -> Optional[List[Dic
 		except Exception as e:
 				logger.error(f"Error getting level up progress data: {e}")
 				return None
+
+def get_classroom_comparison_data(directory: Union[str, Path]) -> Optional[Dict[str, Any]]:
+		"""Get classroom comparison data for bar charts.
+
+		Args:
+				directory: Path to the reports directory
+
+		Returns:
+				Dict with labels and data for listen, read, quiz charts or None if no data found
+		"""
+		summaries = get_classroom_summaries(directory)
+
+		if not summaries:
 				return None
+
+		labels = [c['name'] for c in summaries]
+		listen_data = [c['listen'] for c in summaries]
+		read_data = [c['read'] for c in summaries]
+		quiz_data = [c['quiz'] for c in summaries]
+
+		return {
+				'labels': labels,
+				'listen': listen_data,
+				'read': read_data,
+				'quiz': quiz_data
+		}
+		return None

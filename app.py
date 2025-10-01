@@ -11,7 +11,7 @@ from typing import Dict, List, Any, Optional
 from waitress import serve
 import sys
 
-from utils import load_json, save_json, validate_filename, validate_user_data, get_report_files, get_school_summary, get_classroom_summaries, get_reading_skills_data, get_top_readers_per_classroom, get_level_up_progress_data
+from utils import load_json, save_json, validate_filename, validate_user_data, get_report_files, get_school_summary, get_classroom_summaries, get_reading_skills_data, get_top_readers_per_classroom, get_level_up_progress_data, get_classroom_comparison_data
 
 # Constants
 USERS_FILE = 'users.json'
@@ -192,6 +192,9 @@ def get_mock_report_data() -> Dict[str, Any]:
 		# Get real top readers data from reports
 		top_readers_data = get_top_readers_per_classroom(REPORTS_DIR)
 
+		# Get real classroom comparison data from reports
+		classroom_comparison_data = get_classroom_comparison_data(REPORTS_DIR)
+
 		# Load institution name from scraper config
 		scraper_config = load_json(CONFIG_FILE, {})
 		institution_name = scraper_config.get('institution_name', 'Unidad Educativa')
@@ -279,7 +282,10 @@ def get_mock_report_data() -> Dict[str, Any]:
 						'title': 'Top Lectores por Aula',
 						'subtitle': subtitle,
 						'classrooms': top_readers_data if top_readers_data else []
-				}
+				},
+
+				# Slide 4 data (classroom comparison charts)
+				'classroom_comparison': classroom_comparison_data if classroom_comparison_data else {'labels': [], 'listen': [], 'read': [], 'quiz': []}
 		}
 
 def load_users() -> List[Dict[str, str]]:
