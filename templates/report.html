@@ -503,7 +503,7 @@
 
         .slide-5 .skill-name {
             font-weight: 600;
-            max-width: 400px;
+            width: 400px;
         }
 
         .slide-5 .correct-answers,
@@ -554,6 +554,14 @@
             font-size: 14px;
             color: #757575;
             margin-top: 2px;
+        }
+
+        .slide-5 .table-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            margin-top: 30px;
+            color: #1565C0;
         }
 
         /* Slide 6 styles */
@@ -993,11 +1001,48 @@
                                     <th>Skill</th>
                                     <th>Correct</th>
                                     <th>Total</th>
-                                    <th>Accuracy (percent)</th>
+                                    <th>Accuracy</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for skill in classroom_data.skills %}
+                                <tr>
+                                    <td>
+                                        <div class="skill-name">{{ skill.name }}</div>
+                                    </td>
+                                    <td class="correct-answers">{{ skill.correct }}</td>
+                                    <td class="total-questions">{{ skill.total }}</td>
+                                    <td>
+                                        <div class="accuracy-container">
+                                            <div class="accuracy-percentage
+                                                {% if skill.accuracy >= 80 %}high-accuracy
+                                                {% elif skill.accuracy >= 60 %}medium-accuracy
+                                                {% else %}low-accuracy{% endif %}">
+                                                {{ skill.accuracy }}%
+                                            </div>
+                                            <div class="progress-bar-container">
+                                                <div class="progress-bar" style="width: {{ skill.accuracy }}%"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+
+                        <div class="table-title">Top 5 Skills by Accuracy</div>
+                        <table class="skills-table">
+                            <thead>
+                                <tr>
+                                    <th>Skill</th>
+                                    <th>Correct</th>
+                                    <th>Total</th>
+                                    <th>Accuracy</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% set top_skills = classroom_data.skills | sort(attribute='accuracy', reverse=True) | list %}
+                                {% for skill in top_skills[:5] %}
                                 <tr>
                                     <td>
                                         <div class="skill-name">{{ skill.name }}</div>

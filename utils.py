@@ -812,10 +812,7 @@ def get_reading_skills_data(directory: Union[str, Path]) -> Optional[List[Dict[s
 												if skill_data['total'] > 0 and skill_data['accuracy'] == 0.0:
 														skill_data['accuracy'] = round((skill_data['correct'] / skill_data['total']) * 100, 1)
 
-												# Sort skill data by accuracy before appending
-												skill_data['accuracy'] = round(skill_data['accuracy'], 1)  # Ensure accuracy is rounded
 												classroom_data[classroom_name]['skills'].append(skill_data)
-												classroom_data[classroom_name]['skills'].sort(key=lambda s: s['accuracy'], reverse=True)
 
 						except Exception as e:
 								logger.error(f"Error processing file {file_path}: {e}")
