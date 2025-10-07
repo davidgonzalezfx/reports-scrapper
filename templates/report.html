@@ -139,6 +139,7 @@
             background-color: #1565C0;
             color: white;
             padding: 20px 70px;
+            position: relative;
         }
 
         .title {
@@ -151,6 +152,22 @@
             font-size: 22px;
             font-weight: 400;
             opacity: 0.9;
+        }
+
+        .header-logo {
+            position: absolute;
+            top: 20px;
+            right: 70px;
+            height: 65px;
+            width: auto;
+        }
+
+        .report-logo {
+            position: absolute;
+            top: 20px;
+            right: 70px;
+            height: 65px;
+            width: auto;
         }
 
         .content {
@@ -815,6 +832,7 @@
 
         <!-- Slide 1: Title Slide -->
         <div class="slide slide-1">
+            <img src="templates/images/b1-tech.png" alt="B1 Tech Logo" class="report-logo">
             <div class="blue-section">
                 <div class="report-title">{{ report_title }}</div>
                 <div class="institution">Unidad Educativa: {{ institution }}</div>
@@ -836,6 +854,7 @@
                 <div class="header">
                     <div class="title">{{ school_overview.title }}</div>
                     <div class="subtitle">{{ school_overview.subtitle }}</div>
+                    <img src="templates/images/logo-b1-tech-white.png" alt="B1 Tech Logo" class="header-logo">
                 </div>
                 <div class="content">
                     <div class="left-section">
@@ -891,6 +910,7 @@
                 <div class="header">
                     <div class="title">{{ detailed_activities.title }}</div>
                     <div class="subtitle">{{ detailed_activities.subtitle }}</div>
+                    <img src="templates/images/logo-b1-tech-white.png" alt="B1 Tech Logo" class="header-logo">
                 </div>
                 <div class="content">
                     <div class="activity-summary">
@@ -962,6 +982,7 @@
                 <div class="header">
                     <div class="title">COMPARACIÓN DE ACTIVIDADES POR AULA</div>
                     <div class="subtitle">Análisis comparativo de Listen, Read y Quiz entre aulas</div>
+                    <img src="templates/images/logo-b1-tech-white.png" alt="B1 Tech Logo" class="header-logo">
                 </div>
                 <div class="content">
                     <div class="charts-container">
@@ -987,6 +1008,7 @@
                 <div class="header">
                     <div class="title">HABILIDADES DE COMPRENSIÓN LECTORA</div>
                     <div class="subtitle">Análisis de habilidades de lectura por aula</div>
+                    <img src="templates/images/logo-b1-tech-white.png" alt="B1 Tech Logo" class="header-logo">
                 </div>
                 <div class="content">
                     <div class="classroom-info">
@@ -1079,6 +1101,7 @@
                 <div class="header">
                     <div class="title">PROGRESO DE NIVEL</div>
                     <div class="subtitle">Análisis de progreso de nivel por aula</div>
+                    <img src="templates/images/logo-b1-tech-white.png" alt="B1 Tech Logo" class="header-logo">
                 </div>
                 <div class="content">
                     <div class="classroom-info">
@@ -1131,6 +1154,7 @@
                 <div class="header">
                     <div class="title">{{ top_readers.title }}</div>
                     <div class="subtitle">{{ top_readers.subtitle }}</div>
+                    <img src="templates/images/logo-b1-tech-white.png" alt="B1 Tech Logo" class="header-logo">
                 </div>
                 <div class="content">
                     <div class="table-container">
