@@ -206,8 +206,6 @@ def get_mock_report_data() -> Dict[str, Any]:
 				'date_range': date_range,
 				'logos': [
 						{'icon': 'school', 'text': 'b1 tech'},
-						{'icon': 'menu_book', 'text': 'Learning A-Z'},
-						{'icon': 'analytics', 'text': 'Raz-Kids'}
 				],
 
 				# Slide 2 data
