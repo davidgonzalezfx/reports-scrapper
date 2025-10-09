@@ -154,9 +154,10 @@ def save_config(config_data: Dict[str, Any]) -> None:
 def load_config() -> Dict[str, Any]:
 		"""Load configuration from file with fallback to defaults."""
 		default_config = {
-				"date_filter": DATE_FILTERS[0], 
+				"date_filter": DATE_FILTERS[0],
 				"products_filter": PRODUCTS_FILTERS[0],
-				"tabs": {tab["name"]: tab["default"] for tab in TABS}
+				"tabs": {tab["name"]: tab["default"] for tab in TABS},
+				"institution_name": "Unidad Educativa"
 		}
 		
 		config = load_json(CONFIG_FILE, default_config)
@@ -483,8 +484,9 @@ def index():
 				selected_date_filter = config.get('date_filter', DATE_FILTERS[0])
 				selected_products_filter = config.get('products_filter', PRODUCTS_FILTERS[0])
 				selected_tabs = config.get('tabs', {tab["name"]: tab["default"] for tab in TABS})
+				selected_institution_name = config.get('institution_name', 'Unidad Educativa')
 				users = load_users()
-				
+
 				return render_template(
 						'scrapper.html',
 						files=raw_files,  # Keep for backward compatibility
@@ -498,6 +500,7 @@ def index():
 						selected_products_filter=selected_products_filter,
 						tabs=TABS,
 						selected_tabs=selected_tabs,
+						selected_institution_name=selected_institution_name,
 						users=users
 				)
 		except Exception as e:
@@ -528,9 +531,16 @@ def set_filter():
 				selected_tabs = request.form.getlist('tabs')
 				tabs_config = {tab["name"]: (tab["name"] in selected_tabs) for tab in TABS}
 				config['tabs'] = tabs_config
-				
+
+				# Update institution name
+				institution_name = request.form.get('institution_name', 'Unidad Educativa').strip()
+				if institution_name:
+						config['institution_name'] = institution_name
+				else:
+						config['institution_name'] = 'Unidad Educativa'
+
 				save_config(config)
-				logger.info(f"Filter configuration updated: date={date_filter}, products={products_filter}, tabs: {selected_tabs}")
+				logger.info(f"Filter configuration updated: date={date_filter}, products={products_filter}, tabs: {selected_tabs}, institution: {institution_name}")
 				return redirect(url_for('index'))
 				
 		except Exception as e:
