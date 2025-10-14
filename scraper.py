@@ -567,7 +567,10 @@ def login_and_download_reports_for_user(username: str, password: str) -> UserRes
 										try:
 												if switch_tab(page, tab_name):
 														if tab_name == "Level Up Progress":
-															select_products_filter(page, "Raz-Plus")  # Force Raz-Plus for this tab
+															if selected_products_filter == "All":
+																select_products_filter(page, "Raz-Plus")
+															else:
+																select_products_filter(page, selected_products_filter)
 
 														if download_report(page, username):
 																successful_downloads += 1
