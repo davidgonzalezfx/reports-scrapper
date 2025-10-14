@@ -843,6 +843,31 @@ def report():
 			logger.error(f"Error rendering report: {e}")
 			return jsonify({'error': 'Internal server error'}), 500
 
+@app.route('/logs/app')
+def get_app_logs():
+		"""Get the contents of app.log file."""
+		try:
+			# Determine log file location based on execution context
+			if getattr(sys, 'frozen', False):  # If running as a frozen executable
+				# Logs are written to the _MEIPASS directory (PyInstaller temp directory)
+				log_file_path = os.path.join(sys._MEIPASS, 'app.log')
+			else:
+				# Running in development - logs are in current directory
+				log_file_path = 'app.log'
+
+			if not os.path.exists(log_file_path):
+				logger.warning(f"app.log file not found at {log_file_path}")
+				return jsonify({'error': 'Log file not found'}), 404
+
+			with open(log_file_path, 'r', encoding='utf-8') as f:
+				log_content = f.read()
+
+			return log_content, 200, {'Content-Type': 'text/plain; charset=utf-8'}
+
+		except Exception as e:
+			logger.error(f"Error reading app.log: {e}")
+			return jsonify({'error': 'Failed to read log file'}), 500
+
 @app.route('/templates/images/<filename>')
 def serve_template_image(filename):
 		"""Serve images from templates/images directory."""
