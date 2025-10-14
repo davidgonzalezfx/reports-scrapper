@@ -623,6 +623,13 @@
 					</div>
 
 					{% if files|length > 0 %}
+					<button id="delete-all-btn"
+						class="group relative inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-red-600 to-red-700 text-white font-medium rounded-lg shadow-md hover:from-red-700 hover:to-red-800 focus:outline-none focus:ring-4 focus:ring-red-300 transition-all duration-200">
+						<i class="fas fa-trash-alt"></i>
+						<span>Delete All</span>
+						<div class="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 rounded-lg transition-opacity duration-200"></div>
+					</button>
+
 					<a href="/report"
 						class="group relative inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-medium rounded-lg shadow-md hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-4 focus:ring-indigo-300 transition-all duration-200">
 						<i class="fas fa-chart-line"></i>
@@ -1187,6 +1194,38 @@
 			sessionStorage.removeItem('showNotifications');
 			loadNotifications();
 		}
+
+		// Delete all reports functionality
+		document.getElementById('delete-all-btn').addEventListener('click', function() {
+			if (confirm('Are you sure you want to delete all downloaded reports? This action cannot be undone.')) {
+				// Show loading state
+				const btn = this;
+				const originalText = btn.innerHTML;
+				btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Deleting...</span>';
+				btn.disabled = true;
+
+				fetch('/delete-all-reports', { method: 'POST' })
+					.then(response => response.json())
+					.then(data => {
+						if (data.status === 'ok') {
+							showMessage('All reports deleted successfully', 'success');
+							// Reload page after a short delay
+							setTimeout(() => window.location.reload(), 1500);
+						} else {
+							showMessage(data.error || 'Failed to delete reports', 'error');
+							// Restore button state
+							btn.innerHTML = originalText;
+							btn.disabled = false;
+						}
+					})
+					.catch(error => {
+						showMessage('Error deleting reports: ' + error.message, 'error');
+						// Restore button state
+						btn.innerHTML = originalText;
+						btn.disabled = false;
+					});
+			}
+		});
 	</script>
 </body>
 

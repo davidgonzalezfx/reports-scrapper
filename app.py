@@ -699,6 +699,35 @@ def clear_notifications():
 				logger.error(f"Error clearing notifications: {e}")
 				return jsonify({'error': 'Failed to clear notifications'}), 500
 
+@app.route('/delete-all-reports', methods=['POST'])
+def delete_all_reports():
+		"""Delete all report files from the reports directory."""
+		try:
+				if getattr(sys, 'frozen', False):  # If running as a frozen executable
+						base_path = sys._MEIPASS
+				else:
+						base_path = os.path.abspath('.')
+				REPORTS_DIR_TMP = os.path.join(base_path, 'reports')
+
+				# Ensure reports directory exists
+				os.makedirs(REPORTS_DIR_TMP, exist_ok=True)
+
+				# Delete all files in the reports directory
+				files_deleted = 0
+				for filename in os.listdir(REPORTS_DIR_TMP):
+						file_path = os.path.join(REPORTS_DIR_TMP, filename)
+						if os.path.isfile(file_path):
+								os.remove(file_path)
+								files_deleted += 1
+								logger.info(f"Deleted report file: {filename}")
+
+				logger.info(f"Successfully deleted {files_deleted} report files")
+				return jsonify({'status': 'ok', 'files_deleted': files_deleted})
+
+		except Exception as e:
+				logger.error(f"Error deleting all reports: {e}")
+				return jsonify({'error': f'Failed to delete reports: {str(e)}'}), 500
+
 @app.route('/scrape-logs')
 def scrape_logs():
 		"""Get recent scraper logs for notifications (legacy endpoint - kept for compatibility)."""
