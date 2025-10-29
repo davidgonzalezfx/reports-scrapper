@@ -17,7 +17,7 @@ from utils import load_json, save_json, validate_filename, validate_user_data, g
 USERS_FILE = 'users.json'
 REPORTS_DIR = 'reports'
 CONFIG_FILE = 'scraper_config.json'
-DATE_FILTERS = ["Today", "Last 7 Days", "Last 30 Days", "Last 90 Days", "Last Year"]
+DATE_FILTERS = ["Today", "Last 7 Days", "Last 30 Days", "Last 90 Days", "Last Year", "Custom"]
 PRODUCTS_FILTERS = ["All", "Raz-Plus", "Español", "Science A-Z", "Writing A-Z", "Vocabulary A-Z", "Foundations A-Z"]
 TABS = [
 		{"name": "Student Usage", "default": True},
@@ -35,7 +35,7 @@ def get_spanish_month(month: int) -> str:
 	}
 	return months.get(month, "Enero")
 
-def get_date_range_string(date_filter: str) -> str:
+def get_date_range_string(date_filter: str, custom_start_date: str = None, custom_end_date: str = None) -> str:
 	"""Generate date range string based on selected filter."""
 	today = datetime.now()
 
@@ -54,6 +54,14 @@ def get_date_range_string(date_filter: str) -> str:
 	elif date_filter == "Last Year":
 			end_date = today
 			start_date = today - timedelta(days=365)
+	elif date_filter == "Custom" and custom_start_date and custom_end_date:
+			# Parse custom dates (expected format: DD/MM/YYYY)
+			try:
+				start_date = datetime.strptime(custom_start_date, "%d/%m/%Y")
+				end_date = datetime.strptime(custom_end_date, "%d/%m/%Y")
+			except ValueError:
+				# Fallback to today if parsing fails
+				start_date = end_date = today
 	else:
 			start_date = end_date = today
 
@@ -61,34 +69,42 @@ def get_date_range_string(date_filter: str) -> str:
 	end_str = f"{end_date.day:02d} {get_spanish_month(end_date.month)} {end_date.year}"
 	return f"{start_str} - {end_str}"
 
-def get_subtitle_string(date_filter: str) -> str:
+def get_subtitle_string(date_filter: str, custom_start_date: str = None, custom_end_date: str = None) -> str:
 	"""Generate subtitle string based on selected filter."""
 	today = datetime.now()
 
 	if date_filter == "Today":
-			return f"{get_spanish_month(today.month)} {today.year}"
+		return f"{get_spanish_month(today.month)} {today.year}"
 	elif date_filter == "Last 7 Days":
-			end_date = today
-			start_date = today - timedelta(days=7)
+		end_date = today
+		start_date = today - timedelta(days=7)
 	elif date_filter == "Last 30 Days":
-			end_date = today
-			start_date = today - timedelta(days=30)
+		end_date = today
+		start_date = today - timedelta(days=30)
 	elif date_filter == "Last 90 Days":
-			end_date = today
-			start_date = today - timedelta(days=90)
+		end_date = today
+		start_date = today - timedelta(days=90)
 	elif date_filter == "Last Year":
-			end_date = today
-			start_date = today - timedelta(days=365)
-	else:
+		end_date = today
+		start_date = today - timedelta(days=365)
+	elif date_filter == "Custom" and custom_start_date and custom_end_date:
+		# Parse custom dates (expected format: DD/MM/YYYY)
+		try:
+			start_date = datetime.strptime(custom_start_date, "%d/%m/%Y")
+			end_date = datetime.strptime(custom_end_date, "%d/%m/%Y")
+		except ValueError:
+			# Fallback to today if parsing fails
 			start_date = end_date = today
+	else:
+		start_date = end_date = today
 
 	if start_date.year == end_date.year:
-			if start_date.month == end_date.month:
-					return f"{get_spanish_month(start_date.month)} {start_date.year}"
-			else:
-					return f"{get_spanish_month(start_date.month)} - {get_spanish_month(end_date.month)} {end_date.year}"
+		if start_date.month == end_date.month:
+			return f"{get_spanish_month(start_date.month)} {start_date.year}"
+		else:
+			return f"{get_spanish_month(start_date.month)} - {get_spanish_month(end_date.month)} {end_date.year}"
 	else:
-			return f"{get_spanish_month(start_date.month)} {start_date.year} - {get_spanish_month(end_date.month)} {end_date.year}"
+		return f"{get_spanish_month(start_date.month)} {start_date.year} - {get_spanish_month(end_date.month)} {end_date.year}"
 
 # Configure logging
 logging.basicConfig(
@@ -154,10 +170,12 @@ def save_config(config_data: Dict[str, Any]) -> None:
 def load_config() -> Dict[str, Any]:
 		"""Load configuration from file with fallback to defaults."""
 		default_config = {
-				"date_filter": DATE_FILTERS[0],
-				"products_filter": PRODUCTS_FILTERS[0],
-				"tabs": {tab["name"]: tab["default"] for tab in TABS},
-				"institution_name": "Unidad Educativa"
+			"date_filter": DATE_FILTERS[0],
+			"custom_start_date": "",
+			"custom_end_date": "",
+			"products_filter": PRODUCTS_FILTERS[0],
+			"tabs": {tab["name"]: tab["default"] for tab in TABS},
+			"institution_name": "Unidad Educativa"
 		}
 		
 		config = load_json(CONFIG_FILE, default_config)
@@ -173,10 +191,12 @@ def get_mock_report_data() -> Dict[str, Any]:
 		# Load configuration to get selected date filter
 		config = load_config()
 		date_filter = config.get('date_filter', DATE_FILTERS[0])
+		custom_start_date = config.get('custom_start_date', '')
+		custom_end_date = config.get('custom_end_date', '')
 
 		# Compute dynamic date strings based on selected filter
-		date_range = get_date_range_string(date_filter)
-		subtitle = get_subtitle_string(date_filter)
+		date_range = get_date_range_string(date_filter, custom_start_date, custom_end_date)
+		subtitle = get_subtitle_string(date_filter, custom_start_date, custom_end_date)
 
 		# Get real summary data from reports
 		summary = get_school_summary(REPORTS_DIR)
@@ -482,10 +502,28 @@ def index():
 				
 				config = load_config()
 				selected_date_filter = config.get('date_filter', DATE_FILTERS[0])
+				custom_start_date = config.get('custom_start_date', '')
+				custom_end_date = config.get('custom_end_date', '')
 				selected_products_filter = config.get('products_filter', PRODUCTS_FILTERS[0])
 				selected_tabs = config.get('tabs', {tab["name"]: tab["default"] for tab in TABS})
 				selected_institution_name = config.get('institution_name', 'Unidad Educativa')
 				users = load_users()
+
+				# Convert custom dates back to YYYY-MM-DD format for HTML input type="date"
+				custom_start_date_html = ""
+				custom_end_date_html = ""
+				if custom_start_date:
+					try:
+						start_date_obj = datetime.strptime(custom_start_date, "%d/%m/%Y")
+						custom_start_date_html = start_date_obj.strftime("%Y-%m-%d")
+					except ValueError:
+						logger.warning(f"Invalid custom_start_date format: {custom_start_date}")
+				if custom_end_date:
+					try:
+						end_date_obj = datetime.strptime(custom_end_date, "%d/%m/%Y")
+						custom_end_date_html = end_date_obj.strftime("%Y-%m-%d")
+					except ValueError:
+						logger.warning(f"Invalid custom_end_date format: {custom_end_date}")
 
 				return render_template(
 						'scrapper.html',
@@ -496,6 +534,8 @@ def index():
 						download_in_progress=app_state.get_download_status(),
 						date_filters=DATE_FILTERS,
 						selected_date_filter=selected_date_filter,
+						custom_start_date=custom_start_date_html,
+						custom_end_date=custom_end_date_html,
 						products_filters=PRODUCTS_FILTERS,
 						selected_products_filter=selected_products_filter,
 						tabs=TABS,
@@ -509,43 +549,79 @@ def index():
 
 @app.route('/set-filter', methods=['POST'])
 def set_filter():
-		"""Update filter configuration from form data."""
-		try:
-				config = load_config()
-				
-				# Update date filter
-				date_filter = request.form.get('date_filter', DATE_FILTERS[0])
-				if date_filter not in DATE_FILTERS:
-						logger.warning(f"Invalid date filter received: {date_filter}")
-						date_filter = DATE_FILTERS[0]
-				config['date_filter'] = date_filter
-				
-				# Update products filter
-				products_filter = request.form.get('products_filter', PRODUCTS_FILTERS[0])
-				if products_filter not in PRODUCTS_FILTERS:
-						logger.warning(f"Invalid products filter received: {products_filter}")
-						products_filter = PRODUCTS_FILTERS[0]
-				config['products_filter'] = products_filter
-				
-				# Update tabs selection
-				selected_tabs = request.form.getlist('tabs')
-				tabs_config = {tab["name"]: (tab["name"] in selected_tabs) for tab in TABS}
-				config['tabs'] = tabs_config
+	"""Update filter configuration from form data."""
+	try:
+		config = load_config()
+		
+		# Update date filter
+		date_filter = request.form.get('date_filter', DATE_FILTERS[0])
+		if date_filter not in DATE_FILTERS:
+			logger.warning(f"Invalid date filter received: {date_filter}")
+			date_filter = DATE_FILTERS[0]
+		config['date_filter'] = date_filter
+		
+		# Handle custom dates if "Custom" is selected
+		if date_filter == "Custom":
+			custom_start_date = request.form.get('custom_start_date', '').strip()
+			custom_end_date = request.form.get('custom_end_date', '').strip()
 
-				# Update institution name
-				institution_name = request.form.get('institution_name', 'Unidad Educativa').strip()
-				if institution_name:
-						config['institution_name'] = institution_name
-				else:
-						config['institution_name'] = 'Unidad Educativa'
+			# Validate custom dates
+			if custom_start_date and custom_end_date:
+				try:
+					# Parse dates from HTML input (YYYY-MM-DD format from input type="date")
+					start_date = datetime.strptime(custom_start_date, "%Y-%m-%d")
+					end_date = datetime.strptime(custom_end_date, "%Y-%m-%d")
 
-				save_config(config)
-				logger.info(f"Filter configuration updated: date={date_filter}, products={products_filter}, tabs: {selected_tabs}, institution: {institution_name}")
-				return redirect(url_for('index'))
-				
-		except Exception as e:
-				logger.error(f"Error updating filter configuration: {e}")
-				return jsonify({'error': 'Failed to update configuration'}), 500
+					# Validate date range (max 365 days)
+					date_diff = (end_date - start_date).days
+					if date_diff < 0:
+						logger.warning(f"Invalid custom date range: end date before start date")
+						return jsonify({'error': 'End date must be after start date'}), 400
+					elif date_diff > 365:
+						logger.warning(f"Custom date range exceeds 365 days: {date_diff} days")
+						return jsonify({'error': 'Date range cannot exceed 365 days'}), 400
+
+					# Store custom dates in DD/MM/YYYY format for scraper
+					config['custom_start_date'] = start_date.strftime("%d/%m/%Y")
+					config['custom_end_date'] = end_date.strftime("%d/%m/%Y")
+					logger.info(f"Custom date range set: {config['custom_start_date']} to {config['custom_end_date']}")
+				except ValueError:
+					logger.warning(f"Invalid custom date format: {custom_start_date} - {custom_end_date}")
+					return jsonify({'error': 'Invalid date format. Use YYYY-MM-DD format'}), 400
+			else:
+				logger.warning("Custom date filter selected but no dates provided")
+				return jsonify({'error': 'Please provide both start and end dates for custom range'}), 400
+		else:
+			# Clear custom dates when not using "Custom" filter
+			config['custom_start_date'] = ''
+			config['custom_end_date'] = ''
+		
+		# Update products filter
+		products_filter = request.form.get('products_filter', PRODUCTS_FILTERS[0])
+		if products_filter not in PRODUCTS_FILTERS:
+			logger.warning(f"Invalid products filter received: {products_filter}")
+			products_filter = PRODUCTS_FILTERS[0]
+		config['products_filter'] = products_filter
+		
+		# Update tabs selection
+		selected_tabs = request.form.getlist('tabs')
+		tabs_config = {tab["name"]: (tab["name"] in selected_tabs) for tab in TABS}
+		config['tabs'] = tabs_config
+
+		# Update institution name
+		institution_name = request.form.get('institution_name', 'Unidad Educativa').strip()
+		if institution_name:
+			config['institution_name'] = institution_name
+		else:
+			config['institution_name'] = 'Unidad Educativa'
+
+		save_config(config)
+		logger.info(f"Filter configuration updated: date={date_filter}, products={products_filter}, tabs: {selected_tabs}, institution: {institution_name}")
+		return redirect(url_for('index'))
+		
+	except Exception as e:
+		logger.error(f"Error updating filter configuration: {e}")
+		return jsonify({'error': 'Failed to update configuration'}), 500
 
 @app.route('/download/<filename>')
 def download(filename: str):

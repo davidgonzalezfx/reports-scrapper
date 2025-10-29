@@ -219,7 +219,7 @@ def navigate_to_reports(page) -> bool:
 				logger.error(f"Error navigating to reports: {e}")
 				return False
 
-def select_date_filter(page, label: str) -> bool:
+def select_date_filter(page, label: str, custom_start_date: str = None, custom_end_date: str = None) -> bool:
 		"""Select a date filter option from the dropdown.
 		
 		Args:
@@ -240,7 +240,7 @@ def select_date_filter(page, label: str) -> bool:
 				# Wait for options to appear and select the desired one
 				page.wait_for_selector('mat-option', timeout=DEFAULT_TIMEOUT)
 				options = page.locator('mat-option')
-				
+
 				option_found = False
 				for i in range(options.count()):
 						option_text = options.nth(i).inner_text().strip()
@@ -249,10 +249,43 @@ def select_date_filter(page, label: str) -> bool:
 								logger.info(f"Selected date filter: {label}")
 								option_found = True
 								break
-								
+
 				if not option_found:
 						logger.warning(f"Date filter option '{label}' not found")
 						return False
+				
+				# If "Custom" is selected, fill in the custom date fields
+				if label == "Custom" and custom_start_date and custom_end_date:
+						logger.debug(f"Setting custom date range: {custom_start_date} to {custom_end_date}")
+						time.sleep(2)  # Wait for custom date inputs to appear
+
+						try:
+								# Convert DD/MM/YYYY to MM/DD/YYYY for the website input
+								from datetime import datetime
+								start_date_obj = datetime.strptime(custom_start_date, "%d/%m/%Y")
+								end_date_obj = datetime.strptime(custom_end_date, "%d/%m/%Y")
+								start_date_mmddyyyy = start_date_obj.strftime("%m/%d/%Y")
+								end_date_mmddyyyy = end_date_obj.strftime("%m/%d/%Y")
+
+								# Fill start date
+								page.wait_for_selector('input[aria-label="Start date"]', timeout=DEFAULT_TIMEOUT)
+								page.fill('input[aria-label="Start date"]', start_date_mmddyyyy)
+								logger.debug(f"Filled start date: {start_date_mmddyyyy}")
+
+								# Fill end date
+								page.wait_for_selector('input[aria-label="End date"]', timeout=DEFAULT_TIMEOUT)
+								page.fill('input[aria-label="End date"]', end_date_mmddyyyy)
+								logger.debug(f"Filled end date: {end_date_mmddyyyy}")
+
+								# Wait a moment for dates to be processed
+								time.sleep(1)
+
+						except PlaywrightTimeoutError as e:
+								logger.warning(f"Timeout filling custom date fields: {e}")
+								return False
+						except ValueError as e:
+								logger.error(f"Invalid date format in custom dates: {custom_start_date} - {custom_end_date}: {e}")
+								return False
 						
 				time.sleep(2)  # Allow filter to apply
 				return True
@@ -428,7 +461,9 @@ def get_config() -> Dict[str, Any]:
 		default_config = {
 				"date_filter": "Today",
 				"products_filter": "All",
-				"tabs": {tab["name"]: True for tab in TABS}
+				"tabs": {tab["name"]: True for tab in TABS},
+				"custom_start_date": "",
+				"custom_end_date": ""
 		}
 		
 		from utils import load_json
@@ -531,7 +566,9 @@ def login_and_download_reports_for_user(username: str, password: str) -> UserRes
 								logger.info(f"Using products filter: {selected_products_filter}")
 								
 								# Apply date filter
-								if not select_date_filter(page, selected_date_filter):
+								custom_start_date = config.get('custom_start_date')
+								custom_end_date = config.get('custom_end_date')
+								if not select_date_filter(page, selected_date_filter, custom_start_date, custom_end_date):
 										logger.warning(f"Failed to set date filter to '{selected_date_filter}', continuing with current filter")
 										
 								# Apply products filter

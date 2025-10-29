@@ -20,3 +20,58 @@
 2025-08-03 20:43:52,040 - __main__ - INFO - Completed report download for ycaicedo: 1/1 successful
 2025-08-03 20:43:52,099 - __main__ - INFO - Successfully processed user: ycaicedo
 2025-08-03 20:43:52,100 - __main__ - INFO - Scraper completed: 1/1 users processed successfully
+2025-10-29 12:12:40,183 - __main__ - INFO - Starting scraper execution
+2025-10-29 12:12:40,469 - __main__ - INFO - Loaded 1 users from users.json
+2025-10-29 12:12:40,469 - __main__ - INFO - Found 1 users to process
+2025-10-29 12:12:40,469 - __main__ - INFO - Processing user 1/1: 2alegria
+2025-10-29 12:12:40,469 - __main__ - INFO - Starting report download process for user: 2alegria
+2025-10-29 12:12:40,470 - __main__ - INFO - Set PLAYWRIGHT_BROWSERS_PATH to: /Users/david.gonzalez01/Personal/reports-scrapper/playwright-browsers
+2025-10-29 12:12:42,377 - __main__ - INFO - Attempting login for user: 2alegria
+2025-10-29 12:12:47,549 - __main__ - INFO - Login successful for user: 2alegria
+2025-10-29 12:12:49,496 - __main__ - INFO - Scraper interrupted by user
+2025-10-29 12:12:49,534 - asyncio - ERROR - Future exception was never retrieved
+future: <Future finished exception=TargetClosedError('Target page, context or browser has been closed')>
+playwright._impl._errors.TargetClosedError: Target page, context or browser has been closed
+2025-10-29 12:12:49,537 - asyncio - ERROR - Future exception was never retrieved
+future: <Future finished exception=TargetClosedError('Target page, context or browser has been closed')>
+playwright._impl._errors.TargetClosedError: Target page, context or browser has been closed
+2025-10-29 12:13:01,996 - __main__ - INFO - Starting scraper execution
+2025-10-29 12:13:02,097 - __main__ - INFO - Loaded 1 users from users.json
+2025-10-29 12:13:02,097 - __main__ - INFO - Found 1 users to process
+2025-10-29 12:13:02,097 - __main__ - INFO - Processing user 1/1: 2alegria
+2025-10-29 12:13:02,097 - __main__ - INFO - Starting report download process for user: 2alegria
+2025-10-29 12:13:02,097 - __main__ - INFO - Set PLAYWRIGHT_BROWSERS_PATH to: /Users/david.gonzalez01/Personal/reports-scrapper/playwright-browsers
+2025-10-29 12:13:08,685 - __main__ - INFO - Attempting login for user: 2alegria
+2025-10-29 12:13:29,944 - __main__ - INFO - Login successful for user: 2alegria
+2025-10-29 12:13:38,401 - __main__ - INFO - Successfully navigated to reports section: https://www.kidsa-z.com/main/reports#!/student-usage
+2025-10-29 12:13:41,406 - __main__ - INFO - Loaded scraper configuration
+2025-10-29 12:13:41,406 - __main__ - INFO - Using date filter: Last 90 Days
+2025-10-29 12:13:41,406 - __main__ - INFO - Using products filter: All
+2025-10-29 12:15:00,271 - __main__ - INFO - Scraper interrupted by user
+2025-10-29 12:15:00,295 - asyncio - ERROR - Future exception was never retrieved
+future: <Future finished exception=TargetClosedError('Target page, context or browser has been closed')>
+playwright._impl._errors.TargetClosedError: Target page, context or browser has been closed
+2025-10-29 12:15:00,308 - asyncio - ERROR - Future exception was never retrieved
+future: <Future finished exception=TargetClosedError('Target page, context or browser has been closed')>
+playwright._impl._errors.TargetClosedError: Target page, context or browser has been closed
+2025-10-29 12:16:08,422 - __main__ - INFO - Starting scraper execution
+2025-10-29 12:16:08,524 - __main__ - INFO - Loaded 1 users from users.json
+2025-10-29 12:16:08,524 - __main__ - INFO - Found 1 users to process
+2025-10-29 12:16:08,524 - __main__ - INFO - Processing user 1/1: 2alegria
+2025-10-29 12:16:08,524 - __main__ - INFO - Starting report download process for user: 2alegria
+2025-10-29 12:16:08,525 - __main__ - INFO - Set PLAYWRIGHT_BROWSERS_PATH to: /Users/david.gonzalez01/Personal/reports-scrapper/playwright-browsers
+2025-10-29 12:16:11,408 - __main__ - INFO - Attempting login for user: 2alegria
+2025-10-29 12:16:19,755 - __main__ - INFO - Login successful for user: 2alegria
+2025-10-29 12:16:29,085 - __main__ - INFO - Successfully navigated to reports section: https://www.kidsa-z.com/main/reports#!/student-usage
+2025-10-29 12:16:32,091 - __main__ - INFO - Loaded scraper configuration
+2025-10-29 12:16:32,091 - __main__ - INFO - Using date filter: Last 90 Days
+2025-10-29 12:16:32,091 - __main__ - INFO - Using products filter: All
+2025-10-29 12:16:53,353 - __main__ - INFO - Selected date filter: Last 90 Days
+2025-10-29 12:17:25,105 - __main__ - INFO - Selected products filter: All
+2025-10-29 12:17:27,110 - __main__ - INFO - Processing Student Usage report
+2025-10-29 12:17:30,588 - __main__ - INFO - Successfully switched to tab: Student Usage
+2025-10-29 12:17:31,916 - __main__ - INFO - Downloaded CSV report: 2alegria_Student Usage_All_2025-09-30_2025-10-29.csv
+2025-10-29 12:17:32,429 - utils - INFO - Successfully converted to XLSX: 2alegria_Student Usage_All_2025-09-30_2025-10-29.xlsx
+2025-10-29 12:17:32,429 - __main__ - INFO - Successfully downloaded Student Usage report
+2025-10-29 12:17:32,430 - __main__ - INFO - Processing Skill report
+2025-10-29 12:17:33,256 - __main__ - INFO - Scraper interrupted by user
