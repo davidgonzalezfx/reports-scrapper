@@ -569,14 +569,14 @@ def login_and_download_reports_for_user(
         with sync_playwright() as p:
             # Launch browser with proper configuration
             browser = p.chromium.launch(
-                headless=True,
-                args=['--no-sandbox', '--disable-dev-shm-usage']
+                headless=False,
+                args=['--no-sandbox', '--disable-dev-shm-usage', '--start-maximized']
             )
 
             context = browser.new_context(
                 accept_downloads=True,
                 user_agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
-                viewport={'width': 1280, 'height': 800},
+                viewport={'width': 1280, 'height': 1080},
                 ignore_https_errors=True
             )
 
@@ -620,14 +620,6 @@ def login_and_download_reports_for_user(
                 logger.info(
                     f"Using products filter: {selected_products_filter}")
 
-                # Apply date filter
-                custom_start_date = config.get('custom_start_date')
-                custom_end_date = config.get('custom_end_date')
-                if not select_date_filter(
-                        page, selected_date_filter, custom_start_date, custom_end_date):
-                    logger.warning(
-                        f"Failed to set date filter to '{selected_date_filter}', continuing with current filter")
-
                 # Apply products filter
                 try:
                     if not select_products_filter(
@@ -647,6 +639,14 @@ def login_and_download_reports_for_user(
                         error=error_msg,
                         error_type="product_access"
                     )
+
+                # Apply date filter
+                custom_start_date = config.get('custom_start_date')
+                custom_end_date = config.get('custom_end_date')
+                if not select_date_filter(
+                        page, selected_date_filter, custom_start_date, custom_end_date):
+                    logger.warning(
+                        f"Failed to set date filter to '{selected_date_filter}', continuing with current filter")
 
                 # Process each tab
                 successful_downloads = 0
