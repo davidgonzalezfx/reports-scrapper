@@ -241,6 +241,7 @@ def combine_all_reports(directory: Union[str, Path]) -> Optional[str]:
 								all_data = []
 								headers_written = False
 								header_row_num = None
+								separator_rows = []  # Track separator rows to exclude from summary calculations
 								
 								for file_path in sorted(files):
 										try:
@@ -267,6 +268,17 @@ def combine_all_reports(directory: Union[str, Path]) -> Optional[str]:
 														header_row_num = ws.max_row
 														headers_written = True
 												
+												# Extract username from filename (first part before underscore)
+												filename = file_path.name
+												username = filename.split('_')[0] if '_' in filename else filename
+												
+												# Create separator row with username
+												num_cols = len(df.columns)
+												separator_row = [''] * num_cols
+												separator_row[0] = f"User: {username}"
+												all_data.append(separator_row)
+												separator_rows.append(len(all_data) - 1)  # Track index of separator row
+												
 												# Write the data rows
 												for _, row in df.iterrows():
 														# Handle potential None values in rows
@@ -283,28 +295,48 @@ def combine_all_reports(directory: Union[str, Path]) -> Optional[str]:
 												for row_data in all_data:
 														ws.append(row_data)
 												
-												# Apply header styling
+												# Apply header styling to headers and separator rows
 												if header_row_num:
 														try:
+																# Apply styling to header row
 																for cell in ws[header_row_num]:
 																		cell.fill = header_fill
 																		cell.font = header_font
 																		cell.alignment = header_alignment
+																
+																# Apply styling to separator rows
+																for sep_row_idx in separator_rows:
+																		# Convert index (0-based) to row number (1-based)
+																		# Add 1 for header row, and sep_row_idx + 1 for the actual position
+																		sep_row_num = header_row_num + 1 + sep_row_idx
+																		if sep_row_num <= ws.max_row:
+																				for cell in ws[sep_row_num]:
+																						cell.fill = header_fill
+																						cell.font = header_font
+																						cell.alignment = header_alignment
 														except Exception as style_error:
 																logger.debug(f"Error applying header styling: {style_error}")
 												
 												# Add totals row for Student Usage sheet only - placed directly below data
 												if report_type == "Student Usage":
 														try:
-																# Calculate totals from the actual data
-																total_students = len(all_data)  # Count all data rows
+																# Calculate totals from the actual data (excluding separator rows)
+																# Count only non-separator rows for student count
+																total_students = 0
+																for i, row_data in enumerate(all_data):
+																		if i not in separator_rows:
+																				total_students += 1
+																
 																total_teachers = len(files)  # Count unique teachers/users (one file per teacher)
 																total_listens = 0
 																total_reads = 0
 																total_quizzes = 0
 																
-																# Process each data row
-																for row_data in all_data:
+																# Process each data row (excluding separator rows)
+																for i, row_data in enumerate(all_data):
+																		if i in separator_rows:
+																				continue  # Skip separator rows
+																				
 																		# Sum listens (6th column, index 5)
 																		if len(row_data) > 5 and pd.notna(row_data[5]):
 																				try:
