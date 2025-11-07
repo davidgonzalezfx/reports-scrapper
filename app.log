@@ -1,14 +1,9 @@
-2025-09-24 19:00:19,039 - __main__ - INFO - Cleared app.log file
-2025-09-24 19:00:19,040 - __main__ - INFO - Starting Flask application
-2025-09-24 19:00:19,040 - __main__ - INFO - Server will be available at http://localhost:5000
-2025-09-24 19:00:19,040 - __main__ - INFO - Browser will open automatically in 1.5 seconds...
-2025-09-24 19:00:19,044 - waitress - INFO - Serving on http://0.0.0.0:5000
-2025-09-24 19:00:20,544 - __main__ - INFO - Opening browser to http://localhost:5000
-2025-09-24 19:00:20,844 - __main__ - INFO - Configuration loaded successfully
-2025-09-24 19:00:20,846 - __main__ - INFO - Loaded 1 users successfully
-2025-09-24 19:00:23,744 - __main__ - INFO - Configuration loaded successfully
-2025-09-24 19:00:23,746 - utils - INFO - Found 1 Student Usage reports
-2025-09-24 19:00:24,022 - utils - INFO - Found 1 Student Usage reports for classroom summaries
-2025-09-24 19:00:24,036 - utils - INFO - Found 1 Skill reports
-2025-09-24 19:00:24,047 - utils - INFO - Found 1 Level Up Progress reports
-2025-09-24 19:00:24,059 - utils - INFO - Found 1 Student Usage reports for top readers
+2025-11-06 21:08:29,267 - root - INFO - Cleared log file: app.log
+2025-11-06 21:08:29,267 - __main__ - INFO - Cleared app.log file
+2025-11-06 21:08:29,267 - __main__ - INFO - Starting Flask application
+2025-11-06 21:08:29,267 - __main__ - INFO - Server will be available at http://localhost:5000
+2025-11-06 21:08:29,268 - __main__ - INFO - Browser will open automatically in 1.5 seconds...
+2025-11-06 21:08:29,278 - waitress - INFO - Serving on http://0.0.0.0:5000
+2025-11-06 21:08:30,768 - __main__ - INFO - Opening browser to http://localhost:5000
+2025-11-06 21:08:31,061 - config - INFO - Configuration loaded successfully
+2025-11-06 21:08:31,063 - __main__ - INFO - Loaded 1 users successfully

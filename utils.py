@@ -1,20 +1,52 @@
-"""Utility functions for the reports scraper application."""
+"""Utility functions for the reports scraper application.
+
+This module provides file operations, report processing, and data aggregation
+utilities for the educational platform scraper.
+"""
 
 import json
-import os
-import tempfile
-from datetime import datetime
+import logging
 from pathlib import Path
 from typing import Dict, List, Any, Optional, Union
+
 import pandas as pd
-import logging
-from docx import Document
+from openpyxl import Workbook
+
+# Import new helper modules
+from constants import (
+    REPORTS_DIR, REPORT_TYPES, STUDENT_USAGE_COL_LISTEN,
+    STUDENT_USAGE_COL_READ, STUDENT_USAGE_COL_QUIZ,
+    STUDENT_USAGE_COL_STUDENT_NAME, STUDENT_USAGE_COL_CLASSROOM,
+    STUDENT_USAGE_COL_INTERACTIVITY, STUDENT_USAGE_COL_PRACTICE_RECORDING,
+    SKILL_COL_SKILL_NAME, SKILL_COL_CORRECT, SKILL_COL_TOTAL,
+    SKILL_COL_ACCURACY, SKILL_COL_DATA_BAR, LEVEL_UP_COL_STUDENT,
+    LEVEL_UP_COL_LEVEL, LEVEL_UP_COL_PROGRESS, SUMMARY_LABEL_TEACHERS,
+    SUMMARY_LABEL_STUDENTS, SUMMARY_LABEL_LISTENS, SUMMARY_LABEL_READS,
+    SUMMARY_LABEL_QUIZZES, SUMMARY_LABEL_TOTAL, TIMESTAMP_FORMAT,
+    DANGEROUS_FILENAME_PATTERNS
+)
+from path_helpers import get_base_path, is_frozen
+from excel_helpers import (
+    apply_header_style, auto_adjust_column_widths, add_data_bars,
+    make_unique_sheet_name, create_summary_row, style_summary_row,
+    create_separator_row, clean_row_data
+)
+from date_helpers import get_current_timestamp
+from exceptions import FileOperationError, ReportProcessingError
 
 logger = logging.getLogger(__name__)
 
 
 def load_json(file_path: Union[str, Path], default: Any = None) -> Any:
-    """Load JSON data from file with error handling."""
+    """Load JSON data from file with error handling.
+
+    Args:
+        file_path: Path to JSON file
+        default: Default value to return if file doesn't exist or fails to load
+
+    Returns:
+        Loaded JSON data or default value
+    """
     file_path = Path(file_path)
 
     if not file_path.exists():
@@ -22,7 +54,7 @@ def load_json(file_path: Union[str, Path], default: Any = None) -> Any:
         return default
 
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, "r", encoding="utf-8") as f:
             data = json.load(f)
         logger.debug(f"Successfully loaded JSON from {file_path}")
         return data
@@ -32,13 +64,22 @@ def load_json(file_path: Union[str, Path], default: Any = None) -> Any:
 
 
 def save_json(data: Any, file_path: Union[str, Path], indent: int = 2) -> bool:
-    """Save data to JSON file with error handling."""
+    """Save data to JSON file with error handling.
+
+    Args:
+        data: Data to save
+        file_path: Path to JSON file
+        indent: JSON indentation level
+
+    Returns:
+        True if save successful, False otherwise
+    """
     file_path = Path(file_path)
 
     try:
         file_path.parent.mkdir(parents=True, exist_ok=True)
 
-        with open(file_path, 'w', encoding='utf-8') as f:
+        with open(file_path, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=indent, ensure_ascii=False)
         logger.debug(f"Successfully saved JSON to {file_path}")
         return True
@@ -48,10 +89,20 @@ def save_json(data: Any, file_path: Union[str, Path], indent: int = 2) -> bool:
 
 
 def convert_csv_to_xlsx(
-        csv_path: Union[str, Path], remove_csv: bool = True) -> Optional[str]:
-    """Convert CSV file to XLSX format."""
+    csv_path: Union[str, Path],
+    remove_csv: bool = True
+) -> Optional[str]:
+    """Convert CSV file to XLSX format.
+
+    Args:
+        csv_path: Path to CSV file
+        remove_csv: Whether to remove the original CSV file
+
+    Returns:
+        Path to XLSX file if successful, None otherwise
+    """
     csv_path = Path(csv_path)
-    xlsx_path = csv_path.with_suffix('.xlsx')
+    xlsx_path = csv_path.with_suffix(".xlsx")
 
     try:
         logger.debug(f"Converting {csv_path} to XLSX")
@@ -75,75 +126,106 @@ def convert_csv_to_xlsx(
 
 
 def validate_filename(filename: str) -> bool:
-    """Validate filename for security (prevent path traversal)."""
+    """Validate filename for security (prevent path traversal).
+
+    Args:
+        filename: Filename to validate
+
+    Returns:
+        True if filename is safe, False otherwise
+    """
     if not filename:
         return False
 
-    dangerous_patterns = ['..', '/', '\\']
-    return not any(pattern in filename for pattern in dangerous_patterns)
+    return not any(
+        pattern in filename
+        for pattern in DANGEROUS_FILENAME_PATTERNS
+    )
 
 
 def validate_user_data(user: Dict[str, Any]) -> bool:
-    """Validate user data structure."""
+    """Validate user data structure.
+
+    Args:
+        user: User dictionary to validate
+
+    Returns:
+        True if user data is valid, False otherwise
+    """
     if not isinstance(user, dict):
         return False
 
-    required_fields = ['username', 'password']
+    required_fields = ["username", "password"]
     return all(field in user and user[field] for field in required_fields)
 
 
 def get_report_files(directory: Union[str, Path]) -> List[str]:
-    """Get list of XLSX report files in directory."""
+    """Get list of XLSX report files in directory.
+
+    Args:
+        directory: Path to reports directory
+
+    Returns:
+        List of XLSX filenames sorted by date (newest first)
+    """
     import sys
     import os
 
     # Handle PyInstaller executable case
-    if getattr(sys, 'frozen', False):
-        # When running as executable, check both internal and external reports
-        # directories
-        base_path = sys._MEIPASS
+    if is_frozen():
+        # When running as executable, check both internal and external
+        # reports directories
+        base_path = get_base_path()
         external_dir = Path(
-            os.path.join(
-                os.path.dirname(
-                    sys.executable),
-                str(directory)))
-        internal_dir = Path(base_path) / directory
+            os.path.join(os.path.dirname(sys.executable), str(directory))
+        )
+        internal_dir = base_path / directory
 
         all_files = []
 
         # Check external directory first (priority for user downloads)
         if external_dir.exists():
             try:
-                files = [f.name for f in external_dir.glob(
-                    '*.xlsx') if f.is_file()]
+                files = [
+                    f.name for f in external_dir.glob("*.xlsx")
+                    if f.is_file()
+                ]
                 all_files.extend(files)
                 logger.debug(
-                    f"Found {
-                        len(files)} report files in external directory: {external_dir}")
+                    f"Found {len(files)} report files in external "
+                    f"directory: {external_dir}"
+                )
             except OSError as e:
                 logger.warning(
-                    f"Error reading external reports directory {external_dir}: {e}")
+                    f"Error reading external reports directory "
+                    f"{external_dir}: {e}"
+                )
 
         # Check internal directory
         if internal_dir.exists():
             try:
-                files = [f.name for f in internal_dir.glob(
-                    '*.xlsx') if f.is_file()]
+                files = [
+                    f.name for f in internal_dir.glob("*.xlsx")
+                    if f.is_file()
+                ]
                 all_files.extend(files)
                 logger.debug(
-                    f"Found {
-                        len(files)} report files in internal directory: {internal_dir}")
+                    f"Found {len(files)} report files in internal "
+                    f"directory: {internal_dir}"
+                )
             except OSError as e:
                 logger.warning(
-                    f"Error reading internal reports directory {internal_dir}: {e}")
+                    f"Error reading internal reports directory "
+                    f"{internal_dir}: {e}"
+                )
 
-        # Remove duplicates and sort by name (newest first based on timestamp
-        # in filename)
+        # Remove duplicates and sort
         unique_files = list(set(all_files))
         unique_files.sort(reverse=True)
 
         logger.debug(f"Total found {len(unique_files)} unique report files")
         return unique_files
+
     else:
         # Running in development mode - use original logic
         directory = Path(directory)
@@ -153,7 +235,7 @@ def get_report_files(directory: Union[str, Path]) -> List[str]:
             return []
 
         try:
-            files = [f.name for f in directory.glob('*.xlsx') if f.is_file()]
+            files = [f.name for f in directory.glob("*.xlsx") if f.is_file()]
             files.sort(reverse=True)  # Sort newest first
 
             logger.debug(f"Found {len(files)} report files")
@@ -164,23 +246,16 @@ def get_report_files(directory: Union[str, Path]) -> List[str]:
             return []
 
 
-def combine_all_reports(directory: Union[str, Path]) -> Optional[str]:
-    """Combine all reports by type into a single multi-sheet XLSX file.
+def _resolve_reports_directory(directory: Union[str, Path]) -> Optional[Path]:
+    """Resolve reports directory path.
 
     Args:
-                    directory: Path to the reports directory (can be relative or absolute)
+        directory: Path to reports directory (relative or absolute)
 
     Returns:
-                    Path to the combined file if successful, None otherwise
+        Resolved Path object or None if not found
     """
-    import sys
     import os
-    from openpyxl import Workbook
-    from openpyxl.utils.dataframe import dataframe_to_rows
-    from openpyxl.styles import PatternFill, Font, Alignment
-    from openpyxl.formatting.rule import DataBarRule
-
-    summary_data = None
 
     # Handle both relative and absolute paths, with PyInstaller compatibility
     if os.path.isabs(str(directory)):
@@ -188,32 +263,312 @@ def combine_all_reports(directory: Union[str, Path]) -> Optional[str]:
         reports_directory = Path(directory)
     else:
         # For relative paths, resolve against the correct base directory
-        if getattr(sys, 'frozen', False):
-            # Running as PyInstaller executable
-            base_path = sys._MEIPASS
-        else:
-            # Running in development
-            base_path = os.path.abspath('.')
-
-        reports_directory = Path(base_path) / directory
+        base_path = get_base_path()
+        reports_directory = base_path / directory
 
     if not reports_directory.exists():
         logger.warning(f"Reports directory not found: {reports_directory}")
         return None
 
+    return reports_directory
+
+
+def _create_combined_sheet(
+    combined_wb: Workbook,
+    report_type: str,
+    files: List[Path]
+) -> Optional[str]:
+    """Create a combined sheet for a specific report type.
+
+    Args:
+        combined_wb: Workbook to add sheet to
+        report_type: Type of report
+        files: List of file paths for this report type
+
+    Returns:
+        Sheet name if successful, None otherwise
+    """
     try:
-        # Define all report types based on TABS configuration
-        report_types = [
-            "Student Usage",
-            "Skill",
-            "Assignment",
-            "Assessment",
-            "Level Up Progress"
+        logger.debug(f"Processing {report_type} reports")
+
+        # Create unique sheet name
+        existing_names = [ws.title for ws in combined_wb.worksheets]
+        sheet_name = make_unique_sheet_name(report_type, existing_names)
+        ws = combined_wb.create_sheet(title=sheet_name)
+
+        # Process all files and combine data
+        all_data = []
+        headers_written = False
+        header_row_num = None
+        separator_rows = []
+
+        for file_path in sorted(files):
+            try:
+                # Validate file
+                if not file_path.exists() or file_path.stat().st_size == 0:
+                    logger.warning(
+                        f"File {file_path} is empty or doesn't exist, skipping"
+                    )
+                    continue
+
+                # Read the Excel file
+                try:
+                    df = pd.read_excel(file_path, engine="openpyxl")
+                except Exception as read_error:
+                    logger.error(
+                        f"Failed to read Excel file {file_path}: {read_error}"
+                    )
+                    continue
+
+                if df.empty:
+                    logger.warning(
+                        f"Excel file {file_path} contains no data, skipping"
+                    )
+                    continue
+
+                # Write headers only once
+                if not headers_written:
+                    ws.append(list(df.columns))
+                    header_row_num = ws.max_row
+                    headers_written = True
+
+                # Extract username from filename
+                filename = file_path.name
+                username = filename.split("_")[0] if "_" in filename else filename
+
+                # Create separator row
+                num_cols = len(df.columns)
+                separator_row = create_separator_row(username, num_cols)
+                all_data.append(separator_row)
+                separator_rows.append(len(all_data) - 1)
+
+                # Write data rows
+                for _, row in df.iterrows():
+                    cleaned_row = clean_row_data(list(row))
+                    all_data.append(cleaned_row)
+
+            except Exception as e:
+                logger.error(f"Error processing file {file_path}: {e}")
+                continue
+
+        # Write all collected data to sheet
+        if all_data:
+            _write_data_to_sheet(
+                ws,
+                all_data,
+                header_row_num,
+                separator_rows
+            )
+
+            # Add report-specific formatting
+            _apply_report_specific_formatting(ws, report_type, all_data, files)
+
+            # Auto-adjust column widths
+            auto_adjust_column_widths(ws)
+
+            logger.debug(f"Successfully added sheet for {report_type}")
+            return sheet_name
+
+        return None
+
+    except Exception as e:
+        logger.error(f"Unexpected error processing {report_type} reports: {e}")
+        return None
+
+
+def _write_data_to_sheet(
+    ws,
+    all_data: List[List],
+    header_row_num: Optional[int],
+    separator_rows: List[int]
+) -> None:
+    """Write data to worksheet with proper styling.
+
+    Args:
+        ws: Worksheet to write to
+        all_data: List of data rows
+        header_row_num: Header row number
+        separator_rows: List of separator row indices
+    """
+    try:
+        # Write all rows
+        for row_data in all_data:
+            ws.append(row_data)
+
+        # Apply header styling
+        if header_row_num:
+            try:
+                apply_header_style(ws, header_row_num)
+
+                # Apply styling to separator rows
+                for sep_row_idx in separator_rows:
+                    sep_row_num = header_row_num + 1 + sep_row_idx
+                    if sep_row_num <= ws.max_row:
+                        apply_header_style(ws, sep_row_num)
+
+            except Exception as style_error:
+                logger.debug(f"Error applying header styling: {style_error}")
+
+    except Exception as write_error:
+        logger.error(f"Error writing data to sheet: {write_error}")
+        raise
+
+
+def _apply_report_specific_formatting(
+    ws,
+    report_type: str,
+    all_data: List[List],
+    files: List[Path]
+) -> None:
+    """Apply formatting specific to report type.
+
+    Args:
+        ws: Worksheet to format
+        report_type: Type of report
+        all_data: Data written to sheet
+        files: Source files for the report
+    """
+    if report_type == "Student Usage":
+        _add_student_usage_summary(ws, all_data, files)
+    elif report_type == "Skill":
+        _add_skill_data_bars(ws)
+
+
+def _add_student_usage_summary(
+    ws,
+    all_data: List[List],
+    files: List[Path]
+) -> None:
+    """Add summary rows to Student Usage sheet.
+
+    Args:
+        ws: Worksheet to add summary to
+        all_data: Data in the sheet
+        files: Source files
+    """
+    try:
+        # Track separator rows for exclusion from calculations
+        separator_rows = [
+            i for i, row in enumerate(all_data)
+            if row and str(row[0]).startswith("User:")
         ]
+
+        # Calculate totals
+        total_teachers = len(files)
+        total_students = sum(
+            1 for i in range(len(all_data))
+            if i not in separator_rows
+        )
+        total_listens = 0
+        total_reads = 0
+        total_quizzes = 0
+
+        # Process each data row (excluding separator rows)
+        for i, row_data in enumerate(all_data):
+            if i in separator_rows:
+                continue
+
+            # Sum listens
+            if (len(row_data) > STUDENT_USAGE_COL_LISTEN and
+                    pd.notna(row_data[STUDENT_USAGE_COL_LISTEN])):
+                try:
+                    total_listens += float(row_data[STUDENT_USAGE_COL_LISTEN])
+                except (ValueError, TypeError):
+                    pass
+
+            # Sum reads
+            if (len(row_data) > STUDENT_USAGE_COL_READ and
+                    pd.notna(row_data[STUDENT_USAGE_COL_READ])):
+                try:
+                    total_reads += float(row_data[STUDENT_USAGE_COL_READ])
+                except (ValueError, TypeError):
+                    pass
+
+            # Sum quizzes
+            if (len(row_data) > STUDENT_USAGE_COL_QUIZ and
+                    pd.notna(row_data[STUDENT_USAGE_COL_QUIZ])):
+                try:
+                    total_quizzes += float(row_data[STUDENT_USAGE_COL_QUIZ])
+                except (ValueError, TypeError):
+                    pass
+
+        # Calculate total activities
+        total_activities = total_listens + total_reads + total_quizzes
+
+        # Get number of columns
+        num_cols = ws.max_column if ws.max_column else 8
+
+        # Add empty row for spacing
+        ws.append([""] * num_cols)
+
+        # Add summary rows
+        summary_rows = [
+            (SUMMARY_LABEL_TEACHERS, total_teachers),
+            (SUMMARY_LABEL_STUDENTS, total_students),
+            (SUMMARY_LABEL_LISTENS, int(total_listens)),
+            (SUMMARY_LABEL_READS, int(total_reads)),
+            (SUMMARY_LABEL_QUIZZES, int(total_quizzes)),
+            (SUMMARY_LABEL_TOTAL, int(total_activities))
+        ]
+
+        for label, value in summary_rows:
+            row = create_summary_row(label, value, num_cols)
+            ws.append(row)
+            style_summary_row(ws, ws.max_row)
+
+        logger.debug(
+            f"Added totals row to Student Usage sheet: "
+            f"Students={total_students}, Teachers={total_teachers}, "
+            f"Listens={total_listens}, Reads={total_reads}, "
+            f"Quizzes={total_quizzes}"
+        )
+
+    except Exception as totals_error:
+        logger.debug(
+            f"Error adding totals row to Student Usage sheet: {totals_error}"
+        )
+
+
+def _add_skill_data_bars(ws) -> None:
+    """Add data bars to Skill sheet.
+
+    Args:
+        ws: Worksheet to add data bars to
+    """
+    try:
+        if ws.max_row > 1:  # Check if we have data rows beyond header
+            # Add data bars to column D (Accuracy column)
+            add_data_bars(
+                ws,
+                "D",
+                start_row=2,
+                end_row=ws.max_row,
+                min_value=0,
+                max_value=100
+            )
+            logger.debug(f"Added data bars to Skill sheet column D")
+
+    except Exception as bar_error:
+        logger.debug(f"Error adding data bars to Skill sheet: {bar_error}")
+
+
+def combine_all_reports(directory: Union[str, Path]) -> Optional[str]:
+    """Combine all reports by type into a single multi-sheet XLSX file.
+
+    Args:
+        directory: Path to the reports directory (can be relative or absolute)
+
+    Returns:
+        Path to the combined file if successful, None otherwise
+    """
+    try:
+        reports_directory = _resolve_reports_directory(directory)
+        if not reports_directory:
+            return None
 
         # Find all report files for each type
         reports_by_type = {}
-        for report_type in report_types:
+        for report_type in REPORT_TYPES:
             # Use glob pattern to find files containing the report type
             pattern = f"*_{report_type}_*.xlsx"
             files = list(reports_directory.glob(pattern))
@@ -227,337 +582,38 @@ def combine_all_reports(directory: Union[str, Path]) -> Optional[str]:
 
         # Create a new workbook for combined reports
         combined_wb = Workbook()
-        # Remove the default sheet
-        combined_wb.remove(combined_wb.active)
-
-        # Define styling for headers
-        header_fill = PatternFill(
-            start_color="D4E6F1",
-            end_color="D4E6F1",
-            fill_type="solid")
-        header_font = Font(bold=True, color="000000")
-        header_alignment = Alignment(horizontal="center", vertical="center")
+        combined_wb.remove(combined_wb.active)  # Remove default sheet
 
         # Process each report type
         successful_sheets = 0
-
         for report_type, files in reports_by_type.items():
-            try:
-                logger.debug(f"Processing {report_type} reports")
-
-                # Create a new sheet for this report type
-                # Sanitize sheet name (Excel has restrictions on sheet names)
-                sheet_name = report_type[:31]  # Excel sheet names max 31 chars
-                # Remove invalid characters
-                invalid_chars = [':', '\\', '/', '?', '*', '[', ']']
-                for char in invalid_chars:
-                    sheet_name = sheet_name.replace(char, '_')
-
-                # Ensure unique sheet name if sanitized name conflicts
-                original_sheet_name = sheet_name
-                counter = 1
-                while sheet_name in [
-                        ws.title for ws in combined_wb.worksheets]:
-                    # Leave room for counter
-                    sheet_name = f"{original_sheet_name[:28]}_{counter}"
-                    counter += 1
-
-                ws = combined_wb.create_sheet(title=sheet_name)
-
-                # Process all files of this type and combine their data
-                all_data = []
-                headers_written = False
-                header_row_num = None
-                separator_rows = []  # Track separator rows to exclude from summary calculations
-
-                for file_path in sorted(files):
-                    try:
-                        # Validate file exists and is readable
-                        if not file_path.exists() or file_path.stat().st_size == 0:
-                            logger.warning(
-                                f"File {file_path} is empty or doesn't exist, skipping")
-                            continue
-
-                        # Read the Excel file with error handling
-                        try:
-                            df = pd.read_excel(file_path, engine='openpyxl')
-                        except Exception as read_error:
-                            logger.error(
-                                f"Failed to read Excel file {file_path}: {read_error}")
-                            continue
-
-                        if df.empty:
-                            logger.warning(
-                                f"Excel file {file_path} contains no data, skipping")
-                            continue
-
-                        # Write headers only once
-                        if not headers_written:
-                            # Write column headers
-                            ws.append(list(df.columns))
-                            header_row_num = ws.max_row
-                            headers_written = True
-
-                        # Extract username from filename (first part before
-                        # underscore)
-                        filename = file_path.name
-                        username = filename.split(
-                            '_')[0] if '_' in filename else filename
-
-                        # Create separator row with username
-                        num_cols = len(df.columns)
-                        separator_row = [''] * num_cols
-                        separator_row[0] = f"User: {username}"
-                        all_data.append(separator_row)
-                        separator_rows.append(
-                            len(all_data) - 1)  # Track index of separator row
-
-                        # Write the data rows
-                        for _, row in df.iterrows():
-                            # Handle potential None values in rows
-                            cleaned_row = [
-                                cell if pd.notna(cell) else '' for cell in row]
-                            all_data.append(cleaned_row)
-
-                    except Exception as e:
-                        logger.error(f"Error processing file {file_path}: {e}")
-                        continue
-
-                # Write all collected data to the sheet
-                if all_data:
-                    try:
-                        for row_data in all_data:
-                            ws.append(row_data)
-
-                        # Apply header styling to headers and separator rows
-                        if header_row_num:
-                            try:
-                                # Apply styling to header row
-                                for cell in ws[header_row_num]:
-                                    cell.fill = header_fill
-                                    cell.font = header_font
-                                    cell.alignment = header_alignment
-
-                                # Apply styling to separator rows
-                                for sep_row_idx in separator_rows:
-                                    # Convert index (0-based) to row number (1-based)
-                                    # Add 1 for header row, and sep_row_idx + 1
-                                    # for the actual position
-                                    sep_row_num = header_row_num + 1 + sep_row_idx
-                                    if sep_row_num <= ws.max_row:
-                                        for cell in ws[sep_row_num]:
-                                            cell.fill = header_fill
-                                            cell.font = header_font
-                                            cell.alignment = header_alignment
-                            except Exception as style_error:
-                                logger.debug(
-                                    f"Error applying header styling: {style_error}")
-
-                        # Add totals row for Student Usage sheet only - placed
-                        # directly below data
-                        if report_type == "Student Usage":
-                            try:
-                                # Calculate totals from the actual data (excluding separator rows)
-                                # Count only non-separator rows for student
-                                # count
-                                total_students = 0
-                                for i, row_data in enumerate(all_data):
-                                    if i not in separator_rows:
-                                        total_students += 1
-
-                                # Count unique teachers/users (one file per
-                                # teacher)
-                                total_teachers = len(files)
-                                total_listens = 0
-                                total_reads = 0
-                                total_quizzes = 0
-
-                                # Process each data row (excluding separator
-                                # rows)
-                                for i, row_data in enumerate(all_data):
-                                    if i in separator_rows:
-                                        continue  # Skip separator rows
-
-                                    # Sum listens (6th column, index 5)
-                                    if len(row_data) > 5 and pd.notna(
-                                            row_data[5]):
-                                        try:
-                                            total_listens += float(row_data[5])
-                                        except (ValueError, TypeError):
-                                            pass
-
-                                    # Sum reads (7th column, index 6)
-                                    if len(row_data) > 6 and pd.notna(
-                                            row_data[6]):
-                                        try:
-                                            total_reads += float(row_data[6])
-                                        except (ValueError, TypeError):
-                                            pass
-
-                                    # Sum quizzes (8th column, index 7)
-                                    if len(row_data) > 7 and pd.notna(
-                                            row_data[7]):
-                                        try:
-                                            total_quizzes += float(row_data[7])
-                                        except (ValueError, TypeError):
-                                            pass
-
-                                # Calculate total activities
-                                total_activities = total_listens + total_reads + total_quizzes
-
-                                summary_data = {
-                                    "all_teachers": total_teachers,
-                                    "all_students": total_students,
-                                    "total_listen": int(total_listens),
-                                    "total_read": int(total_reads),
-                                    "total_quizzes": int(total_quizzes),
-                                    "total_activities": int(total_activities),
-                                }
-
-                                # Get the number of columns to create proper
-                                # rows
-                                num_cols = len(
-                                    df.columns) if 'df' in locals() else 8
-
-                                # Add empty row for spacing
-                                ws.append([''] * num_cols)
-
-                                # Create summary rows in columns A and B
-                                summary_rows = [
-                                    ['Total Teachers', total_teachers],
-                                    ['Total Students', total_students],
-                                    ['Total Listens', int(
-                                        total_listens)],
-                                    ['Total Reads', int(
-                                        total_reads)],
-                                    ['Total Quizzes', int(
-                                        total_quizzes)],
-                                    ['Total', int(
-                                        total_activities)]
-                                ]
-
-                                # Add each summary row with empty cells for
-                                # other columns
-                                for label, value in summary_rows:
-                                    row = [''] * num_cols
-                                    row[0] = label  # Column A
-                                    row[1] = value  # Column B
-                                    ws.append(row)
-
-                                    # Apply styling to the summary row
-                                    row_num = ws.max_row
-                                    try:
-                                        # Style only columns A and B
-                                        ws[f'A{row_num}'].fill = header_fill
-                                        ws[f'A{row_num}'].font = header_font
-                                        ws[f'A{row_num}'].alignment = Alignment(
-                                            horizontal="left", vertical="center")
-
-                                        ws[f'B{row_num}'].fill = header_fill
-                                        ws[f'B{row_num}'].font = header_font
-                                        ws[f'B{row_num}'].alignment = Alignment(
-                                            horizontal="right", vertical="center")
-                                    except Exception as style_error:
-                                        logger.debug(
-                                            f"Error applying summary row styling: {style_error}")
-
-                                logger.debug(
-                                    f"Added totals row to Student Usage sheet: Students={total_students}, Teachers={total_teachers}, Listens={total_listens}, Reads={total_reads}, Quizzes={total_quizzes}")
-
-                            except Exception as totals_error:
-                                logger.debug(
-                                    f"Error adding totals row to Student Usage sheet: {totals_error}")
-                                # Continue without totals rather than failing
-
-                        # Auto-adjust column widths with error handling
-                        try:
-                            for column_cells in ws.columns:
-                                length = max(len(str(cell.value or ''))
-                                             for cell in column_cells)
-                                ws.column_dimensions[column_cells[0].column_letter].width = min(
-                                    length + 2, 50)
-                        except Exception as format_error:
-                            logger.debug(
-                                f"Error adjusting column widths for {report_type}: {format_error}")
-                            # Continue without column adjustment
-
-                        # Add visual data bars for Skill sheet column D
-                        if report_type == "Skill":
-                            try:
-                                # Find the range for column D with data
-                                # (excluding header)
-                                if ws.max_row > 1:  # Check if we have data rows beyond header
-                                    # Column D is the 4th column
-                                    # Start from row 2 (after header)
-                                    data_start_row = 2
-                                    data_end_row = ws.max_row
-
-                                    # Create range string for column D data
-                                    data_range = f"D{data_start_row}:D{data_end_row}"
-
-                                    # Create data bar rule with blue color and
-                                    # custom settings
-                                    data_bar_rule = DataBarRule(
-                                        start_type='num', start_value=0,
-                                        end_type='num', end_value=100,
-                                        color="4472C4",  # Blue color matching Excel's default
-                                        showValue=True,   # Show the actual values
-                                        minLength=0,      # Minimum bar length
-                                        maxLength=100     # Maximum bar length
-                                    )
-
-                                    # Apply the data bar rule to column D
-                                    ws.conditional_formatting.add(
-                                        data_range, data_bar_rule)
-
-                                    logger.debug(
-                                        f"Added data bars to Skill sheet column D for range {data_range}")
-                            except Exception as bar_error:
-                                logger.debug(
-                                    f"Error adding data bars to Skill sheet: {bar_error}")
-                                # Continue without data bars rather than
-                                # failing
-
-                        successful_sheets += 1
-                        logger.debug(
-                            f"Successfully added sheet for {report_type}")
-
-                    except Exception as write_error:
-                        logger.error(
-                            f"Error writing data to sheet for {report_type}: {write_error}")
-                        # Remove the sheet if writing failed
-                        combined_wb.remove(ws)
-                        continue
-
-            except Exception as e:
-                logger.error(
-                    f"Unexpected error processing {report_type} reports: {e}")
-                continue
+            sheet_name = _create_combined_sheet(
+                combined_wb,
+                report_type,
+                files
+            )
+            if sheet_name:
+                successful_sheets += 1
 
         if successful_sheets == 0:
             logger.error("No sheets could be created for the combined report")
             return None
 
         # Generate filename with timestamp
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        timestamp = get_current_timestamp(TIMESTAMP_FORMAT)
         combined_filename = f"Combined_All_Reports_{timestamp}.xlsx"
 
-        # Determine the correct path based on whether running as frozen
-        # executable
-        if getattr(sys, 'frozen', False):
-            base_path = sys._MEIPASS
-        else:
-            base_path = os.path.abspath('.')
-
-        reports_dir_path = Path(base_path) / 'reports'
+        # Determine save path
+        base_path = get_base_path()
+        reports_dir_path = base_path / REPORTS_DIR
         combined_file_path = reports_dir_path / combined_filename
 
         # Save the combined workbook
         combined_wb.save(combined_file_path)
+        logger.info(f"Successfully created combined report: {combined_filename}")
         logger.info(
-            f"Successfully created combined report: {combined_filename}")
-        logger.info(
-            f"Combined {successful_sheets} report type sheets into single file")
+            f"Combined {successful_sheets} report type sheets into single file"
+        )
 
         return str(combined_file_path)
 
@@ -567,34 +623,21 @@ def combine_all_reports(directory: Union[str, Path]) -> Optional[str]:
 
 
 def get_school_summary(
-        directory: Union[str, Path]) -> Optional[Dict[str, Any]]:
+    directory: Union[str, Path]
+) -> Optional[Dict[str, Any]]:
     """Get summary data for school overview from Student Usage reports.
 
     Args:
-                    directory: Path to the reports directory
+        directory: Path to the reports directory
 
     Returns:
-                    Dict with summary data or None if no data found
+        Dict with summary data or None if no data found
     """
-    import sys
-    import os
-
-    # Handle path resolution like in combine_all_reports
-    if os.path.isabs(str(directory)):
-        reports_directory = Path(directory)
-    else:
-        if getattr(sys, 'frozen', False):
-            base_path = sys._MEIPASS
-        else:
-            base_path = os.path.abspath('.')
-
-        reports_directory = Path(base_path) / directory
-
-    if not reports_directory.exists():
-        logger.warning(f"Reports directory not found: {reports_directory}")
-        return None
-
     try:
+        reports_directory = _resolve_reports_directory(directory)
+        if not reports_directory:
+            return None
+
         # Find Student Usage files
         pattern = "*_Student Usage_*.xlsx"
         files = list(reports_directory.glob(pattern))
@@ -607,25 +650,25 @@ def get_school_summary(
 
         # Process all files
         all_data = []
-
         for file_path in sorted(files):
             try:
                 if not file_path.exists() or file_path.stat().st_size == 0:
                     logger.warning(
-                        f"File {file_path} is empty or doesn't exist, skipping")
+                        f"File {file_path} is empty or doesn't exist, skipping"
+                    )
                     continue
 
-                df = pd.read_excel(file_path, engine='openpyxl')
+                df = pd.read_excel(file_path, engine="openpyxl")
 
                 if df.empty:
                     logger.warning(
-                        f"Excel file {file_path} contains no data, skipping")
+                        f"Excel file {file_path} contains no data, skipping"
+                    )
                     continue
 
                 # Collect data rows
                 for _, row in df.iterrows():
-                    cleaned_row = [
-                        cell if pd.notna(cell) else '' for cell in row]
+                    cleaned_row = clean_row_data(list(row))
                     all_data.append(cleaned_row)
 
             except Exception as e:
@@ -644,21 +687,24 @@ def get_school_summary(
         total_quizzes = 0
 
         for row_data in all_data:
-            if len(row_data) > 5 and pd.notna(row_data[5]):
+            if (len(row_data) > STUDENT_USAGE_COL_LISTEN and
+                    pd.notna(row_data[STUDENT_USAGE_COL_LISTEN])):
                 try:
-                    total_listens += float(row_data[5])
+                    total_listens += float(row_data[STUDENT_USAGE_COL_LISTEN])
                 except (ValueError, TypeError):
                     pass
 
-            if len(row_data) > 6 and pd.notna(row_data[6]):
+            if (len(row_data) > STUDENT_USAGE_COL_READ and
+                    pd.notna(row_data[STUDENT_USAGE_COL_READ])):
                 try:
-                    total_reads += float(row_data[6])
+                    total_reads += float(row_data[STUDENT_USAGE_COL_READ])
                 except (ValueError, TypeError):
                     pass
 
-            if len(row_data) > 7 and pd.notna(row_data[7]):
+            if (len(row_data) > STUDENT_USAGE_COL_QUIZ and
+                    pd.notna(row_data[STUDENT_USAGE_COL_QUIZ])):
                 try:
-                    total_quizzes += float(row_data[7])
+                    total_quizzes += float(row_data[STUDENT_USAGE_COL_QUIZ])
                 except (ValueError, TypeError):
                     pass
 
@@ -682,34 +728,21 @@ def get_school_summary(
 
 
 def get_classroom_summaries(
-        directory: Union[str, Path]) -> Optional[List[Dict[str, Any]]]:
+    directory: Union[str, Path]
+) -> Optional[List[Dict[str, Any]]]:
     """Get per-classroom summary data from all Student Usage reports.
 
     Args:
-                    directory: Path to the reports directory
+        directory: Path to the reports directory
 
     Returns:
-                    List of classroom summary dictionaries or None if no data found
+        List of classroom summary dictionaries or None if no data found
     """
-    import sys
-    import os
-
-    # Handle path resolution like in other functions
-    if os.path.isabs(str(directory)):
-        reports_directory = Path(directory)
-    else:
-        if getattr(sys, 'frozen', False):
-            base_path = sys._MEIPASS
-        else:
-            base_path = os.path.abspath('.')
-
-        reports_directory = Path(base_path) / directory
-
-    if not reports_directory.exists():
-        logger.warning(f"Reports directory not found: {reports_directory}")
-        return None
-
     try:
+        reports_directory = _resolve_reports_directory(directory)
+        if not reports_directory:
+            return None
+
         # Find Student Usage files
         pattern = "*_Student Usage_*.xlsx"
         files = list(reports_directory.glob(pattern))
@@ -719,8 +752,8 @@ def get_classroom_summaries(
             return None
 
         logger.info(
-            f"Found {
-                len(files)} Student Usage reports for classroom summaries")
+            f"Found {len(files)} Student Usage reports for classroom summaries"
+        )
 
         # Dictionary to accumulate data per classroom
         classroom_data = {}
@@ -729,94 +762,105 @@ def get_classroom_summaries(
             try:
                 if not file_path.exists() or file_path.stat().st_size == 0:
                     logger.warning(
-                        f"File {file_path} is empty or doesn't exist, skipping")
+                        f"File {file_path} is empty or doesn't exist, skipping"
+                    )
                     continue
 
-                df = pd.read_excel(file_path, engine='openpyxl')
+                df = pd.read_excel(file_path, engine="openpyxl")
 
                 if df.empty:
                     logger.warning(
-                        f"Excel file {file_path} contains no data, skipping")
+                        f"Excel file {file_path} contains no data, skipping"
+                    )
                     continue
 
                 # Process each row in the file
                 for _, row in df.iterrows():
-                    cleaned_row = [
-                        cell if pd.notna(cell) else '' for cell in row]
+                    cleaned_row = clean_row_data(list(row))
 
-                    # Extract classroom name from column 2 (District School Id)
-                    classroom_name = str(cleaned_row[1]).strip() if len(
-                        cleaned_row) > 1 else 'Unknown'
+                    # Extract classroom name
+                    classroom_name = (
+                        str(cleaned_row[STUDENT_USAGE_COL_CLASSROOM]).strip()
+                        if len(cleaned_row) > STUDENT_USAGE_COL_CLASSROOM
+                        else "Unknown"
+                    )
 
                     # Initialize classroom data if not exists
                     if classroom_name not in classroom_data:
                         classroom_data[classroom_name] = {
-                            'name': classroom_name,
-                            'students': 0,
-                            'students_used': 0,  # Track students who used the tool
-                            'listen': 0,
-                            'read': 0,
-                            'quiz': 0,
-                            'interactivity': 0,
-                            'practice_recording': 0,
-                            'usage': 0  # Will be calculated
+                            "name": classroom_name,
+                            "students": 0,
+                            "students_used": 0,
+                            "listen": 0,
+                            "read": 0,
+                            "quiz": 0,
+                            "interactivity": 0,
+                            "practice_recording": 0,
+                            "usage": 0
                         }
 
                     # Increment student count
-                    classroom_data[classroom_name]['students'] += 1
+                    classroom_data[classroom_name]["students"] += 1
 
-                    # Check if student used the tool (at least 1 in listen,
-                    # read, or quiz)
+                    # Check if student used the tool
                     student_used = False
 
-                    # Sum listens (column 6, index 5)
-                    if len(cleaned_row) > 5 and pd.notna(cleaned_row[5]):
+                    # Sum listens
+                    if (len(cleaned_row) > STUDENT_USAGE_COL_LISTEN and
+                            pd.notna(cleaned_row[STUDENT_USAGE_COL_LISTEN])):
                         try:
-                            listen_val = float(cleaned_row[5])
-                            classroom_data[classroom_name]['listen'] += listen_val
+                            listen_val = float(
+                                cleaned_row[STUDENT_USAGE_COL_LISTEN]
+                            )
+                            classroom_data[classroom_name]["listen"] += listen_val
                             if listen_val > 0:
                                 student_used = True
                         except (ValueError, TypeError):
                             pass
 
-                    # Sum reads (column 7, index 6)
-                    if len(cleaned_row) > 6 and pd.notna(cleaned_row[6]):
+                    # Sum reads
+                    if (len(cleaned_row) > STUDENT_USAGE_COL_READ and
+                            pd.notna(cleaned_row[STUDENT_USAGE_COL_READ])):
                         try:
-                            read_val = float(cleaned_row[6])
-                            classroom_data[classroom_name]['read'] += read_val
+                            read_val = float(cleaned_row[STUDENT_USAGE_COL_READ])
+                            classroom_data[classroom_name]["read"] += read_val
                             if read_val > 0:
                                 student_used = True
                         except (ValueError, TypeError):
                             pass
 
-                    # Sum quizzes (column 8, index 7)
-                    if len(cleaned_row) > 7 and pd.notna(cleaned_row[7]):
+                    # Sum quizzes
+                    if (len(cleaned_row) > STUDENT_USAGE_COL_QUIZ and
+                            pd.notna(cleaned_row[STUDENT_USAGE_COL_QUIZ])):
                         try:
-                            quiz_val = float(cleaned_row[7])
-                            classroom_data[classroom_name]['quiz'] += quiz_val
+                            quiz_val = float(cleaned_row[STUDENT_USAGE_COL_QUIZ])
+                            classroom_data[classroom_name]["quiz"] += quiz_val
                             if quiz_val > 0:
                                 student_used = True
                         except (ValueError, TypeError):
                             pass
 
-                    # Count student as used if they have activity in any of the
-                    # three columns
+                    # Count student as used if they have activity
                     if student_used:
-                        classroom_data[classroom_name]['students_used'] += 1
+                        classroom_data[classroom_name]["students_used"] += 1
 
-                    # Sum interactivity (column 9, index 8)
-                    if len(cleaned_row) > 8 and pd.notna(cleaned_row[8]):
+                    # Sum interactivity
+                    if (len(cleaned_row) > STUDENT_USAGE_COL_INTERACTIVITY and
+                            pd.notna(cleaned_row[STUDENT_USAGE_COL_INTERACTIVITY])):
                         try:
-                            classroom_data[classroom_name]['interactivity'] += float(
-                                cleaned_row[8])
+                            classroom_data[classroom_name]["interactivity"] += float(
+                                cleaned_row[STUDENT_USAGE_COL_INTERACTIVITY]
+                            )
                         except (ValueError, TypeError):
                             pass
 
-                    # Sum practice recording (column 10, index 9)
-                    if len(cleaned_row) > 9 and pd.notna(cleaned_row[9]):
+                    # Sum practice recording
+                    if (len(cleaned_row) > STUDENT_USAGE_COL_PRACTICE_RECORDING and
+                            pd.notna(cleaned_row[STUDENT_USAGE_COL_PRACTICE_RECORDING])):
                         try:
-                            classroom_data[classroom_name]['practice_recording'] += float(
-                                cleaned_row[9])
+                            classroom_data[classroom_name]["practice_recording"] += float(
+                                cleaned_row[STUDENT_USAGE_COL_PRACTICE_RECORDING]
+                            )
                         except (ValueError, TypeError):
                             pass
 
@@ -830,21 +874,22 @@ def get_classroom_summaries(
 
         # Calculate usage percentage for each classroom
         for classroom in classroom_data.values():
-            total_students = classroom['students']
-            students_used = classroom['students_used']
+            total_students = classroom["students"]
+            students_used = classroom["students_used"]
             if total_students > 0:
-                classroom['usage'] = round(
-                    (students_used / total_students) * 100, 1)
+                classroom["usage"] = round(
+                    (students_used / total_students) * 100, 1
+                )
             else:
-                classroom['usage'] = 0
+                classroom["usage"] = 0
 
         # Convert to list and sort by classroom name
         classroom_summaries = list(classroom_data.values())
-        classroom_summaries.sort(key=lambda x: x['name'])
+        classroom_summaries.sort(key=lambda x: x["name"])
 
         logger.debug(
-            f"Calculated summaries for {
-                len(classroom_summaries)} classrooms")
+            f"Calculated summaries for {len(classroom_summaries)} classrooms"
+        )
         return classroom_summaries
 
     except Exception as e:
@@ -853,34 +898,21 @@ def get_classroom_summaries(
 
 
 def get_reading_skills_data(
-        directory: Union[str, Path]) -> Optional[List[Dict[str, Any]]]:
+    directory: Union[str, Path]
+) -> Optional[List[Dict[str, Any]]]:
     """Get reading skills data from Skill reports for each classroom.
 
     Args:
-                    directory: Path to the reports directory
+        directory: Path to the reports directory
 
     Returns:
-                    List of classroom skill dictionaries or None if no data found
+        List of classroom skill dictionaries or None if no data found
     """
-    import sys
-    import os
-
-    # Handle path resolution like in other functions
-    if os.path.isabs(str(directory)):
-        reports_directory = Path(directory)
-    else:
-        if getattr(sys, 'frozen', False):
-            base_path = sys._MEIPASS
-        else:
-            base_path = os.path.abspath('.')
-
-        reports_directory = Path(base_path) / directory
-
-    if not reports_directory.exists():
-        logger.warning(f"Reports directory not found: {reports_directory}")
-        return None
-
     try:
+        reports_directory = _resolve_reports_directory(directory)
+        if not reports_directory:
+            return None
+
         # Find Skill files
         pattern = "*_Skill_*.xlsx"
         files = list(reports_directory.glob(pattern))
@@ -898,53 +930,72 @@ def get_reading_skills_data(
             try:
                 if not file_path.exists() or file_path.stat().st_size == 0:
                     logger.warning(
-                        f"File {file_path} is empty or doesn't exist, skipping")
+                        f"File {file_path} is empty or doesn't exist, skipping"
+                    )
                     continue
 
-                # Extract classroom name from filename (before "_Skill")
+                # Extract classroom name from filename
                 filename = file_path.name
                 if "_Skill_" in filename:
                     classroom_name = filename.split("_Skill_")[0]
                 else:
                     logger.warning(
-                        f"Could not extract classroom name from {filename}, skipping")
+                        f"Could not extract classroom name from {filename}, "
+                        f"skipping"
+                    )
                     continue
 
-                df = pd.read_excel(file_path, engine='openpyxl')
+                df = pd.read_excel(file_path, engine="openpyxl")
 
                 if df.empty:
                     logger.warning(
-                        f"Excel file {file_path} contains no data, skipping")
+                        f"Excel file {file_path} contains no data, skipping"
+                    )
                     continue
 
                 # Initialize classroom data if not exists
                 if classroom_name not in classroom_data:
                     classroom_data[classroom_name] = {
-                        'classroom': classroom_name,
-                        'skills': []
+                        "classroom": classroom_name,
+                        "skills": []
                     }
 
                 # Process each row in the file
                 for _, row in df.iterrows():
-                    cleaned_row = [
-                        cell if pd.notna(cell) else '' for cell in row]
+                    cleaned_row = clean_row_data(list(row))
 
-                    # Extract skill data from columns 1-4 (indices 0-3)
+                    # Extract skill data from columns
                     if len(cleaned_row) >= 4:
                         skill_data = {
-                            'name': str(cleaned_row[0]).strip(),
-                            'correct': int(cleaned_row[1]) if pd.notna(cleaned_row[1]) and str(cleaned_row[1]).isdigit() else 0,
-                            'total': int(cleaned_row[2]) if pd.notna(cleaned_row[2]) and str(cleaned_row[2]).isdigit() else 0,
-                            'accuracy': float(cleaned_row[3]) if pd.notna(cleaned_row[3]) else 0.0
+                            "name": str(cleaned_row[SKILL_COL_SKILL_NAME]).strip(),
+                            "correct": (
+                                int(cleaned_row[SKILL_COL_CORRECT])
+                                if pd.notna(cleaned_row[SKILL_COL_CORRECT]) and
+                                str(cleaned_row[SKILL_COL_CORRECT]).isdigit()
+                                else 0
+                            ),
+                            "total": (
+                                int(cleaned_row[SKILL_COL_TOTAL])
+                                if pd.notna(cleaned_row[SKILL_COL_TOTAL]) and
+                                str(cleaned_row[SKILL_COL_TOTAL]).isdigit()
+                                else 0
+                            ),
+                            "accuracy": (
+                                float(cleaned_row[SKILL_COL_ACCURACY])
+                                if pd.notna(cleaned_row[SKILL_COL_ACCURACY])
+                                else 0.0
+                            )
                         }
 
                         # Calculate accuracy if not provided
-                        if skill_data['total'] > 0 and skill_data['accuracy'] == 0.0:
-                            skill_data['accuracy'] = round(
-                                (skill_data['correct'] / skill_data['total']) * 100, 1)
+                        if (skill_data["total"] > 0 and
+                                skill_data["accuracy"] == 0.0):
+                            skill_data["accuracy"] = round(
+                                (skill_data["correct"] / skill_data["total"]) * 100,
+                                1
+                            )
 
-                        classroom_data[classroom_name]['skills'].append(
-                            skill_data)
+                        classroom_data[classroom_name]["skills"].append(skill_data)
 
             except Exception as e:
                 logger.error(f"Error processing file {file_path}: {e}")
@@ -956,46 +1007,34 @@ def get_reading_skills_data(
 
         # Convert to list and sort by classroom name
         reading_skills_data = list(classroom_data.values())
-        reading_skills_data.sort(key=lambda x: x['classroom'])
+        reading_skills_data.sort(key=lambda x: x["classroom"])
 
         logger.debug(
-            f"Calculated skills data for {
-                len(reading_skills_data)} classrooms")
+            f"Calculated skills data for {len(reading_skills_data)} classrooms"
+        )
         return reading_skills_data
 
     except Exception as e:
         logger.error(f"Error getting reading skills data: {e}")
+        return None
 
 
 def get_top_readers_per_classroom(
-        directory: Union[str, Path]) -> Optional[List[Dict[str, Any]]]:
+    directory: Union[str, Path]
+) -> Optional[List[Dict[str, Any]]]:
     """Get top 3 readers per classroom from Student Usage reports.
 
     Args:
-                    directory: Path to the reports directory
+        directory: Path to the reports directory
 
     Returns:
-                    List of classroom dictionaries with top readers or None if no data found
+        List of classroom dictionaries with top readers or None if no data found
     """
-    import sys
-    import os
-
-    # Handle path resolution like in other functions
-    if os.path.isabs(str(directory)):
-        reports_directory = Path(directory)
-    else:
-        if getattr(sys, 'frozen', False):
-            base_path = sys._MEIPASS
-        else:
-            base_path = os.path.abspath('.')
-
-        reports_directory = Path(base_path) / directory
-
-    if not reports_directory.exists():
-        logger.warning(f"Reports directory not found: {reports_directory}")
-        return None
-
     try:
+        reports_directory = _resolve_reports_directory(directory)
+        if not reports_directory:
+            return None
+
         # Find Student Usage files
         pattern = "*_Student Usage_*.xlsx"
         files = list(reports_directory.glob(pattern))
@@ -1004,9 +1043,7 @@ def get_top_readers_per_classroom(
             logger.info("No Student Usage reports found")
             return None
 
-        logger.info(
-            f"Found {
-                len(files)} Student Usage reports for top readers")
+        logger.info(f"Found {len(files)} Student Usage reports for top readers")
 
         # Dictionary to accumulate students per classroom
         classroom_students = {}
@@ -1015,27 +1052,33 @@ def get_top_readers_per_classroom(
             try:
                 if not file_path.exists() or file_path.stat().st_size == 0:
                     logger.warning(
-                        f"File {file_path} is empty or doesn't exist, skipping")
+                        f"File {file_path} is empty or doesn't exist, skipping"
+                    )
                     continue
 
-                df = pd.read_excel(file_path, engine='openpyxl')
+                df = pd.read_excel(file_path, engine="openpyxl")
 
                 if df.empty:
                     logger.warning(
-                        f"Excel file {file_path} contains no data, skipping")
+                        f"Excel file {file_path} contains no data, skipping"
+                    )
                     continue
 
                 # Process each row in the file
                 for _, row in df.iterrows():
-                    cleaned_row = [
-                        cell if pd.notna(cell) else '' for cell in row]
+                    cleaned_row = clean_row_data(list(row))
 
-                    # Extract student name (column 1, index 0), classroom
-                    # (column 2, index 1)
-                    student_name = str(
-                        cleaned_row[0]).strip() if len(cleaned_row) > 0 else ''
-                    classroom_name = str(cleaned_row[1]).strip() if len(
-                        cleaned_row) > 1 else 'Unknown'
+                    # Extract student name and classroom
+                    student_name = (
+                        str(cleaned_row[STUDENT_USAGE_COL_STUDENT_NAME]).strip()
+                        if len(cleaned_row) > STUDENT_USAGE_COL_STUDENT_NAME
+                        else ""
+                    )
+                    classroom_name = (
+                        str(cleaned_row[STUDENT_USAGE_COL_CLASSROOM]).strip()
+                        if len(cleaned_row) > STUDENT_USAGE_COL_CLASSROOM
+                        else "Unknown"
+                    )
 
                     if not student_name:
                         continue
@@ -1044,15 +1087,17 @@ def get_top_readers_per_classroom(
                     listen = 0
                     read = 0
 
-                    if len(cleaned_row) > 5 and pd.notna(cleaned_row[5]):
+                    if (len(cleaned_row) > STUDENT_USAGE_COL_LISTEN and
+                            pd.notna(cleaned_row[STUDENT_USAGE_COL_LISTEN])):
                         try:
-                            listen = float(cleaned_row[5])
+                            listen = float(cleaned_row[STUDENT_USAGE_COL_LISTEN])
                         except (ValueError, TypeError):
                             pass
 
-                    if len(cleaned_row) > 6 and pd.notna(cleaned_row[6]):
+                    if (len(cleaned_row) > STUDENT_USAGE_COL_READ and
+                            pd.notna(cleaned_row[STUDENT_USAGE_COL_READ])):
                         try:
-                            read = float(cleaned_row[6])
+                            read = float(cleaned_row[STUDENT_USAGE_COL_READ])
                         except (ValueError, TypeError):
                             pass
 
@@ -1064,8 +1109,8 @@ def get_top_readers_per_classroom(
 
                     # Add student to classroom
                     classroom_students[classroom_name].append({
-                        'name': student_name,
-                        'score': score
+                        "name": student_name,
+                        "score": score
                     })
 
             except Exception as e:
@@ -1081,27 +1126,27 @@ def get_top_readers_per_classroom(
 
         for classroom_name, students in classroom_students.items():
             # Filter out students with zero scores
-            valid_students = [s for s in students if s['score'] > 0]
+            valid_students = [s for s in students if s["score"] > 0]
 
             # Skip classroom if all students have zero scores
             if not valid_students:
                 continue
 
             # Sort by score descending and take top 3
-            valid_students.sort(key=lambda x: x['score'], reverse=True)
+            valid_students.sort(key=lambda x: x["score"], reverse=True)
             top_students = valid_students[:3]
 
             top_readers_data.append({
-                'name': classroom_name,
-                'students': top_students
+                "name": classroom_name,
+                "students": top_students
             })
 
         # Sort classrooms by name
-        top_readers_data.sort(key=lambda x: x['name'])
+        top_readers_data.sort(key=lambda x: x["name"])
 
         logger.debug(
-            f"Calculated top readers for {
-                len(top_readers_data)} classrooms")
+            f"Calculated top readers for {len(top_readers_data)} classrooms"
+        )
         return top_readers_data
 
     except Exception as e:
@@ -1110,34 +1155,21 @@ def get_top_readers_per_classroom(
 
 
 def get_level_up_progress_data(
-        directory: Union[str, Path]) -> Optional[List[Dict[str, Any]]]:
-    """Get level up progress data from Level Up Progress reports for each classroom.
+    directory: Union[str, Path]
+) -> Optional[List[Dict[str, Any]]]:
+    """Get level up progress data from Level Up Progress reports.
 
     Args:
-                    directory: Path to the reports directory
+        directory: Path to the reports directory
 
     Returns:
-                    List of classroom level up dictionaries or None if no data found
+        List of classroom level up dictionaries or None if no data found
     """
-    import sys
-    import os
-
-    # Handle path resolution like in other functions
-    if os.path.isabs(str(directory)):
-        reports_directory = Path(directory)
-    else:
-        if getattr(sys, 'frozen', False):
-            base_path = sys._MEIPASS
-        else:
-            base_path = os.path.abspath('.')
-
-        reports_directory = Path(base_path) / directory
-
-    if not reports_directory.exists():
-        logger.warning(f"Reports directory not found: {reports_directory}")
-        return None
-
     try:
+        reports_directory = _resolve_reports_directory(directory)
+        if not reports_directory:
+            return None
+
         # Find Level Up Progress files
         pattern = "*_Level Up Progress_*.xlsx"
         files = list(reports_directory.glob(pattern))
@@ -1155,57 +1187,64 @@ def get_level_up_progress_data(
             try:
                 if not file_path.exists() or file_path.stat().st_size == 0:
                     logger.warning(
-                        f"File {file_path} is empty or doesn't exist, skipping")
+                        f"File {file_path} is empty or doesn't exist, skipping"
+                    )
                     continue
 
-                # Extract classroom name from filename (before "_Level Up
-                # Progress")
+                # Extract classroom name from filename
                 filename = file_path.name
                 if "_Level Up Progress_" in filename:
                     classroom_name = filename.split("_Level Up Progress_")[0]
                 else:
                     logger.warning(
-                        f"Could not extract classroom name from {filename}, skipping")
+                        f"Could not extract classroom name from {filename}, "
+                        f"skipping"
+                    )
                     continue
 
-                df = pd.read_excel(file_path, engine='openpyxl')
+                df = pd.read_excel(file_path, engine="openpyxl")
 
                 if df.empty:
                     logger.warning(
-                        f"Excel file {file_path} contains no data, skipping")
+                        f"Excel file {file_path} contains no data, skipping"
+                    )
                     continue
 
                 # Initialize classroom data if not exists
                 if classroom_name not in classroom_data:
                     classroom_data[classroom_name] = {
-                        'classroom': classroom_name,
-                        'students': []
+                        "classroom": classroom_name,
+                        "students": []
                     }
 
                 # Process each row in the file
                 for _, row in df.iterrows():
-                    cleaned_row = [
-                        cell if pd.notna(cell) else '' for cell in row]
+                    cleaned_row = clean_row_data(list(row))
 
-                    # Extract level up data from columns 6-8 (indices 5-7)
+                    # Extract level up data from columns
                     if len(cleaned_row) >= 8:
                         # Parse progress value (remove % and convert to float)
-                        progress_str = str(cleaned_row[7]).strip()
-                        if '%' in progress_str:
-                            progress_str = progress_str.replace('%', '')
+                        progress_str = str(
+                            cleaned_row[LEVEL_UP_COL_PROGRESS]
+                        ).strip()
+                        if "%" in progress_str:
+                            progress_str = progress_str.replace("%", "")
                         try:
                             progress_value = float(progress_str)
                         except (ValueError, TypeError):
                             progress_value = 0.0
 
                         student_data = {
-                            'student': str(cleaned_row[5]).strip(),
-                            'level': str(cleaned_row[6]).strip(),
-                            'progress': progress_value
+                            "student": str(
+                                cleaned_row[LEVEL_UP_COL_STUDENT]
+                            ).strip(),
+                            "level": str(cleaned_row[LEVEL_UP_COL_LEVEL]).strip(),
+                            "progress": progress_value
                         }
 
-                        classroom_data[classroom_name]['students'].append(
-                            student_data)
+                        classroom_data[classroom_name]["students"].append(
+                            student_data
+                        )
 
             except Exception as e:
                 logger.error(f"Error processing file {file_path}: {e}")
@@ -1217,11 +1256,12 @@ def get_level_up_progress_data(
 
         # Convert to list and sort by classroom name
         level_up_progress_data = list(classroom_data.values())
-        level_up_progress_data.sort(key=lambda x: x['classroom'])
+        level_up_progress_data.sort(key=lambda x: x["classroom"])
 
         logger.debug(
-            f"Calculated level up progress data for {
-                len(level_up_progress_data)} classrooms")
+            f"Calculated level up progress data for "
+            f"{len(level_up_progress_data)} classrooms"
+        )
         return level_up_progress_data
 
     except Exception as e:
@@ -1230,29 +1270,29 @@ def get_level_up_progress_data(
 
 
 def get_classroom_comparison_data(
-        directory: Union[str, Path]) -> Optional[Dict[str, Any]]:
+    directory: Union[str, Path]
+) -> Optional[Dict[str, Any]]:
     """Get classroom comparison data for bar charts.
 
     Args:
-                    directory: Path to the reports directory
+        directory: Path to the reports directory
 
     Returns:
-                    Dict with labels and data for listen, read, quiz charts or None if no data found
+        Dict with labels and data for listen, read, quiz charts or None
     """
     summaries = get_classroom_summaries(directory)
 
     if not summaries:
         return None
 
-    labels = [c['name'] for c in summaries]
-    listen_data = [c['listen'] for c in summaries]
-    read_data = [c['read'] for c in summaries]
-    quiz_data = [c['quiz'] for c in summaries]
+    labels = [c["name"] for c in summaries]
+    listen_data = [c["listen"] for c in summaries]
+    read_data = [c["read"] for c in summaries]
+    quiz_data = [c["quiz"] for c in summaries]
 
     return {
-        'labels': labels,
-        'listen': listen_data,
-        'read': read_data,
-        'quiz': quiz_data
+        "labels": labels,
+        "listen": listen_data,
+        "read": read_data,
+        "quiz": quiz_data
     }
-    return None

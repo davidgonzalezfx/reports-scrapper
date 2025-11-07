@@ -1,119 +1,68 @@
 """Web scraper for educational reports using Playwright.
 
-This module handles automated login and report downloading from an educational platform.
+This module handles automated login and report downloading from an educational
+platform using browser automation with Playwright.
 """
 
 import argparse
-import json
 import logging
 import os
 import sys
 import time
-from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import List, Dict, Optional
 
 import pandas as pd
 from dotenv import load_dotenv
-from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeoutError
+
+# IMPORTANT: Set up Playwright environment BEFORE importing playwright
+# This must happen before any playwright imports to ensure the browser
+# is found in the local playwright-browsers directory
+from path_helpers import (
+    setup_playwright_environment, get_reports_directory, is_frozen
+)
+
+# Set up the environment variable for Playwright browsers location
+setup_playwright_environment()
+
+# Now we can safely import Playwright
+from playwright.sync_api import (
+    sync_playwright, Page, Browser, BrowserContext,
+    TimeoutError as PlaywrightTimeoutError
+)
+
+# Import other helper modules
+from constants import (
+    REPORTS_DIR, LOGIN_URL, RAZ_PLUS_URL, CONFIG_FILE, USERS_FILE,
+    DEFAULT_TIMEOUT, LOGIN_TIMEOUT, DOWNLOAD_TIMEOUT, PAGE_LOAD_WAIT,
+    SELECTOR_USERNAME_INPUT, SELECTOR_PASSWORD_INPUT,
+    SELECTOR_LOGIN_BUTTON_ENABLED, SELECTOR_LOGIN_BUTTON,
+    SELECTOR_MENU_BUTTON, SELECTOR_CLASSROOM_REPORTS,
+    SELECTOR_DATE_FILTER, SELECTOR_PRODUCTS_FILTER, SELECTOR_FILTER_OPTION,
+    SELECTOR_START_DATE_INPUT, SELECTOR_END_DATE_INPUT,
+    SELECTOR_REPORT_TAB, SELECTOR_ELLIPSIS_BUTTON, SELECTOR_CSV_DOWNLOAD,
+    SELECTOR_NO_RESULTS, TABS, BROWSER_ARGS, BROWSER_USER_AGENT,
+    BROWSER_VIEWPORT_WIDTH, BROWSER_VIEWPORT_HEIGHT
+)
+from config import load_config as load_scraper_config
+from models import UserResult, ScraperResult
+from date_helpers import convert_date_for_website
+from logging_config import setup_scraper_logging, get_logger
+from exceptions import (
+    LoginError, NavigationError, ProductAccessError,
+    DownloadError, TabSwitchError, BrowserError
+)
+from utils import load_json, convert_csv_to_xlsx
 
 # Load environment variables
 load_dotenv()
 
+# Setup logging
+setup_scraper_logging()
+logger = get_logger(__name__)
 
-class ProductNotAvailableError(Exception):
-    """Exception raised when a product filter is not available for the user."""
-    pass
-
-
-@dataclass
-class UserResult:
-    """Result of processing a single user."""
-    username: str
-    success: bool
-    error: Optional[str] = None
-    # 'login', 'product_access', 'navigation', 'download', 'unexpected'
-    error_type: Optional[str] = None
-    reports_downloaded: int = 0
-    reports_attempted: int = 0
-
-
-@dataclass
-class ScraperResult:
-    """Overall result of the scraper execution."""
-    success: bool
-    users_processed: int
-    total_users: int
-    user_results: List[UserResult] = field(default_factory=list)
-    warnings: List[str] = field(default_factory=list)
-
-    def get_error_summary(self) -> str:
-        """Get a summary of all errors."""
-        if not self.user_results:
-            return "No users were processed"
-
-        errors = [r for r in self.user_results if not r.success]
-        if not errors:
-            return f"All {self.users_processed} users processed successfully"
-
-        # Group errors by type
-        error_groups = {}
-        for result in errors:
-            error_type = result.error_type or 'unknown'
-            if error_type not in error_groups:
-                error_groups[error_type] = []
-            error_groups[error_type].append(result)
-
-        # Build summary
-        summaries = []
-        for error_type, results in error_groups.items():
-            if error_type == 'product_access':
-                for result in results:
-                    summaries.append(
-                        f"User '{result.username}': {result.error}")
-            elif error_type == 'login':
-                usernames = [r.username for r in results]
-                summaries.append(f"Login failed for: {', '.join(usernames)}")
-            else:
-                usernames = [r.username for r in results]
-                summaries.append(
-                    f"{error_type.replace('_', ' ').title()} error for: "
-                    f"{', '.join(usernames)}")
-
-        return " | ".join(
-            summaries) if summaries else "Errors occurred during processing"
-
-
-# Constants
-REPORTS_DIR = 'reports'
-LOGIN_URL = 'https://accounts.learninga-z.com/ng/member/login?siteAbbr=rp'
-USERNAME = os.getenv('SCRAPER_USERNAME', 'your_username')
-PASSWORD = os.getenv('SCRAPER_PASSWORD', 'your_password')
-CONFIG_FILE = 'scraper_config.json'
-USERS_FILE = 'users.json'
-
-# Page interaction timeouts
-DEFAULT_TIMEOUT = 15000
-LOGIN_TIMEOUT = 10000
-DOWNLOAD_TIMEOUT = 30000
-
-TABS = [
-    {"name": "Student Usage"},
-    {"name": "Skill"},
-    {"name": "Assignment"},
-    {"name": "Assessment"},
-    {"name": "Level Up Progress"},
-]
-
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler('scraper.log'),
-        logging.StreamHandler()
-    ]
-)
-logger = logging.getLogger(__name__)
+# Environment defaults
+USERNAME = os.getenv("SCRAPER_USERNAME", "your_username")
+PASSWORD = os.getenv("SCRAPER_PASSWORD", "your_password")
 
 # Ensure reports directory exists
 os.makedirs(REPORTS_DIR, exist_ok=True)
@@ -128,13 +77,12 @@ def load_users(users_file: str = USERS_FILE) -> List[Dict[str, str]]:
     Returns:
         List of user dictionaries with username and password
     """
-    from utils import load_json
     users = load_json(users_file, [])
     logger.info(f"Loaded {len(users)} users from {users_file}")
     return users
 
 
-def login(page, username: str, password: str) -> bool:
+def login(page: Page, username: str, password: str) -> bool:
     """Perform login to the educational platform.
 
     Args:
@@ -144,6 +92,9 @@ def login(page, username: str, password: str) -> bool:
 
     Returns:
         True if login successful, False otherwise
+
+    Raises:
+        LoginError: If login fails
     """
     try:
         logger.info(f"Attempting login for user: {username}")
@@ -151,18 +102,18 @@ def login(page, username: str, password: str) -> bool:
         page.goto(LOGIN_URL)
 
         logger.debug("Filling in credentials")
-        page.fill('input#username', username)
-        page.fill('input#password', password)
+        page.fill(SELECTOR_USERNAME_INPUT, username)
+        page.fill(SELECTOR_PASSWORD_INPUT, password)
 
         logger.debug("Waiting for login button to be enabled")
         page.wait_for_selector(
-            'button#memberLoginSubmitButton:not([disabled])',
+            SELECTOR_LOGIN_BUTTON_ENABLED,
             timeout=LOGIN_TIMEOUT
         )
 
         logger.debug("Clicking login button")
-        page.click('button#memberLoginSubmitButton')
-        page.wait_for_load_state('networkidle')
+        page.click(SELECTOR_LOGIN_BUTTON)
+        page.wait_for_load_state("networkidle")
 
         # Check if login was successful
         current_url = page.url
@@ -183,7 +134,7 @@ def login(page, username: str, password: str) -> bool:
         return False
 
 
-def navigate_to_reports(page) -> bool:
+def navigate_to_reports(page: Page) -> bool:
     """Navigate to the reports section of the platform.
 
     Args:
@@ -191,16 +142,19 @@ def navigate_to_reports(page) -> bool:
 
     Returns:
         True if navigation successful, False otherwise
+
+    Raises:
+        NavigationError: If navigation fails
     """
     try:
         logger.debug("Looking for Menu button")
-        page.wait_for_selector('span.buttonText', timeout=DEFAULT_TIMEOUT)
+        page.wait_for_selector(SELECTOR_MENU_BUTTON, timeout=DEFAULT_TIMEOUT)
 
-        menu_buttons = page.locator('span.buttonText')
+        menu_buttons = page.locator(SELECTOR_MENU_BUTTON)
         menu_found = False
 
         for i in range(menu_buttons.count()):
-            if menu_buttons.nth(i).inner_text().strip() == 'Menu':
+            if menu_buttons.nth(i).inner_text().strip() == "Menu":
                 logger.debug("Clicking Menu button")
                 menu_buttons.nth(i).click()
                 menu_found = True
@@ -215,15 +169,15 @@ def navigate_to_reports(page) -> bool:
 
         logger.debug("Looking for Classroom Reports link")
         page.wait_for_selector(
-            'a:has-text("Classroom Reports")',
-            timeout=DEFAULT_TIMEOUT)
-        page.click('a:has-text("Classroom Reports")')
-        page.wait_for_load_state('networkidle')
+            SELECTOR_CLASSROOM_REPORTS,
+            timeout=DEFAULT_TIMEOUT
+        )
+        page.click(SELECTOR_CLASSROOM_REPORTS)
+        page.wait_for_load_state("networkidle")
 
         current_url = page.url
-        logger.info(
-            f"Successfully navigated to reports section: {current_url}")
-        time.sleep(3)  # Allow page to fully load
+        logger.info(f"Successfully navigated to reports: {current_url}")
+        time.sleep(PAGE_LOAD_WAIT)
         return True
 
     except PlaywrightTimeoutError as e:
@@ -234,14 +188,19 @@ def navigate_to_reports(page) -> bool:
         return False
 
 
-def select_date_filter(page, label: str,
-                       custom_start_date: str = None,
-                       custom_end_date: str = None) -> bool:
+def select_date_filter(
+    page: Page,
+    label: str,
+    custom_start_date: Optional[str] = None,
+    custom_end_date: Optional[str] = None
+) -> bool:
     """Select a date filter option from the dropdown.
 
     Args:
         page: Playwright page object
         label: Date filter label to select
+        custom_start_date: Custom start date in DD/MM/YYYY format
+        custom_end_date: Custom end date in DD/MM/YYYY format
 
     Returns:
         True if selection successful, False otherwise
@@ -250,13 +209,13 @@ def select_date_filter(page, label: str,
         logger.debug(f"Selecting date filter: {label}")
 
         # Click on the date filter dropdown
-        page.wait_for_selector('#mat-select-0', timeout=DEFAULT_TIMEOUT)
-        page.click('#mat-select-0')
+        page.wait_for_selector(SELECTOR_DATE_FILTER, timeout=DEFAULT_TIMEOUT)
+        page.click(SELECTOR_DATE_FILTER)
         time.sleep(1)
 
-        # Wait for options to appear and select the desired one
-        page.wait_for_selector('mat-option', timeout=DEFAULT_TIMEOUT)
-        options = page.locator('mat-option')
+        # Wait for options and select
+        page.wait_for_selector(SELECTOR_FILTER_OPTION, timeout=DEFAULT_TIMEOUT)
+        options = page.locator(SELECTOR_FILTER_OPTION)
 
         option_found = False
         for i in range(options.count()):
@@ -271,46 +230,43 @@ def select_date_filter(page, label: str,
             logger.warning(f"Date filter option '{label}' not found")
             return False
 
-        # If "Custom" is selected, fill in the custom date fields
+        # Handle custom dates if "Custom" is selected
         if label == "Custom" and custom_start_date and custom_end_date:
             logger.debug(
-                f"Setting custom date range: {custom_start_date} to {custom_end_date}")
-            time.sleep(2)  # Wait for custom date inputs to appear
+                f"Setting custom date range: {custom_start_date} "
+                f"to {custom_end_date}"
+            )
+            time.sleep(2)  # Wait for custom date inputs
 
             try:
-                # Convert DD/MM/YYYY to MM/DD/YYYY for the website input
-                from datetime import datetime
-                start_date_obj = datetime.strptime(
-                    custom_start_date, "%d/%m/%Y")
-                end_date_obj = datetime.strptime(custom_end_date, "%d/%m/%Y")
-                start_date_mmddyyyy = start_date_obj.strftime("%m/%d/%Y")
-                end_date_mmddyyyy = end_date_obj.strftime("%m/%d/%Y")
+                # Convert dates to website format (MM/DD/YYYY)
+                start_date_website = convert_date_for_website(custom_start_date)
+                end_date_website = convert_date_for_website(custom_end_date)
+
+                if not start_date_website or not end_date_website:
+                    logger.error("Failed to convert custom dates")
+                    return False
 
                 # Fill start date
                 page.wait_for_selector(
-                    'input[aria-label="Start date"]',
-                    timeout=DEFAULT_TIMEOUT)
-                page.fill(
-                    'input[aria-label="Start date"]',
-                    start_date_mmddyyyy)
-                logger.debug(f"Filled start date: {start_date_mmddyyyy}")
+                    SELECTOR_START_DATE_INPUT,
+                    timeout=DEFAULT_TIMEOUT
+                )
+                page.fill(SELECTOR_START_DATE_INPUT, start_date_website)
+                logger.debug(f"Filled start date: {start_date_website}")
 
                 # Fill end date
                 page.wait_for_selector(
-                    'input[aria-label="End date"]',
-                    timeout=DEFAULT_TIMEOUT)
-                page.fill('input[aria-label="End date"]', end_date_mmddyyyy)
-                logger.debug(f"Filled end date: {end_date_mmddyyyy}")
+                    SELECTOR_END_DATE_INPUT,
+                    timeout=DEFAULT_TIMEOUT
+                )
+                page.fill(SELECTOR_END_DATE_INPUT, end_date_website)
+                logger.debug(f"Filled end date: {end_date_website}")
 
-                # Wait a moment for dates to be processed
                 time.sleep(1)
 
             except PlaywrightTimeoutError as e:
                 logger.warning(f"Timeout filling custom date fields: {e}")
-                return False
-            except ValueError as e:
-                logger.error(
-                    f"Invalid date format in custom dates: {custom_start_date} - {custom_end_date}: {e}")
                 return False
 
         time.sleep(2)  # Allow filter to apply
@@ -324,8 +280,11 @@ def select_date_filter(page, label: str,
         return False
 
 
-def select_products_filter(page, label: str,
-                           stop_on_error: bool = True) -> bool:
+def select_products_filter(
+    page: Page,
+    label: str,
+    stop_on_error: bool = True
+) -> bool:
     """Select a products filter option from the dropdown.
 
     Args:
@@ -337,19 +296,22 @@ def select_products_filter(page, label: str,
         True if selection successful, False otherwise
 
     Raises:
-        ProductNotAvailableError: When product filter is not available and stop_on_error is True
+        ProductAccessError: When product not available and stop_on_error is True
     """
     try:
         logger.debug(f"Selecting products filter: {label}")
 
         # Click on the products filter dropdown
-        page.wait_for_selector('#mat-select-2', timeout=DEFAULT_TIMEOUT)
-        page.click('#mat-select-2')
+        page.wait_for_selector(
+            SELECTOR_PRODUCTS_FILTER,
+            timeout=DEFAULT_TIMEOUT
+        )
+        page.click(SELECTOR_PRODUCTS_FILTER)
         time.sleep(1)
 
-        # Wait for options to appear and select the desired one
-        page.wait_for_selector('mat-option', timeout=DEFAULT_TIMEOUT)
-        options = page.locator('mat-option')
+        # Wait for options and select
+        page.wait_for_selector(SELECTOR_FILTER_OPTION, timeout=DEFAULT_TIMEOUT)
+        options = page.locator(SELECTOR_FILTER_OPTION)
 
         option_found = False
         for i in range(options.count()):
@@ -361,17 +323,20 @@ def select_products_filter(page, label: str,
                 break
 
         if not option_found:
-            error_msg = f"Products filter option '{label}' not found - user may not have access to this product"
+            error_msg = (
+                f"Products filter option '{label}' not found - "
+                f"user may not have access to this product"
+            )
             logger.error(error_msg)
-            if stop_on_error and label != "All":  # Don't stop for "All" filter
-                raise ProductNotAvailableError(error_msg)
+            if stop_on_error and label != "All":
+                raise ProductAccessError(label, "unknown", error_msg)
             return False
 
         time.sleep(2)  # Allow filter to apply
         return True
 
-    except ProductNotAvailableError:
-        raise  # Re-raise our custom exception
+    except ProductAccessError:
+        raise  # Re-raise custom exception
     except PlaywrightTimeoutError as e:
         logger.error(f"Timeout selecting products filter '{label}': {e}")
         return False
@@ -380,20 +345,19 @@ def select_products_filter(page, label: str,
         return False
 
 
-def download_report(page, username: str) -> bool:
+def download_report(page: Page, username: str) -> bool:
     """Download the current report as CSV and convert to XLSX.
 
     Args:
         page: Playwright page object
-        username: Username to include in filename for user differentiation
+        username: Username to include in filename
 
     Returns:
         True if download successful, False otherwise
     """
     try:
-        # Check if there are any results to download
-        no_results_locator = page.locator(
-            'text="No results for filter criteria"')
+        # Check if there are any results
+        no_results_locator = page.locator(SELECTOR_NO_RESULTS)
         if no_results_locator.count() > 0:
             logger.warning("No results for filter criteria, skipping download")
             return False
@@ -402,36 +366,31 @@ def download_report(page, username: str) -> bool:
 
         # Click the options (ellipsis) button
         page.wait_for_selector(
-            'button[tid="class-reports-ellipsis-tooltip"]',
-            timeout=DEFAULT_TIMEOUT)
-        page.click('button[tid="class-reports-ellipsis-tooltip"]')
+            SELECTOR_ELLIPSIS_BUTTON,
+            timeout=DEFAULT_TIMEOUT
+        )
+        page.click(SELECTOR_ELLIPSIS_BUTTON)
         time.sleep(1)
 
-        # Download the CSV report
+        # Download CSV
         logger.debug("Initiating CSV download")
         with page.expect_download(timeout=DOWNLOAD_TIMEOUT) as download_info:
-            page.click('#report-menu-options-0-csv-report-download-btn')
+            page.click(SELECTOR_CSV_DOWNLOAD)
 
         download = download_info.value
         original_filename = download.suggested_filename
 
-        # Create user-specific filename by prepending username
+        # Create user-specific filename
         user_filename = f"{username}_{original_filename}"
 
-        if getattr(sys, 'frozen', False):  # If running as a frozen executable
-            base_path = sys._MEIPASS
-        else:
-            base_path = os.path.abspath('.')
-        REPORTS_DIR_TMP = os.path.join(base_path, 'reports')
+        reports_dir = get_reports_directory(REPORTS_DIR)
+        csv_path = reports_dir / user_filename
 
-        csv_path = os.path.join(REPORTS_DIR_TMP, user_filename)
-
-        download.save_as(csv_path)
+        download.save_as(str(csv_path))
         logger.info(f"Downloaded CSV report: {user_filename}")
 
         # Convert CSV to XLSX
-        from utils import convert_csv_to_xlsx as utils_convert
-        if utils_convert(csv_path):
+        if convert_csv_to_xlsx(str(csv_path)):
             return True
         else:
             return False
@@ -444,7 +403,7 @@ def download_report(page, username: str) -> bool:
         return False
 
 
-def switch_tab(page, tab_name: str) -> bool:
+def switch_tab(page: Page, tab_name: str) -> bool:
     """Switch to a specific report tab.
 
     Args:
@@ -457,7 +416,7 @@ def switch_tab(page, tab_name: str) -> bool:
     try:
         logger.debug(f"Switching to tab: {tab_name}")
 
-        tab_buttons = page.locator('button[role="tab"]')
+        tab_buttons = page.locator(SELECTOR_REPORT_TAB)
         tab_found = False
         available_tabs = []
 
@@ -468,7 +427,7 @@ def switch_tab(page, tab_name: str) -> bool:
             if tab_name.lower() in button_text.lower():
                 logger.debug(f"Clicking tab button: {button_text}")
                 tab_buttons.nth(i).click()
-                page.wait_for_load_state('networkidle')
+                page.wait_for_load_state("networkidle")
                 time.sleep(2)  # Allow tab content to load
                 logger.info(f"Successfully switched to tab: {tab_name}")
                 tab_found = True
@@ -476,7 +435,8 @@ def switch_tab(page, tab_name: str) -> bool:
 
         if not tab_found:
             logger.error(
-                f"Tab '{tab_name}' not found. Available tabs: {available_tabs}")
+                f"Tab '{tab_name}' not found. Available tabs: {available_tabs}"
+            )
             return False
 
         return True
@@ -486,28 +446,85 @@ def switch_tab(page, tab_name: str) -> bool:
         return False
 
 
-def get_config() -> Dict[str, Any]:
-    """Load scraper configuration from file.
+def create_browser_context(browser: Browser) -> BrowserContext:
+    """Create a browser context with proper configuration.
+
+    Args:
+        browser: Browser instance
 
     Returns:
-        Configuration dictionary with date_filter, products_filter and tabs settings
+        Configured BrowserContext
     """
-    default_config = {
-        "date_filter": "Today",
-        "products_filter": "All",
-        "tabs": {tab["name"]: True for tab in TABS},
-        "custom_start_date": "",
-        "custom_end_date": ""
-    }
+    return browser.new_context(
+        accept_downloads=True,
+        user_agent=BROWSER_USER_AGENT,
+        viewport={
+            "width": BROWSER_VIEWPORT_WIDTH,
+            "height": BROWSER_VIEWPORT_HEIGHT
+        },
+        ignore_https_errors=True
+    )
 
-    from utils import load_json
-    config = load_json(CONFIG_FILE, default_config)
-    logger.info("Loaded scraper configuration")
-    return config
+
+def process_user_reports(
+    page: Page,
+    username: str,
+    config: Dict
+) -> tuple[int, int]:
+    """Process and download all selected report tabs for a user.
+
+    Args:
+        page: Playwright page object
+        username: Username for the reports
+        config: Scraper configuration dictionary
+
+    Returns:
+        Tuple of (successful_downloads, total_tabs_attempted)
+    """
+    selected_tabs = config.get("tabs", {})
+    successful_downloads = 0
+    total_tabs = sum(
+        1 for tab in TABS
+        if selected_tabs.get(tab["name"], True)
+    )
+
+    for tab in TABS:
+        tab_name = tab["name"]
+
+        if not selected_tabs.get(tab_name, True):
+            logger.info(f"Skipping {tab_name} report (not selected)")
+            continue
+
+        logger.info(f"Processing {tab_name} report")
+
+        try:
+            if switch_tab(page, tab_name):
+                # Special handling for Level Up Progress
+                if tab_name == "Level Up Progress":
+                    products_filter = config.get("products_filter", "All")
+                    if products_filter == "All":
+                        select_products_filter(page, "Raz-Plus")
+                    else:
+                        select_products_filter(page, products_filter)
+
+                if download_report(page, username):
+                    successful_downloads += 1
+                    logger.info(f"Successfully downloaded {tab_name} report")
+                else:
+                    logger.warning(f"Failed to download {tab_name} report")
+            else:
+                logger.warning(f"Failed to switch to {tab_name} tab")
+
+        except Exception as e:
+            logger.error(f"Error processing {tab_name} report: {e}")
+
+    return successful_downloads, total_tabs
 
 
 def login_and_download_reports_for_user(
-        username: str, password: str) -> UserResult:
+    username: str,
+    password: str
+) -> UserResult:
     """Login and download reports for a specific user.
 
     Args:
@@ -520,66 +537,14 @@ def login_and_download_reports_for_user(
     logger.info(f"Starting report download process for user: {username}")
 
     try:
-        # Check if the application is running in a PyInstaller bundle
-        if getattr(sys, 'frozen', False):
-            # For PyInstaller, check multiple possible locations
-            possible_paths = [
-                os.path.join(
-                    sys._MEIPASS,
-                    'playwright-browsers'),
-                # Bundled in _internal
-                os.path.join(
-                    os.path.dirname(
-                        sys.executable),
-                    'playwright-browsers'),
-                # Next to exe
-                os.path.join(
-                    os.path.dirname(
-                        sys.executable),
-                    '_internal',
-                    'playwright-browsers'),
-                # In _internal folder
-            ]
-
-            bundled_playwright_path = None
-            for path in possible_paths:
-                if os.path.exists(path):
-                    bundled_playwright_path = path
-                    logger.info(f"Found playwright browsers at: {path}")
-                    break
-
-            if not bundled_playwright_path:
-                logger.error(
-                    f"Could not find playwright browsers. Checked paths: {possible_paths}")
-                raise FileNotFoundError(
-                    "Playwright browsers not found in executable bundle")
-        else:
-            # Path for a normal Python environment
-            bundled_playwright_path = os.path.join(
-                os.getcwd(), 'playwright-browsers')
-            if not os.path.exists(bundled_playwright_path):
-                logger.warning(
-                    f"Local playwright directory not found: {bundled_playwright_path}")
-
-        # Set the environment variable so Playwright knows where to look.
-        os.environ['PLAYWRIGHT_BROWSERS_PATH'] = bundled_playwright_path
-        logger.info(
-            f"Set PLAYWRIGHT_BROWSERS_PATH to: {bundled_playwright_path}")
-
         with sync_playwright() as p:
-            # Launch browser with proper configuration
+            # Launch browser
             browser = p.chromium.launch(
-                headless=False,
-                args=['--no-sandbox', '--disable-dev-shm-usage', '--start-maximized']
+                headless=True,
+                args=BROWSER_ARGS
             )
 
-            context = browser.new_context(
-                accept_downloads=True,
-                user_agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
-                viewport={'width': 1280, 'height': 1080},
-                ignore_https_errors=True
-            )
-
+            context = create_browser_context(browser)
             page = context.new_page()
 
             try:
@@ -595,13 +560,14 @@ def login_and_download_reports_for_user(
 
                 # Navigate back to Raz-Plus
                 logger.debug("Navigating back to Raz-Plus main page")
-                page.goto("https://www.raz-plus.com/")
-                page.wait_for_load_state('networkidle')
+                page.goto(RAZ_PLUS_URL)
+                page.wait_for_load_state("networkidle")
 
                 # Navigate to reports section
                 if not navigate_to_reports(page):
                     logger.error(
-                        f"Failed to navigate to reports for user: {username}")
+                        f"Failed to navigate to reports for user: {username}"
+                    )
                     return UserResult(
                         username=username,
                         success=False,
@@ -610,29 +576,28 @@ def login_and_download_reports_for_user(
                     )
 
                 # Load configuration
-                config = get_config()
-                selected_date_filter = config.get('date_filter', 'Today')
-                selected_products_filter = config.get('products_filter', 'All')
-                selected_tabs = config.get(
-                    'tabs', {tab["name"]: True for tab in TABS})
+                config = load_scraper_config()
+                selected_date_filter = config.date_filter
+                selected_products_filter = config.products_filter
 
                 logger.info(f"Using date filter: {selected_date_filter}")
-                logger.info(
-                    f"Using products filter: {selected_products_filter}")
+                logger.info(f"Using products filter: {selected_products_filter}")
 
                 # Apply products filter
                 try:
-                    if not select_products_filter(
-                            page, selected_products_filter):
+                    if not select_products_filter(page, selected_products_filter):
                         logger.warning(
-                            f"Failed to set products filter to '{selected_products_filter}' - continuing with default filter")
-                except ProductNotAvailableError as e:
-                    logger.error(
-                        f"Product filter error for user {username}: {e}")
+                            f"Failed to set products filter to "
+                            f"'{selected_products_filter}' - continuing with default"
+                        )
+                except ProductAccessError as e:
+                    logger.error(f"Product filter error for user {username}: {e}")
                     error_msg = str(e)
-                    # Extract just the essential part of the error message
                     if "not found" in error_msg:
-                        error_msg = f"Product '{selected_products_filter}' not available - user may not have access to this product"
+                        error_msg = (
+                            f"Product '{selected_products_filter}' not available - "
+                            f"user may not have access to this product"
+                        )
                     return UserResult(
                         username=username,
                         success=False,
@@ -641,60 +606,40 @@ def login_and_download_reports_for_user(
                     )
 
                 # Apply date filter
-                custom_start_date = config.get('custom_start_date')
-                custom_end_date = config.get('custom_end_date')
+                custom_start = config.custom_start_date
+                custom_end = config.custom_end_date
+
                 if not select_date_filter(
-                        page, selected_date_filter, custom_start_date, custom_end_date):
+                    page,
+                    selected_date_filter,
+                    custom_start,
+                    custom_end
+                ):
                     logger.warning(
-                        f"Failed to set date filter to '{selected_date_filter}', continuing with current filter")
+                        f"Failed to set date filter to '{selected_date_filter}', "
+                        f"continuing with current filter"
+                    )
 
-                # Process each tab
-                successful_downloads = 0
-                total_tabs = sum(
-                    1 for tab in TABS if selected_tabs.get(
-                        tab["name"], True))
-
-                for tab in TABS:
-                    tab_name = tab["name"]
-
-                    if not selected_tabs.get(tab_name, True):
-                        logger.info(
-                            f"Skipping {tab_name} report (not selected)")
-                        continue
-
-                    logger.info(f"Processing {tab_name} report")
-
-                    try:
-                        if switch_tab(page, tab_name):
-                            if tab_name == "Level Up Progress":
-                                if selected_products_filter == "All":
-                                    select_products_filter(page, "Raz-Plus")
-                                else:
-                                    select_products_filter(
-                                        page, selected_products_filter)
-
-                            if download_report(page, username):
-                                successful_downloads += 1
-                                logger.info(
-                                    f"Successfully downloaded {tab_name} report")
-                            else:
-                                logger.warning(
-                                    f"Failed to download {tab_name} report")
-                        else:
-                            logger.warning(
-                                f"Failed to switch to {tab_name} tab")
-                    except Exception as e:
-                        logger.error(
-                            f"Error processing {tab_name} report: {e}")
+                # Process all tabs
+                successful_downloads, total_tabs = process_user_reports(
+                    page,
+                    username,
+                    config.to_dict()
+                )
 
                 logger.info(
-                    f"Completed report download for {username}: {successful_downloads}/{total_tabs} successful")
+                    f"Completed report download for {username}: "
+                    f"{successful_downloads}/{total_tabs} successful"
+                )
 
                 if successful_downloads == 0:
                     return UserResult(
                         username=username,
                         success=False,
-                        error=f"No reports could be downloaded (0/{total_tabs} successful)",
+                        error=(
+                            f"No reports could be downloaded "
+                            f"(0/{total_tabs} successful)"
+                        ),
                         error_type="download",
                         reports_downloaded=successful_downloads,
                         reports_attempted=total_tabs
@@ -712,7 +657,8 @@ def login_and_download_reports_for_user(
 
     except Exception as e:
         logger.error(
-            f"Unexpected error during report download for {username}: {e}")
+            f"Unexpected error during report download for {username}: {e}"
+        )
         return UserResult(
             username=username,
             success=False,
@@ -721,8 +667,10 @@ def login_and_download_reports_for_user(
         )
 
 
-def run_scraper_for_users(users_file: str = USERS_FILE,
-                          verbose: bool = False) -> ScraperResult:
+def run_scraper_for_users(
+    users_file: str = USERS_FILE,
+    verbose: bool = False
+) -> ScraperResult:
     """Run the scraper for all users in the users file.
 
     Args:
@@ -730,7 +678,7 @@ def run_scraper_for_users(users_file: str = USERS_FILE,
         verbose: Enable verbose logging
 
     Returns:
-        ScraperResult object with details about the entire scraping operation
+        ScraperResult object with details about the entire operation
     """
     # Set logging level based on verbose flag
     if verbose:
@@ -763,8 +711,8 @@ def run_scraper_for_users(users_file: str = USERS_FILE,
 
     # Process each user
     for i, user in enumerate(users, 1):
-        username = user.get('username')
-        password = user.get('password')
+        username = user.get("username")
+        password = user.get("password")
 
         if not username or not password:
             logger.error(f"User {i}: Missing username or password, skipping")
@@ -775,7 +723,9 @@ def run_scraper_for_users(users_file: str = USERS_FILE,
 
         try:
             user_result = login_and_download_reports_for_user(
-                username, password)
+                username,
+                password
+            )
             result.user_results.append(user_result)
 
             if user_result.success:
@@ -783,7 +733,8 @@ def run_scraper_for_users(users_file: str = USERS_FILE,
                 logger.info(f"Successfully processed user: {username}")
             else:
                 logger.error(
-                    f"Failed to process user: {username} - {user_result.error}")
+                    f"Failed to process user: {username} - {user_result.error}"
+                )
 
         except Exception as e:
             logger.error(f"Unexpected error processing user {username}: {e}")
@@ -795,20 +746,19 @@ def run_scraper_for_users(users_file: str = USERS_FILE,
             ))
 
     # Set overall success based on whether any users were processed
-    # successfully
     result.success = result.users_processed > 0
 
     logger.info(
-        f"Scraper completed: {
-            result.users_processed}/{
-            result.total_users} users processed successfully")
+        f"Scraper completed: {result.users_processed}/"
+        f"{result.total_users} users processed successfully"
+    )
 
     # Log error summary if there were failures
     if not result.success or result.users_processed < result.total_users:
         error_summary = result.get_error_summary()
         logger.info(f"Error summary: {error_summary}")
 
-    # Combine all reports by type if scraping was successful
+    # Combine all reports if scraping was successful
     if result.success:
         logger.info("Attempting to combine all reports by type...")
         try:
@@ -816,10 +766,11 @@ def run_scraper_for_users(users_file: str = USERS_FILE,
             combined_file = combine_all_reports(REPORTS_DIR)
             if combined_file:
                 logger.info(
-                    f"Successfully created combined all reports file: {combined_file}")
+                    f"Successfully created combined reports: {combined_file}"
+                )
                 result.warnings.append(
-                    f"Combined all reports saved to: {
-                        os.path.basename(combined_file)}")
+                    f"Combined reports saved to: {os.path.basename(combined_file)}"
+                )
             else:
                 logger.info("No reports to combine or combination failed")
         except Exception as e:
@@ -832,26 +783,26 @@ def run_scraper_for_users(users_file: str = USERS_FILE,
 def main() -> None:
     """Main function for command-line execution."""
     parser = argparse.ArgumentParser(
-        description='Educational platform report scraper',
+        description="Educational platform report scraper",
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument(
-        '--users',
+        "--users",
         type=str,
         default=USERS_FILE,
-        help='Path to users JSON file containing login credentials'
+        help="Path to users JSON file containing login credentials"
     )
     parser.add_argument(
-        '--verbose',
-        '-v',
-        action='store_true',
-        help='Enable verbose logging'
+        "--verbose",
+        "-v",
+        action="store_true",
+        help="Enable verbose logging"
     )
     parser.add_argument(
-        '--config',
+        "--config",
         type=str,
         default=CONFIG_FILE,
-        help='Path to scraper configuration file'
+        help="Path to scraper configuration file"
     )
 
     args = parser.parse_args()
@@ -863,7 +814,7 @@ def main() -> None:
     sys.exit(0 if result.success else 1)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     try:
         main()
     except KeyboardInterrupt:

@@ -75,3 +75,68 @@ playwright._impl._errors.TargetClosedError: Target page, context or browser has 
 2025-10-29 12:17:32,429 - __main__ - INFO - Successfully downloaded Student Usage report
 2025-10-29 12:17:32,430 - __main__ - INFO - Processing Skill report
 2025-10-29 12:17:33,256 - __main__ - INFO - Scraper interrupted by user
+2025-11-06 21:10:34,395 - __main__ - INFO - Starting scraper execution
+2025-11-06 21:10:34,397 - __main__ - INFO - Loaded 1 users from users.json
+2025-11-06 21:10:34,397 - __main__ - INFO - Found 1 users to process
+2025-11-06 21:10:34,397 - __main__ - INFO - Processing user 1/1: 2alegria
+2025-11-06 21:10:34,397 - __main__ - INFO - Starting report download process for user: 2alegria
+2025-11-06 21:10:39,248 - __main__ - ERROR - Unexpected error during report download for 2alegria: BrowserType.launch: Executable doesn't exist at /Users/david.gonzalez01/Library/Caches/ms-playwright/chromium-1181/chrome-mac/Chromium.app/Contents/MacOS/Chromium
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or updated.       ║
+║ Please run the following command to download new browsers: ║
+║                                                            ║
+║     playwright install                                     ║
+║                                                            ║
+║ <3 Playwright Team                                         ║
+╚════════════════════════════════════════════════════════════╝
+2025-11-06 21:10:39,249 - __main__ - ERROR - Failed to process user: 2alegria - Unexpected error: BrowserType.launch: Executable doesn't exist at /Users/david.gonzalez01/Library/Caches/ms-playwright/chromium-1181/chrome-mac/Chromium.app/Contents/MacOS/Chromium
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or updated.       ║
+║ Please run the following command to download new browsers: ║
+║                                                            ║
+║     playwright install                                     ║
+║                                                            ║
+║ <3 Playwright Team                                         ║
+╚════════════════════════════════════════════════════════════╝
+2025-11-06 21:10:39,249 - __main__ - INFO - Scraper completed: 0/1 users processed successfully
+2025-11-06 21:10:39,249 - __main__ - INFO - Error summary: Unexpected error for: 2alegria
+2025-11-06 21:23:00,590 - __main__ - INFO - Starting scraper execution
+2025-11-06 21:23:00,591 - __main__ - INFO - Loaded 1 users from users.json
+2025-11-06 21:23:00,591 - __main__ - INFO - Found 1 users to process
+2025-11-06 21:23:00,591 - __main__ - INFO - Processing user 1/1: 2alegria
+2025-11-06 21:23:00,591 - __main__ - INFO - Starting report download process for user: 2alegria
+2025-11-06 21:23:01,048 - __main__ - ERROR - Unexpected error during report download for 2alegria: BrowserType.launch: Executable doesn't exist at /Users/david.gonzalez01/Library/Caches/ms-playwright/chromium-1181/chrome-mac/Chromium.app/Contents/MacOS/Chromium
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or updated.       ║
+║ Please run the following command to download new browsers: ║
+║                                                            ║
+║     playwright install                                     ║
+║                                                            ║
+║ <3 Playwright Team                                         ║
+╚════════════════════════════════════════════════════════════╝
+2025-11-06 21:23:01,048 - __main__ - ERROR - Failed to process user: 2alegria - Unexpected error: BrowserType.launch: Executable doesn't exist at /Users/david.gonzalez01/Library/Caches/ms-playwright/chromium-1181/chrome-mac/Chromium.app/Contents/MacOS/Chromium
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or updated.       ║
+║ Please run the following command to download new browsers: ║
+║                                                            ║
+║     playwright install                                     ║
+║                                                            ║
+║ <3 Playwright Team                                         ║
+╚════════════════════════════════════════════════════════════╝
+2025-11-06 21:23:01,048 - __main__ - INFO - Scraper completed: 0/1 users processed successfully
+2025-11-06 21:23:01,049 - __main__ - INFO - Error summary: Unexpected error for: 2alegria
+2025-11-06 21:29:04,720 - __main__ - INFO - Starting scraper execution
+2025-11-06 21:29:04,721 - __main__ - INFO - Loaded 1 users from users.json
+2025-11-06 21:29:04,721 - __main__ - INFO - Found 1 users to process
+2025-11-06 21:29:04,722 - __main__ - INFO - Processing user 1/1: 2alegria
+2025-11-06 21:29:04,722 - __main__ - INFO - Starting report download process for user: 2alegria
+2025-11-06 21:29:10,061 - __main__ - INFO - Attempting login for user: 2alegria
+2025-11-06 21:29:17,786 - __main__ - INFO - Login successful for user: 2alegria
+2025-11-06 21:29:27,226 - __main__ - ERROR - Error navigating to reports: Page.wait_for_selector: Target page, context or browser has been closed
+Call log:
+  - waiting for locator("span.buttonText") to be visible
+
+2025-11-06 21:29:27,226 - __main__ - ERROR - Failed to navigate to reports for user: 2alegria
+2025-11-06 21:29:27,527 - __main__ - ERROR - Failed to process user: 2alegria - Failed to navigate to reports section
+2025-11-06 21:29:27,527 - __main__ - INFO - Scraper completed: 0/1 users processed successfully
+2025-11-06 21:29:27,527 - __main__ - INFO - Error summary: Navigation error for: 2alegria

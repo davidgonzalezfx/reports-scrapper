@@ -1,188 +1,115 @@
-"""Flask web application for reports scraping management."""
+"""Flask web application for reports scraping management.
 
-from flask import Flask, render_template, send_from_directory, redirect, url_for, request, jsonify, send_file
+This module provides a web interface for managing and executing the educational
+platform report scraper. It handles user configuration, report downloads,
+and presentation of aggregated data.
+"""
+
 import os
 import threading
-import logging
-import webbrowser
 import time
-from datetime import datetime, timedelta
+import webbrowser
+from datetime import datetime
 from typing import Dict, List, Any, Optional
-from waitress import serve
-import sys
 
-from utils import load_json, save_json, validate_filename, validate_user_data, get_report_files, get_school_summary, get_classroom_summaries, get_reading_skills_data, get_top_readers_per_classroom, get_level_up_progress_data, get_classroom_comparison_data
-
-# Constants
-USERS_FILE = 'users.json'
-REPORTS_DIR = 'reports'
-CONFIG_FILE = 'scraper_config.json'
-DATE_FILTERS = [
-    "Today",
-    "Last 7 Days",
-    "Last 30 Days",
-    "Last 90 Days",
-    "Last Year",
-    "Custom"]
-PRODUCTS_FILTERS = [
-    "All",
-    "Raz-Plus",
-    "Español",
-    "Science A-Z",
-    "Writing A-Z",
-    "Vocabulary A-Z",
-    "Foundations A-Z"]
-TABS = [
-    {"name": "Student Usage", "default": True},
-    {"name": "Skill", "default": True},
-    {"name": "Assignment", "default": True},
-    {"name": "Assessment", "default": True},
-    {"name": "Level Up Progress", "default": True},
-]
-
-
-def get_spanish_month(month: int) -> str:
-    """Convert month number to Spanish month name."""
-    months = {
-        1: "Enero", 2: "Febrero", 3: "Marzo", 4: "Abril", 5: "Mayo", 6: "Junio",
-        7: "Julio", 8: "Agosto", 9: "Septiembre", 10: "Octubre", 11: "Noviembre", 12: "Diciembre"
-    }
-    return months.get(month, "Enero")
-
-
-def get_date_range_string(
-        date_filter: str, custom_start_date: str = None, custom_end_date: str = None) -> str:
-    """Generate date range string based on selected filter."""
-    today = datetime.now()
-
-    if date_filter == "Today":
-        start_date = end_date = today
-        return f"{start_date.day:02d} {get_spanish_month(start_date.month)} {start_date.year}"
-    elif date_filter == "Last 7 Days":
-        end_date = today
-        start_date = today - timedelta(days=7)
-    elif date_filter == "Last 30 Days":
-        end_date = today
-        start_date = today - timedelta(days=30)
-    elif date_filter == "Last 90 Days":
-        end_date = today
-        start_date = today - timedelta(days=90)
-    elif date_filter == "Last Year":
-        end_date = today
-        start_date = today - timedelta(days=365)
-    elif date_filter == "Custom" and custom_start_date and custom_end_date:
-        # Parse custom dates (expected format: DD/MM/YYYY)
-        try:
-            start_date = datetime.strptime(custom_start_date, "%d/%m/%Y")
-            end_date = datetime.strptime(custom_end_date, "%d/%m/%Y")
-        except ValueError:
-            # Fallback to today if parsing fails
-            start_date = end_date = today
-    else:
-        start_date = end_date = today
-
-    start_str = f"{
-        start_date.day:02d} {
-        get_spanish_month(
-            start_date.month)} {
-                start_date.year}"
-    end_str = f"{
-        end_date.day:02d} {
-        get_spanish_month(
-            end_date.month)} {
-                end_date.year}"
-    return f"{start_str} - {end_str}"
-
-
-def get_subtitle_string(
-        date_filter: str, custom_start_date: str = None, custom_end_date: str = None) -> str:
-    """Generate subtitle string based on selected filter."""
-    today = datetime.now()
-
-    if date_filter == "Today":
-        return f"{get_spanish_month(today.month)} {today.year}"
-    elif date_filter == "Last 7 Days":
-        end_date = today
-        start_date = today - timedelta(days=7)
-    elif date_filter == "Last 30 Days":
-        end_date = today
-        start_date = today - timedelta(days=30)
-    elif date_filter == "Last 90 Days":
-        end_date = today
-        start_date = today - timedelta(days=90)
-    elif date_filter == "Last Year":
-        end_date = today
-        start_date = today - timedelta(days=365)
-    elif date_filter == "Custom" and custom_start_date and custom_end_date:
-        # Parse custom dates (expected format: DD/MM/YYYY)
-        try:
-            start_date = datetime.strptime(custom_start_date, "%d/%m/%Y")
-            end_date = datetime.strptime(custom_end_date, "%d/%m/%Y")
-        except ValueError:
-            # Fallback to today if parsing fails
-            start_date = end_date = today
-    else:
-        start_date = end_date = today
-
-    if start_date.year == end_date.year:
-        if start_date.month == end_date.month:
-            return f"{get_spanish_month(start_date.month)} {start_date.year}"
-        else:
-            return f"{get_spanish_month(start_date.month)} - {get_spanish_month(end_date.month)} {end_date.year}"
-    else:
-        return f"{get_spanish_month(start_date.month)} {start_date.year} - {get_spanish_month(end_date.month)} {end_date.year}"
-
-
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler('app.log'),
-        logging.StreamHandler()
-    ]
+from flask import (
+    Flask, render_template, send_from_directory, redirect,
+    url_for, request, jsonify
 )
-logger = logging.getLogger(__name__)
+from waitress import serve
 
+# Import new helper modules
+from constants import (
+    USERS_FILE, REPORTS_DIR, DATE_FILTERS, PRODUCTS_FILTERS,
+    TABS, FLASK_MAX_CONTENT_LENGTH, LEGACY_REPORT_PREFIXES,
+    COMBINED_REPORT_PREFIX
+)
+from config import load_config, save_config, ScraperConfig
+from models import (
+    FileInfo, CombinedReportInfo, NotificationMessage
+)
+from date_helpers import (
+    get_date_range_string, get_subtitle_string,
+    format_date_for_html_input, format_date_for_storage,
+    validate_date_range
+)
+from path_helpers import get_reports_directory, get_log_file_path, is_frozen
+from logging_config import setup_app_logging, clear_log_file, get_logger
+from exceptions import ConfigurationError, ValidationError, FileOperationError
+from utils import (
+    load_json, save_json, validate_filename, validate_user_data,
+    get_report_files, get_school_summary, get_classroom_summaries,
+    get_reading_skills_data, get_top_readers_per_classroom,
+    get_level_up_progress_data, get_classroom_comparison_data
+)
+
+# Setup logging
+setup_app_logging()
+logger = get_logger(__name__)
+
+# Initialize Flask app
 app = Flask(__name__)
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
+app.config["MAX_CONTENT_LENGTH"] = FLASK_MAX_CONTENT_LENGTH
 
 
 class AppState:
-    """Application state management."""
+    """Thread-safe application state management."""
 
-    def __init__(self):
-        self.download_in_progress = False
-        self._lock = threading.Lock()
-        self.notifications = []  # Store notifications during scraping
+    def __init__(self) -> None:
+        """Initialize application state."""
+        self.download_in_progress: bool = False
+        self._lock: threading.Lock = threading.Lock()
+        self.notifications: List[Dict[str, str]] = []
 
     def set_download_status(self, status: bool) -> None:
-        """Thread-safe setter for download status."""
+        """Set download status in a thread-safe manner.
+
+        Args:
+            status: Whether download is in progress
+        """
         with self._lock:
             self.download_in_progress = status
 
     def get_download_status(self) -> bool:
-        """Thread-safe getter for download status."""
+        """Get current download status in a thread-safe manner.
+
+        Returns:
+            True if download is in progress, False otherwise
+        """
         with self._lock:
             return self.download_in_progress
 
-    def add_notification(self, message: str, type: str = 'warning') -> None:
-        """Thread-safe method to add a notification."""
+    def add_notification(
+        self,
+        message: str,
+        notification_type: str = "warning"
+    ) -> None:
+        """Add a notification in a thread-safe manner.
+
+        Args:
+            message: Notification message
+            notification_type: Type of notification (info, warning, error, success)
+        """
         with self._lock:
+            notification = NotificationMessage.create(message, notification_type)
             self.notifications.append({
-                'message': message,
-                'type': type,
-                'timestamp': datetime.now().isoformat()
+                "message": notification.message,
+                "type": notification.type,
+                "timestamp": notification.timestamp
             })
-            logger.info(f"Added notification: {type} - {message}")
+            logger.info(f"Added notification: {notification_type} - {message}")
 
     def get_notifications(self) -> List[Dict[str, str]]:
-        """Thread-safe getter for notifications."""
+        """Get all notifications in a thread-safe manner.
+
+        Returns:
+            Copy of notifications list
+        """
         with self._lock:
             return self.notifications.copy()
 
     def clear_notifications(self) -> None:
-        """Thread-safe method to clear all notifications."""
+        """Clear all notifications in a thread-safe manner."""
         with self._lock:
             self.notifications = []
             logger.info("Cleared all notifications")
@@ -191,964 +118,1065 @@ class AppState:
 app_state = AppState()
 
 
-def save_config(config_data: Dict[str, Any]) -> None:
-    """Save configuration data to file."""
-    if not save_json(config_data, CONFIG_FILE):
-        raise OSError("Failed to save configuration")
-    logger.info("Configuration saved successfully")
-
-
-def load_config() -> Dict[str, Any]:
-    """Load configuration from file with fallback to defaults."""
-    default_config = {
-        "date_filter": DATE_FILTERS[0],
-        "custom_start_date": "",
-        "custom_end_date": "",
-        "products_filter": PRODUCTS_FILTERS[0],
-        "tabs": {tab["name"]: tab["default"] for tab in TABS},
-        "institution_name": "Unidad Educativa"
-    }
-
-    config = load_json(CONFIG_FILE, default_config)
-    if config == default_config:
-        logger.info("Using default configuration")
-    else:
-        logger.info("Configuration loaded successfully")
-    return config
-
-
-def get_mock_report_data() -> Dict[str, Any]:
-    """Generate mock data for the report presentation."""
-
-    # Load configuration to get selected date filter
-    config = load_config()
-    date_filter = config.get('date_filter', DATE_FILTERS[0])
-    custom_start_date = config.get('custom_start_date', '')
-    custom_end_date = config.get('custom_end_date', '')
-
-    # Compute dynamic date strings based on selected filter
-    date_range = get_date_range_string(
-        date_filter, custom_start_date, custom_end_date)
-    subtitle = get_subtitle_string(
-        date_filter,
-        custom_start_date,
-        custom_end_date)
-
-    # Get real summary data from reports
-    summary = get_school_summary(REPORTS_DIR)
-
-    # Get real classroom data from reports
-    classroom_summaries = get_classroom_summaries(REPORTS_DIR)
-
-    # Get real reading skills data from reports
-    reading_skills_data = get_reading_skills_data(REPORTS_DIR)
-
-    # Get real level up progress data from reports
-    level_up_progress_data = get_level_up_progress_data(REPORTS_DIR)
-
-    # Get real top readers data from reports
-    top_readers_data = get_top_readers_per_classroom(REPORTS_DIR)
-
-    # Get real classroom comparison data from reports
-    classroom_comparison_data = get_classroom_comparison_data(REPORTS_DIR)
-
-    # Load institution name from scraper config
-    scraper_config = load_json(CONFIG_FILE, {})
-    institution_name = scraper_config.get(
-        'institution_name', 'Unidad Educativa')
-
-    return {
-        # Slide 1 data
-        'report_title': 'REPORTE DE USO',
-        'institution': institution_name,
-        'date_range': date_range,
-        'logos': [
-                        {'icon': 'school', 'text': 'b1 tech'},
-        ],
-
-        # Slide 2 data
-        'school_overview': {
-            'title': 'School General Overview',
-            'subtitle': subtitle,
-            'stats': [
-                {'number': str(
-                    summary['all_teachers']) if summary else '2500', 'label': 'Docentes'},
-                {'number': str(
-                    summary['all_students']) if summary else '2500', 'label': 'Estudiantes'}
-            ],
-            'activities': [
-                {'number': str(
-                    summary['total_listen']) if summary else '1500', 'name': 'Listen'},
-                {'number': str(
-                    summary['total_read']) if summary else '1800', 'name': 'Read'},
-                {'number': str(
-                    summary['total_quizzes']) if summary else '1900', 'name': 'Quiz'}
-            ],
-            'total_activities': f"{summary['total_activities']:,}" if summary else '15,682',
-            'activity_descriptions': [
-                {'icon': 'headphones',
-                 'text': 'Listen: Número de audiciones completadas'},
-                {
-                    'icon': 'menu_book', 'text': 'Read: Número de lecturas completadas'},
-                {
-                    'icon': 'quiz', 'text': 'Quiz: Número de cuestionarios completados'}
-            ],
-            'chart_data': [
-                round(
-                    summary['total_listen'] /
-                    summary['total_activities'] * 100,
-                    1) if summary and summary['total_activities'] > 0 else 28.8,
-                round(
-                    summary['total_read'] /
-                    summary['total_activities'] * 100,
-                    1) if summary and summary['total_activities'] > 0 else 34.6,
-                round(
-                    summary['total_quizzes'] /
-                    summary['total_activities'] * 100,
-                    1) if summary and summary['total_activities'] > 0 else 36.5
-            ]
-        },
-
-        # Slide 3 data
-        'detailed_activities': {
-            'title': 'Detalle Total Actividades',
-            'subtitle': subtitle,
-            'activity_summary': [
-                {'icon': 'headphones', 'number': str(int(sum(
-                    c['listen'] for c in classroom_summaries))) if classroom_summaries else '0', 'name': 'Listen'},
-                {'icon': 'menu_book', 'number': str(int(sum(
-                    c['read'] for c in classroom_summaries))) if classroom_summaries else '0', 'name': 'Read'},
-                {'icon': 'quiz', 'number': str(int(sum(
-                    c['quiz'] for c in classroom_summaries))) if classroom_summaries else '0', 'name': 'Quiz'}
-            ],
-            'classrooms': [
-                {
-                    'name': classroom['name'],
-                    'students': classroom['students'],
-                    'students_used': classroom.get('students_used', 0),
-                    'usage': classroom['usage'],
-                    'listen': int(classroom['listen']),
-                    'read': int(classroom['read']),
-                    'quiz': int(classroom['quiz']),
-                    'interactivity': int(classroom['interactivity']),
-                    'practice_recording': int(classroom['practice_recording'])
-                }
-                for classroom in (classroom_summaries if classroom_summaries else [])
-            ],
-            'total': {
-                'students': sum(c['students'] for c in classroom_summaries) if classroom_summaries else 0,
-                'students_used': sum(c.get('students_used', 0) for c in classroom_summaries) if classroom_summaries else 0,
-                'usage': round(sum(c['usage'] * c['students'] for c in classroom_summaries) / sum(c['students'] for c in classroom_summaries), 1) if classroom_summaries and sum(c['students'] for c in classroom_summaries) > 0 else 0,
-                'listen': int(sum(c['listen'] for c in classroom_summaries)) if classroom_summaries else 0,
-                'read': int(sum(c['read'] for c in classroom_summaries)) if classroom_summaries else 0,
-                'quiz': int(sum(c['quiz'] for c in classroom_summaries)) if classroom_summaries else 0,
-                'interactivity': int(sum(c['interactivity'] for c in classroom_summaries)) if classroom_summaries else 0,
-                'practice_recording': int(sum(c['practice_recording'] for c in classroom_summaries)) if classroom_summaries else 0
-            }
-        },
-
-        # Slide 4 data (reading skills from reports)
-        'reading_skills': reading_skills_data if reading_skills_data else [],
-
-        # Slide for level up progress
-        'level_up_progress': level_up_progress_data if level_up_progress_data else [],
-
-        # Slide 5 data
-        'top_readers': {
-            'title': 'Top Lectores por Aula',
-            'subtitle': subtitle,
-            'classrooms': top_readers_data if top_readers_data else []
-        },
-
-        # Slide 4 data (classroom comparison charts)
-        'classroom_comparison': classroom_comparison_data if classroom_comparison_data else {'labels': [], 'listen': [], 'read': [], 'quiz': []}
-    }
-
-
 def load_users() -> List[Dict[str, str]]:
-    """Load users from file with fallback to empty list."""
+    """Load users from file with fallback to empty list.
+
+    Returns:
+        List of user dictionaries with username and password
+    """
     users = load_json(USERS_FILE, [])
     logger.info(f"Loaded {len(users)} users successfully")
     return users
 
 
 def save_users(users: List[Dict[str, str]]) -> None:
-    """Save users to file."""
+    """Save users to file.
+
+    Args:
+        users: List of user dictionaries
+
+    Raises:
+        FileOperationError: If save fails
+    """
     if not save_json(users, USERS_FILE):
-        raise OSError("Failed to save users")
+        raise FileOperationError("save", USERS_FILE)
     logger.info(f"Saved {len(users)} users successfully")
+
+
+def parse_file_info(filename: str) -> FileInfo:
+    """Parse user and report information from filename.
+
+    Expected format: username_originalfilename.xlsx
+
+    Args:
+        filename: Filename to parse
+
+    Returns:
+        FileInfo object with parsed information
+    """
+    try:
+        name_without_ext = filename.rsplit(".", 1)[0]
+        parts = name_without_ext.split("_", 1)
+
+        if len(parts) == 2:
+            username, report_name = parts
+
+            # Check if this is a legacy file
+            if any(name_without_ext.startswith(prefix)
+                   for prefix in LEGACY_REPORT_PREFIXES):
+                return FileInfo(
+                    filename=filename,
+                    user="Unknown",
+                    report_name=name_without_ext
+                )
+
+            return FileInfo(
+                filename=filename,
+                user=username,
+                report_name=report_name
+            )
+
+        # Single part or no underscore - treat as legacy
+        return FileInfo(
+            filename=filename,
+            user="Unknown",
+            report_name=name_without_ext
+        )
+
+    except Exception as e:
+        logger.warning(f"Error parsing filename {filename}: {e}")
+        return FileInfo(
+            filename=filename,
+            user="Unknown",
+            report_name=filename.rsplit(".", 1)[0]
+        )
+
+
+def get_combined_report_info() -> Optional[CombinedReportInfo]:
+    """Get information about the most recent combined report.
+
+    Returns:
+        CombinedReportInfo object or None if no combined report exists
+    """
+    try:
+        reports_dir = get_reports_directory(REPORTS_DIR)
+        combined_files = sorted(
+            [f for f in os.listdir(reports_dir)
+             if f.startswith(COMBINED_REPORT_PREFIX)],
+            reverse=True
+        )
+
+        if not combined_files:
+            return None
+
+        latest_combined = combined_files[0]
+        file_path = reports_dir / latest_combined
+
+        if file_path.exists():
+            file_stats = os.stat(file_path)
+            return CombinedReportInfo(
+                filename=latest_combined,
+                size=file_stats.st_size,
+                modified=datetime.fromtimestamp(file_stats.st_mtime)
+            )
+
+        return None
+
+    except Exception as e:
+        logger.debug(f"Error checking for combined report: {e}")
+        return None
 
 
 def monitor_scraper_logs() -> None:
     """Monitor scraper logs for supplementary information.
 
     Note: Critical errors are now handled directly through ScraperResult.
-    This function now primarily captures supplementary log information.
+    This function primarily captures supplementary log information.
     """
-    import time
-    import os
+    log_file_path = get_log_file_path("app.log")
 
-    log_file = 'app.log'
-    if not os.path.exists(log_file):
+    if not os.path.exists(log_file_path):
         return
 
-    # Track last position in file
     last_position = 0
 
     while app_state.get_download_status():
         try:
-            with open(log_file, 'r', encoding='utf-8') as f:
+            with open(log_file_path, "r", encoding="utf-8") as f:
                 f.seek(last_position)
-                new_lines = f.readlines()
+                f.readlines()  # Read new lines
                 last_position = f.tell()
-
-                # Process any supplementary log messages if needed
-                # Most error handling is now done through ScraperResult
-
         except Exception as e:
             logger.debug(f"Error monitoring logs: {e}")
 
-        # Check less frequently since primary errors come from ScraperResult
         time.sleep(2)
 
 
 def run_scraper() -> None:
-    """Execute the scraper directly by importing and calling the scraper module."""
+    """Execute the scraper in a background thread.
+
+    This function manages the scraper execution, log monitoring,
+    and notification handling.
+    """
     try:
         app_state.set_download_status(True)
-        app_state.clear_notifications()  # Clear previous notifications
+        app_state.clear_notifications()
         logger.info("Starting scraper process")
 
         # Start log monitoring in a separate thread
         monitor_thread = threading.Thread(
-            target=monitor_scraper_logs, daemon=True)
+            target=monitor_scraper_logs,
+            daemon=True
+        )
         monitor_thread.start()
 
         users = load_users()
         if not users:
             logger.warning("No users found, scraper may not function properly")
             app_state.add_notification(
-                "No users configured for scraping", 'warning')
+                "No users configured for scraping",
+                "warning"
+            )
 
-        # Import scraper module and call directly
+        # Import and run scraper
         try:
             from scraper import run_scraper_for_users, ScraperResult
             result: ScraperResult = run_scraper_for_users(
-                USERS_FILE, verbose=False)
+                USERS_FILE,
+                verbose=False
+            )
 
-            # Process the result and add appropriate notifications
-            if result.success:
-                logger.info("Scraper completed successfully")
-                if result.users_processed < result.total_users:
-                    # Partial success - some users had errors
-                    app_state.add_notification(
-                        f"Scraper completed: {
-                            result.users_processed}/{
-                            result.total_users} users successful",
-                        'warning'
-                    )
-                else:
-                    # Complete success
-                    app_state.add_notification(
-                        f"All {
-                            result.users_processed} users processed successfully",
-                        'success'
-                    )
-            else:
-                logger.error(
-                    "Scraper failed - no users processed successfully")
-                # Get detailed error information
-                error_summary = result.get_error_summary()
-                app_state.add_notification(error_summary, 'error')
-
-            # Add individual user errors as separate notifications for
-            # visibility
-            for user_result in result.user_results:
-                if not user_result.success:
-                    if user_result.error_type == 'product_access':
-                        # Priority notification for product access errors
-                        app_state.add_notification(
-                            f"User '{
-                                user_result.username}': {
-                                user_result.error}",
-                            'error'
-                        )
-                    elif user_result.error_type == 'login':
-                        app_state.add_notification(
-                            f"User '{
-                                user_result.username}': Login failed - check credentials",
-                            'error'
-                        )
-
-            # Add any warnings
-            for warning in result.warnings:
-                app_state.add_notification(warning, 'warning')
+            # Process results and add notifications
+            _process_scraper_result(result)
 
         except ImportError as e:
             logger.error(f"Failed to import scraper module: {e}")
             app_state.add_notification(
-                f"Failed to import scraper module: {e}", 'error')
+                f"Failed to import scraper module: {e}",
+                "error"
+            )
         except Exception as e:
             logger.error(f"Error in scraper execution: {e}")
             app_state.add_notification(
-                f"Error in scraper execution: {e}", 'error')
+                f"Error in scraper execution: {e}",
+                "error"
+            )
 
     except Exception as e:
         logger.error(f"Error running scraper: {e}")
-        app_state.add_notification(f"Error running scraper: {e}", 'error')
+        app_state.add_notification(f"Error running scraper: {e}", "error")
     finally:
         app_state.set_download_status(False)
         logger.info("Scraper process finished")
 
 
-def parse_file_info(filename: str) -> Dict[str, str]:
-    """Parse user and report information from filename.
+def _process_scraper_result(result) -> None:
+    """Process scraper result and add appropriate notifications.
 
     Args:
-                    filename: The filename to parse (format: username_originalfilename.xlsx)
+        result: ScraperResult object from scraper execution
+    """
+    if result.success:
+        logger.info("Scraper completed successfully")
+        if result.users_processed < result.total_users:
+            # Partial success
+            app_state.add_notification(
+                f"Scraper completed: {result.users_processed}/"
+                f"{result.total_users} users successful",
+                "warning"
+            )
+        else:
+            # Complete success
+            app_state.add_notification(
+                f"All {result.users_processed} users processed successfully",
+                "success"
+            )
+    else:
+        logger.error("Scraper failed - no users processed successfully")
+        error_summary = result.get_error_summary()
+        app_state.add_notification(error_summary, "error")
+
+    # Add individual user errors
+    for user_result in result.user_results:
+        if not user_result.success:
+            if user_result.error_type == "product_access":
+                app_state.add_notification(
+                    f"User '{user_result.username}': {user_result.error}",
+                    "error"
+                )
+            elif user_result.error_type == "login":
+                app_state.add_notification(
+                    f"User '{user_result.username}': "
+                    f"Login failed - check credentials",
+                    "error"
+                )
+
+    # Add warnings
+    for warning in result.warnings:
+        app_state.add_notification(warning, "warning")
+
+
+def get_report_data() -> Dict[str, Any]:
+    """Generate report presentation data.
+
+    This aggregates data from various report files for the
+    presentation view.
 
     Returns:
-                    Dictionary with user, report_name, and original filename
+        Dictionary with all report presentation data
+    """
+    # Load configuration
+    config = load_config()
+    date_filter = config.date_filter
+    custom_start = config.custom_start_date
+    custom_end = config.custom_end_date
+
+    # Generate date strings
+    date_range = get_date_range_string(date_filter, custom_start, custom_end)
+    subtitle = get_subtitle_string(date_filter, custom_start, custom_end)
+
+    # Get summary data from reports
+    summary = get_school_summary(REPORTS_DIR)
+    classroom_summaries = get_classroom_summaries(REPORTS_DIR)
+    reading_skills = get_reading_skills_data(REPORTS_DIR)
+    level_up_progress = get_level_up_progress_data(REPORTS_DIR)
+    top_readers = get_top_readers_per_classroom(REPORTS_DIR)
+    classroom_comparison = get_classroom_comparison_data(REPORTS_DIR)
+
+    return {
+        # Slide 1: Title
+        "report_title": "REPORTE DE USO",
+        "institution": config.institution_name,
+        "date_range": date_range,
+        "logos": [{"icon": "school", "text": "b1 tech"}],
+
+        # Slide 2: School Overview
+        "school_overview": _build_school_overview(summary, subtitle),
+
+        # Slide 3: Detailed Activities
+        "detailed_activities": _build_detailed_activities(
+            classroom_summaries,
+            subtitle
+        ),
+
+        # Slide 4: Reading Skills
+        "reading_skills": reading_skills if reading_skills else [],
+
+        # Slide 5: Level Up Progress
+        "level_up_progress": (
+            level_up_progress if level_up_progress else []
+        ),
+
+        # Slide 6: Top Readers
+        "top_readers": {
+            "title": "Top Lectores por Aula",
+            "subtitle": subtitle,
+            "classrooms": top_readers if top_readers else []
+        },
+
+        # Slide 7: Classroom Comparison
+        "classroom_comparison": (
+            classroom_comparison if classroom_comparison
+            else {"labels": [], "listen": [], "read": [], "quiz": []}
+        )
+    }
+
+
+def _build_school_overview(
+    summary: Optional[Dict[str, Any]],
+    subtitle: str
+) -> Dict[str, Any]:
+    """Build school overview data for presentation.
+
+    Args:
+        summary: School summary data
+        subtitle: Date subtitle string
+
+    Returns:
+        Dictionary with formatted school overview data
+    """
+    total_activities = summary.get("total_activities", 0) if summary else 0
+
+    # Calculate percentages
+    if summary and total_activities > 0:
+        listen_pct = round(
+            summary["total_listen"] / total_activities * 100, 1
+        )
+        read_pct = round(
+            summary["total_read"] / total_activities * 100, 1
+        )
+        quiz_pct = round(
+            summary["total_quizzes"] / total_activities * 100, 1
+        )
+    else:
+        listen_pct, read_pct, quiz_pct = 28.8, 34.6, 36.5
+
+    return {
+        "title": "School General Overview",
+        "subtitle": subtitle,
+        "stats": [
+            {
+                "number": str(summary.get("all_teachers", 0) if summary else 0),
+                "label": "Docentes"
+            },
+            {
+                "number": str(summary.get("all_students", 0) if summary else 0),
+                "label": "Estudiantes"
+            }
+        ],
+        "activities": [
+            {
+                "number": str(summary.get("total_listen", 0) if summary else 0),
+                "name": "Listen"
+            },
+            {
+                "number": str(summary.get("total_read", 0) if summary else 0),
+                "name": "Read"
+            },
+            {
+                "number": str(summary.get("total_quizzes", 0) if summary else 0),
+                "name": "Quiz"
+            }
+        ],
+        "total_activities": f"{total_activities:,}",
+        "activity_descriptions": [
+            {
+                "icon": "headphones",
+                "text": "Listen: Número de audiciones completadas"
+            },
+            {
+                "icon": "menu_book",
+                "text": "Read: Número de lecturas completadas"
+            },
+            {
+                "icon": "quiz",
+                "text": "Quiz: Número de cuestionarios completados"
+            }
+        ],
+        "chart_data": [listen_pct, read_pct, quiz_pct]
+    }
+
+
+def _build_detailed_activities(
+    classroom_summaries: Optional[List[Dict[str, Any]]],
+    subtitle: str
+) -> Dict[str, Any]:
+    """Build detailed activities data for presentation.
+
+    Args:
+        classroom_summaries: List of classroom summary dictionaries
+        subtitle: Date subtitle string
+
+    Returns:
+        Dictionary with formatted detailed activities data
+    """
+    if not classroom_summaries:
+        return {
+            "title": "Detalle Total Actividades",
+            "subtitle": subtitle,
+            "activity_summary": [
+                {"icon": "headphones", "number": "0", "name": "Listen"},
+                {"icon": "menu_book", "number": "0", "name": "Read"},
+                {"icon": "quiz", "number": "0", "name": "Quiz"}
+            ],
+            "classrooms": [],
+            "total": {
+                "students": 0, "students_used": 0, "usage": 0,
+                "listen": 0, "read": 0, "quiz": 0,
+                "interactivity": 0, "practice_recording": 0
+            }
+        }
+
+    total_listen = int(sum(c["listen"] for c in classroom_summaries))
+    total_read = int(sum(c["read"] for c in classroom_summaries))
+    total_quiz = int(sum(c["quiz"] for c in classroom_summaries))
+    total_students = sum(c["students"] for c in classroom_summaries)
+
+    # Calculate average usage
+    if total_students > 0:
+        avg_usage = round(
+            sum(c["usage"] * c["students"] for c in classroom_summaries)
+            / total_students,
+            1
+        )
+    else:
+        avg_usage = 0
+
+    return {
+        "title": "Detalle Total Actividades",
+        "subtitle": subtitle,
+        "activity_summary": [
+            {"icon": "headphones", "number": str(total_listen), "name": "Listen"},
+            {"icon": "menu_book", "number": str(total_read), "name": "Read"},
+            {"icon": "quiz", "number": str(total_quiz), "name": "Quiz"}
+        ],
+        "classrooms": [
+            {
+                "name": c["name"],
+                "students": c["students"],
+                "students_used": c.get("students_used", 0),
+                "usage": c["usage"],
+                "listen": int(c["listen"]),
+                "read": int(c["read"]),
+                "quiz": int(c["quiz"]),
+                "interactivity": int(c["interactivity"]),
+                "practice_recording": int(c["practice_recording"])
+            }
+            for c in classroom_summaries
+        ],
+        "total": {
+            "students": total_students,
+            "students_used": sum(
+                c.get("students_used", 0) for c in classroom_summaries
+            ),
+            "usage": avg_usage,
+            "listen": total_listen,
+            "read": total_read,
+            "quiz": total_quiz,
+            "interactivity": int(
+                sum(c["interactivity"] for c in classroom_summaries)
+            ),
+            "practice_recording": int(
+                sum(c["practice_recording"] for c in classroom_summaries)
+            )
+        }
+    }
+
+
+@app.route("/", methods=["GET"])
+def index():
+    """Main page displaying reports and configuration.
+
+    Returns:
+        Rendered template with report files and configuration
     """
     try:
-        name_without_ext = filename.rsplit('.', 1)[0]
-        parts = name_without_ext.split('_', 1)
+        reports_dir = get_reports_directory(REPORTS_DIR)
+        raw_files = get_report_files(str(reports_dir))
 
-        if len(parts) == 2:
-            username, report_name = parts
+        # Filter out combined reports
+        raw_files = [
+            f for f in raw_files
+            if not f.startswith(COMBINED_REPORT_PREFIX)
+        ]
 
-            # Check if this is a legacy file (starts with known report type)
-            legacy_prefixes = [
-                'Student Usage',
-                'Skill',
-                'Assignment',
-                'Assessment',
-                'Level Up Progress']
-            if any(name_without_ext.startswith(prefix)
-                   for prefix in legacy_prefixes):
-                return {'user': 'Unknown',
-                        'report_name': name_without_ext, 'filename': filename}
-
-            return {'user': username,
-                    'report_name': report_name, 'filename': filename}
-
-        # Single part or no underscore - treat as legacy
-        return {'user': 'Unknown',
-                'report_name': name_without_ext, 'filename': filename}
-
-    except Exception as e:
-        logger.warning(f"Error parsing filename {filename}: {e}")
-        return {'user': 'Unknown', 'report_name': filename.rsplit('.', 1)[
-            0], 'filename': filename}
-
-
-@app.route('/', methods=['GET'])
-def index():
-    """Main page displaying reports and configuration."""
-    try:
-        if getattr(sys, 'frozen', False):  # If running as a frozen executable
-            base_path = sys._MEIPASS
-        else:
-            base_path = os.path.abspath('.')
-        # Adjust based on how reports are bundled
-        REPORTS_DIR_TMP = os.path.join(base_path, 'reports')
-        raw_files = get_report_files(REPORTS_DIR_TMP)
-
-        # Filter out combined reports from the main file list
-        raw_files = [f for f in raw_files if not f.startswith('Combined')]
-
-        # Parse file information for better display
+        # Parse file information
         files_with_info = [parse_file_info(f) for f in raw_files]
 
-        # Group files by user for better organization
-        files_by_user = {}
+        # Group files by user
+        files_by_user: Dict[str, List[FileInfo]] = {}
         for file_info in files_with_info:
-            user = file_info['user']
+            user = file_info.user
             if user not in files_by_user:
                 files_by_user[user] = []
             files_by_user[user].append(file_info)
 
-        # Check for combined all reports file
-        combined_report_info = None
-        try:
-            combined_files = sorted(
-                [f for f in os.listdir(REPORTS_DIR_TMP) if f.startswith(
-                    'Combined_All_Reports_')],
-                reverse=True
-            )
-            if combined_files:
-                latest_combined = combined_files[0]
-                file_path = os.path.join(REPORTS_DIR_TMP, latest_combined)
-                if os.path.exists(file_path):
-                    file_stats = os.stat(file_path)
-                    combined_report_info = {
-                        'filename': latest_combined,
-                        'size': file_stats.st_size,
-                        'modified': datetime.fromtimestamp(file_stats.st_mtime)
-                    }
-        except Exception as e:
-            logger.debug(f"Error checking for combined report: {e}")
+        # Get combined report info
+        combined_report = get_combined_report_info()
 
+        # Load configuration
         config = load_config()
-        selected_date_filter = config.get('date_filter', DATE_FILTERS[0])
-        custom_start_date = config.get('custom_start_date', '')
-        custom_end_date = config.get('custom_end_date', '')
-        selected_products_filter = config.get(
-            'products_filter', PRODUCTS_FILTERS[0])
-        selected_tabs = config.get(
-            'tabs', {tab["name"]: tab["default"] for tab in TABS})
-        selected_institution_name = config.get(
-            'institution_name', 'Unidad Educativa')
+
+        # Convert dates for HTML display
+        custom_start_html = (
+            format_date_for_html_input(config.custom_start_date)
+            if config.custom_start_date else ""
+        )
+        custom_end_html = (
+            format_date_for_html_input(config.custom_end_date)
+            if config.custom_end_date else ""
+        )
+
         users = load_users()
 
-        # Convert custom dates back to YYYY-MM-DD format for HTML input
-        # type="date"
-        custom_start_date_html = ""
-        custom_end_date_html = ""
-        if custom_start_date:
-            try:
-                start_date_obj = datetime.strptime(
-                    custom_start_date, "%d/%m/%Y")
-                custom_start_date_html = start_date_obj.strftime("%Y-%m-%d")
-            except ValueError:
-                logger.warning(
-                    f"Invalid custom_start_date format: {custom_start_date}")
-        if custom_end_date:
-            try:
-                end_date_obj = datetime.strptime(custom_end_date, "%d/%m/%Y")
-                custom_end_date_html = end_date_obj.strftime("%Y-%m-%d")
-            except ValueError:
-                logger.warning(
-                    f"Invalid custom_end_date format: {custom_end_date}")
-
         return render_template(
-            'scrapper.html',
-            files=raw_files,  # Keep for backward compatibility
+            "scrapper.html",
+            files=raw_files,
             files_with_info=files_with_info,
             files_by_user=files_by_user,
-            combined_report=combined_report_info,
+            combined_report=(
+                {
+                    "filename": combined_report.filename,
+                    "size": combined_report.size,
+                    "modified": combined_report.modified
+                } if combined_report else None
+            ),
             download_in_progress=app_state.get_download_status(),
             date_filters=DATE_FILTERS,
-            selected_date_filter=selected_date_filter,
-            custom_start_date=custom_start_date_html,
-            custom_end_date=custom_end_date_html,
+            selected_date_filter=config.date_filter,
+            custom_start_date=custom_start_html,
+            custom_end_date=custom_end_html,
             products_filters=PRODUCTS_FILTERS,
-            selected_products_filter=selected_products_filter,
+            selected_products_filter=config.products_filter,
             tabs=TABS,
-            selected_tabs=selected_tabs,
-            selected_institution_name=selected_institution_name,
+            selected_tabs=config.tabs.to_dict(),
+            selected_institution_name=config.institution_name,
             users=users
         )
+
     except Exception as e:
         logger.error(f"Error in index route: {e}")
-        return jsonify({'error': 'Internal server error'}), 500
+        return jsonify({"error": "Internal server error"}), 500
 
 
-@app.route('/set-filter', methods=['POST'])
+@app.route("/set-filter", methods=["POST"])
 def set_filter():
-    """Update filter configuration from form data."""
+    """Update filter configuration from form data.
+
+    Returns:
+        Redirect to index page or JSON error
+    """
     try:
         config = load_config()
 
         # Update date filter
-        date_filter = request.form.get('date_filter', DATE_FILTERS[0])
+        date_filter = request.form.get("date_filter", DATE_FILTERS[0])
         if date_filter not in DATE_FILTERS:
             logger.warning(f"Invalid date filter received: {date_filter}")
             date_filter = DATE_FILTERS[0]
-        config['date_filter'] = date_filter
+        config.date_filter = date_filter
 
-        # Handle custom dates if "Custom" is selected
+        # Handle custom dates
         if date_filter == "Custom":
-            custom_start_date = request.form.get(
-                'custom_start_date', '').strip()
-            custom_end_date = request.form.get('custom_end_date', '').strip()
+            custom_start = request.form.get("custom_start_date", "").strip()
+            custom_end = request.form.get("custom_end_date", "").strip()
 
-            # Validate custom dates
-            if custom_start_date and custom_end_date:
-                try:
-                    # Parse dates from HTML input (YYYY-MM-DD format from input
-                    # type="date")
-                    start_date = datetime.strptime(
-                        custom_start_date, "%Y-%m-%d")
-                    end_date = datetime.strptime(custom_end_date, "%Y-%m-%d")
+            if not custom_start or not custom_end:
+                return jsonify({
+                    "error": "Please provide both start and end dates"
+                }), 400
 
-                    # Validate date range (max 365 days)
-                    date_diff = (end_date - start_date).days
-                    if date_diff < 0:
-                        logger.warning(
-                            f"Invalid custom date range: end date before start date")
-                        return jsonify(
-                            {'error': 'End date must be after start date'}), 400
-                    elif date_diff > 365:
-                        logger.warning(
-                            f"Custom date range exceeds 365 days: {date_diff} days")
-                        return jsonify(
-                            {'error': 'Date range cannot exceed 365 days'}), 400
+            # Validate date range
+            is_valid, error_msg = validate_date_range(
+                custom_start,
+                custom_end
+            )
 
-                    # Store custom dates in DD/MM/YYYY format for scraper
-                    config['custom_start_date'] = start_date.strftime(
-                        "%d/%m/%Y")
-                    config['custom_end_date'] = end_date.strftime("%d/%m/%Y")
-                    logger.info(
-                        f"Custom date range set: {
-                            config['custom_start_date']} to {
-                            config['custom_end_date']}")
-                except ValueError:
-                    logger.warning(
-                        f"Invalid custom date format: {custom_start_date} - {custom_end_date}")
-                    return jsonify(
-                        {'error': 'Invalid date format. Use YYYY-MM-DD format'}), 400
-            else:
-                logger.warning(
-                    "Custom date filter selected but no dates provided")
-                return jsonify(
-                    {'error': 'Please provide both start and end dates for custom range'}), 400
+            if not is_valid:
+                logger.warning(f"Invalid date range: {error_msg}")
+                return jsonify({"error": error_msg}), 400
+
+            # Convert and store dates
+            config.custom_start_date = format_date_for_storage(custom_start)
+            config.custom_end_date = format_date_for_storage(custom_end)
+
+            logger.info(
+                f"Custom date range set: {config.custom_start_date} "
+                f"to {config.custom_end_date}"
+            )
         else:
-            # Clear custom dates when not using "Custom" filter
-            config['custom_start_date'] = ''
-            config['custom_end_date'] = ''
+            config.custom_start_date = ""
+            config.custom_end_date = ""
 
         # Update products filter
         products_filter = request.form.get(
-            'products_filter', PRODUCTS_FILTERS[0])
+            "products_filter",
+            PRODUCTS_FILTERS[0]
+        )
         if products_filter not in PRODUCTS_FILTERS:
             logger.warning(
-                f"Invalid products filter received: {products_filter}")
+                f"Invalid products filter received: {products_filter}"
+            )
             products_filter = PRODUCTS_FILTERS[0]
-        config['products_filter'] = products_filter
+        config.products_filter = products_filter
 
         # Update tabs selection
-        selected_tabs = request.form.getlist('tabs')
-        tabs_config = {
-            tab["name"]: (
-                tab["name"] in selected_tabs) for tab in TABS}
-        config['tabs'] = tabs_config
+        selected_tabs = request.form.getlist("tabs")
+        tabs_dict = {
+            tab["name"]: (tab["name"] in selected_tabs)
+            for tab in TABS
+        }
+        from config import TabsConfig
+        config.tabs = TabsConfig.from_dict(tabs_dict)
 
         # Update institution name
         institution_name = request.form.get(
-            'institution_name', 'Unidad Educativa').strip()
+            "institution_name",
+            config.institution_name
+        ).strip()
         if institution_name:
-            config['institution_name'] = institution_name
-        else:
-            config['institution_name'] = 'Unidad Educativa'
+            config.institution_name = institution_name
 
         save_config(config)
         logger.info(
-            f"Filter configuration updated: date={date_filter}, products={products_filter}, tabs: {selected_tabs}, institution: {institution_name}")
-        return redirect(url_for('index'))
+            f"Filter configuration updated: date={date_filter}, "
+            f"products={products_filter}, tabs={selected_tabs}, "
+            f"institution={institution_name}"
+        )
+
+        return redirect(url_for("index"))
 
     except Exception as e:
         logger.error(f"Error updating filter configuration: {e}")
-        return jsonify({'error': 'Failed to update configuration'}), 500
+        return jsonify({"error": "Failed to update configuration"}), 500
 
 
-@app.route('/download/<filename>')
+@app.route("/download/<filename>")
 def download(filename: str):
     """Download a specific report file.
 
     Args:
-                    filename: Name of the file to download
+        filename: Name of the file to download
+
+    Returns:
+        File download or JSON error
     """
-    if getattr(sys, 'frozen', False):  # If running as a frozen executable
-        base_path = sys._MEIPASS
-    else:
-        base_path = os.path.abspath('.')
-    # Adjust based on how reports are bundled
-    REPORTS_DIR_TMP = os.path.join(base_path, 'reports')
-
     try:
-        # Security check: ensure filename doesn't contain path traversal
+        # Security check
         if not validate_filename(filename):
-            logger.warning(
-                f"Potentially malicious filename requested: {filename}")
-            return jsonify({'error': 'Invalid filename'}), 400
+            logger.warning(f"Potentially malicious filename: {filename}")
+            return jsonify({"error": "Invalid filename"}), 400
 
-        file_path = os.path.join(REPORTS_DIR_TMP, filename)
-        if not os.path.exists(file_path):
+        reports_dir = get_reports_directory(REPORTS_DIR)
+        file_path = reports_dir / filename
+
+        if not file_path.exists():
             logger.warning(f"Requested file not found: {filename}")
-            return jsonify({'error': 'File not found'}), 404
+            return jsonify({"error": "File not found"}), 404
 
         logger.info(f"Downloading file: {filename}")
         return send_from_directory(
-            REPORTS_DIR_TMP, filename, as_attachment=True)
+            str(reports_dir),
+            filename,
+            as_attachment=True
+        )
 
     except Exception as e:
         logger.error(f"Error downloading file {filename}: {e}")
-        return jsonify({'error': 'Download failed'}), 500
+        return jsonify({"error": "Download failed"}), 500
 
 
-@app.route('/download-combined-reports')
+@app.route("/download-combined-reports")
 def download_combined_reports():
-    """Download the most recent combined all reports file."""
-    try:
-        if getattr(sys, 'frozen', False):  # If running as a frozen executable
-            base_path = sys._MEIPASS
-        else:
-            base_path = os.path.abspath('.')
-        REPORTS_DIR_TMP = os.path.join(base_path, 'reports')
+    """Download the most recent combined all reports file.
 
-        # Find the most recent combined all reports file
+    Returns:
+        File download or JSON error
+    """
+    try:
+        reports_dir = get_reports_directory(REPORTS_DIR)
         combined_files = sorted(
-            [f for f in os.listdir(REPORTS_DIR_TMP)
-             if f.startswith('Combined_All_Reports_')],
+            [f for f in os.listdir(reports_dir)
+             if f.startswith(COMBINED_REPORT_PREFIX)],
             reverse=True
         )
 
         if not combined_files:
             logger.info("No combined all reports file available")
-            return jsonify(
-                {'error': 'No combined all reports file available'}), 404
+            return jsonify({
+                "error": "No combined all reports file available"
+            }), 404
 
-        # Get the most recent file
         latest_combined = combined_files[0]
 
-        # Security check: ensure filename doesn't contain path traversal
+        # Security check
         if not validate_filename(latest_combined):
-            logger.warning(
-                f"Potentially malicious filename: {latest_combined}")
-            return jsonify({'error': 'Invalid filename'}), 400
+            logger.warning(f"Potentially malicious filename: {latest_combined}")
+            return jsonify({"error": "Invalid filename"}), 400
 
-        file_path = os.path.join(REPORTS_DIR_TMP, latest_combined)
-        if not os.path.exists(file_path):
+        file_path = reports_dir / latest_combined
+        if not file_path.exists():
             logger.warning(f"Combined file not found: {latest_combined}")
-            return jsonify({'error': 'File not found'}), 404
+            return jsonify({"error": "File not found"}), 404
 
-        logger.info(
-            f"Downloading combined all reports file: {latest_combined}")
+        logger.info(f"Downloading combined reports: {latest_combined}")
         return send_from_directory(
-            REPORTS_DIR_TMP, latest_combined, as_attachment=True)
-
-    except Exception as e:
-        logger.error(f"Error downloading combined all reports file: {e}")
-        return jsonify({'error': 'Download failed'}), 500
-
-
-@app.route('/get-combined-reports-status')
-def get_combined_reports_status():
-    """Check if a combined all reports file exists."""
-    try:
-        if getattr(sys, 'frozen', False):
-            base_path = sys._MEIPASS
-        else:
-            base_path = os.path.abspath('.')
-        REPORTS_DIR_TMP = os.path.join(base_path, 'reports')
-
-        # Find combined all reports files
-        combined_files = sorted(
-            [f for f in os.listdir(REPORTS_DIR_TMP)
-             if f.startswith('Combined_All_Reports_')],
-            reverse=True
+            str(reports_dir),
+            latest_combined,
+            as_attachment=True
         )
 
-        if combined_files:
-            latest_file = combined_files[0]
-            file_path = os.path.join(REPORTS_DIR_TMP, latest_file)
-            file_stats = os.stat(file_path)
+    except Exception as e:
+        logger.error(f"Error downloading combined reports: {e}")
+        return jsonify({"error": "Download failed"}), 500
 
+
+@app.route("/get-combined-reports-status")
+def get_combined_reports_status():
+    """Check if a combined all reports file exists.
+
+    Returns:
+        JSON with existence status and file information
+    """
+    try:
+        combined_report = get_combined_report_info()
+
+        if combined_report:
             return jsonify({
-                'exists': True,
-                'filename': latest_file,
-                'size': file_stats.st_size,
-                'modified': datetime.fromtimestamp(file_stats.st_mtime).isoformat()
+                "exists": True,
+                "filename": combined_report.filename,
+                "size": combined_report.size,
+                "modified": combined_report.modified.isoformat()
             })
         else:
-            return jsonify({'exists': False})
+            return jsonify({"exists": False})
 
     except Exception as e:
         logger.error(f"Error checking combined reports status: {e}")
-        return jsonify({'exists': False, 'error': str(e)})
+        return jsonify({"exists": False, "error": str(e)})
 
 
-@app.route('/scrape', methods=['POST'])
+@app.route("/scrape", methods=["POST"])
 def scrape():
-    """Start the scraping process."""
+    """Start the scraping process.
+
+    Returns:
+        JSON with status
+    """
     try:
         if not app_state.get_download_status():
             logger.info("Starting new scrape job")
             threading.Thread(target=run_scraper, daemon=True).start()
-            return jsonify({'status': 'started'})
+            return jsonify({"status": "started"})
         else:
             logger.info("Scrape request received but job already running")
-            return jsonify({'status': 'already_running'})
+            return jsonify({"status": "already_running"})
+
     except Exception as e:
         logger.error(f"Error starting scrape job: {e}")
-        return jsonify({'error': 'Failed to start scraper'}), 500
+        return jsonify({"error": "Failed to start scraper"}), 500
 
 
-@app.route('/scrape-status')
+@app.route("/scrape-status")
 def scrape_status():
-    """Get current scraping status."""
+    """Get current scraping status.
+
+    Returns:
+        JSON with scraping status
+    """
     try:
-        return jsonify({'in_progress': app_state.get_download_status()})
+        return jsonify({"in_progress": app_state.get_download_status()})
     except Exception as e:
         logger.error(f"Error getting scrape status: {e}")
-        return jsonify({'error': 'Failed to get status'}), 500
+        return jsonify({"error": "Failed to get status"}), 500
 
 
-@app.route('/scrape-notifications')
+@app.route("/scrape-notifications")
 def scrape_notifications():
-    """Get current scraper notifications."""
+    """Get current scraper notifications.
+
+    Returns:
+        JSON with notifications list and status
+    """
     try:
-        notifications = app_state.get_notifications()
         return jsonify({
-            'notifications': notifications,
-            'in_progress': app_state.get_download_status()
+            "notifications": app_state.get_notifications(),
+            "in_progress": app_state.get_download_status()
         })
     except Exception as e:
         logger.error(f"Error getting scrape notifications: {e}")
-        return jsonify({'notifications': [], 'in_progress': False})
+        return jsonify({"notifications": [], "in_progress": False})
 
 
-@app.route('/clear-notifications', methods=['POST'])
+@app.route("/clear-notifications", methods=["POST"])
 def clear_notifications():
-    """Clear all notifications."""
+    """Clear all notifications.
+
+    Returns:
+        JSON with status
+    """
     try:
         app_state.clear_notifications()
-        return jsonify({'status': 'ok'})
+        return jsonify({"status": "ok"})
     except Exception as e:
         logger.error(f"Error clearing notifications: {e}")
-        return jsonify({'error': 'Failed to clear notifications'}), 500
+        return jsonify({"error": "Failed to clear notifications"}), 500
 
 
-@app.route('/delete-all-reports', methods=['POST'])
+@app.route("/delete-all-reports", methods=["POST"])
 def delete_all_reports():
-    """Delete all report files from the reports directory."""
+    """Delete all report files from the reports directory.
+
+    Returns:
+        JSON with deletion status and count
+    """
     try:
-        if getattr(sys, 'frozen', False):  # If running as a frozen executable
-            base_path = sys._MEIPASS
-        else:
-            base_path = os.path.abspath('.')
-        REPORTS_DIR_TMP = os.path.join(base_path, 'reports')
+        reports_dir = get_reports_directory(REPORTS_DIR)
+        reports_dir.mkdir(parents=True, exist_ok=True)
 
-        # Ensure reports directory exists
-        os.makedirs(REPORTS_DIR_TMP, exist_ok=True)
-
-        # Delete all files in the reports directory
         files_deleted = 0
-        for filename in os.listdir(REPORTS_DIR_TMP):
-            file_path = os.path.join(REPORTS_DIR_TMP, filename)
-            if os.path.isfile(file_path):
-                os.remove(file_path)
+        for file_path in reports_dir.glob("*"):
+            if file_path.is_file():
+                file_path.unlink()
                 files_deleted += 1
-                logger.info(f"Deleted report file: {filename}")
+                logger.info(f"Deleted report file: {file_path.name}")
 
         logger.info(f"Successfully deleted {files_deleted} report files")
-        return jsonify({'status': 'ok', 'files_deleted': files_deleted})
+        return jsonify({"status": "ok", "files_deleted": files_deleted})
 
     except Exception as e:
         logger.error(f"Error deleting all reports: {e}")
-        return jsonify({'error': f'Failed to delete reports: {str(e)}'}), 500
+        return jsonify({
+            "error": f"Failed to delete reports: {str(e)}"
+        }), 500
 
 
-@app.route('/scrape-logs')
+@app.route("/scrape-logs")
 def scrape_logs():
-    """Get recent scraper logs for notifications (legacy endpoint - kept for compatibility)."""
+    """Get recent scraper logs (legacy endpoint for compatibility).
+
+    Returns:
+        JSON with warnings and errors lists
+    """
     try:
-        # Use the new notification system
         notifications = app_state.get_notifications()
 
-        warnings = []
-        errors = []
+        warnings = [
+            n["message"] for n in notifications
+            if n["type"] == "warning"
+        ]
+        errors = [
+            n["message"] for n in notifications
+            if n["type"] == "error"
+        ]
 
-        for notif in notifications:
-            if notif['type'] == 'warning':
-                warnings.append(notif['message'])
-            elif notif['type'] == 'error':
-                errors.append(notif['message'])
-
-        return jsonify({
-            'warnings': warnings,
-            'errors': errors
-        })
+        return jsonify({"warnings": warnings, "errors": errors})
 
     except Exception as e:
         logger.error(f"Error getting scrape logs: {e}")
-        return jsonify({'warnings': [], 'errors': []})
+        return jsonify({"warnings": [], "errors": []})
 
 
-@app.route('/get-users', methods=['GET'])
+@app.route("/get-users", methods=["GET"])
 def get_users():
-    """Get list of configured users."""
+    """Get list of configured users.
+
+    Returns:
+        JSON with users list
+    """
     try:
         users = load_users()
         return jsonify(users)
     except Exception as e:
         logger.error(f"Error getting users: {e}")
-        return jsonify({'error': 'Failed to load users'}), 500
+        return jsonify({"error": "Failed to load users"}), 500
 
 
-@app.route('/save-users', methods=['POST'])
+@app.route("/save-users", methods=["POST"])
 def save_users_route():
-    """Save users configuration via JSON API."""
+    """Save users configuration via JSON API.
+
+    Returns:
+        JSON with status
+    """
     try:
         if not request.is_json:
-            return jsonify(
-                {'error': 'Content-Type must be application/json'}), 400
+            return jsonify({
+                "error": "Content-Type must be application/json"
+            }), 400
 
-        users = request.json.get('users', [])
+        users = request.json.get("users", [])
 
         # Validate users data
         if not isinstance(users, list):
-            return jsonify({'error': 'Users must be a list'}), 400
+            return jsonify({"error": "Users must be a list"}), 400
 
         for user in users:
             if not validate_user_data(user):
-                return jsonify(
-                    {'error': 'Each user must have username and password fields'}), 400
+                return jsonify({
+                    "error": "Each user must have username and password"
+                }), 400
 
         save_users(users)
         logger.info(f"Saved {len(users)} users via API")
-        return jsonify({'status': 'ok'})
+        return jsonify({"status": "ok"})
 
     except Exception as e:
         logger.error(f"Error saving users: {e}")
-        return jsonify({'error': 'Failed to save users'}), 500
+        return jsonify({"error": "Failed to save users"}), 500
 
 
-@app.route('/upload-users', methods=['POST'])
+@app.route("/upload-users", methods=["POST"])
 def upload_users():
-    """Upload users configuration from JSON file."""
+    """Upload users configuration from JSON file.
+
+    Returns:
+        JSON with status and message
+    """
     try:
-        if 'users_file' not in request.files:
-            return jsonify({'error': 'No file uploaded'}), 400
+        if "users_file" not in request.files:
+            return jsonify({"error": "No file uploaded"}), 400
 
-        file = request.files['users_file']
-        if file.filename == '':
-            return jsonify({'error': 'No file selected'}), 400
+        file = request.files["users_file"]
+        if file.filename == "":
+            return jsonify({"error": "No file selected"}), 400
 
-        if not file.filename.endswith('.json'):
-            return jsonify({'error': 'File must be a JSON file'}), 400
+        if not file.filename.endswith(".json"):
+            return jsonify({"error": "File must be a JSON file"}), 400
 
-        # Read and parse the uploaded JSON
-        file_content = file.read().decode('utf-8')
+        # Read and parse JSON
+        file_content = file.read().decode("utf-8")
+        import json
         try:
-            import json
             users_data = json.loads(file_content)
         except json.JSONDecodeError:
-            return jsonify({'error': 'Invalid JSON file format'}), 400
+            return jsonify({"error": "Invalid JSON file format"}), 400
 
-        # Validate the JSON structure
+        # Validate structure
         if not isinstance(users_data, list):
-            return jsonify(
-                {'error': 'JSON file must contain an array of users'}), 400
+            return jsonify({
+                "error": "JSON file must contain an array of users"
+            }), 400
 
         for user in users_data:
             if not validate_user_data(user):
-                return jsonify(
-                    {'error': 'Each user must have username and password fields'}), 400
+                return jsonify({
+                    "error": "Each user must have username and password"
+                }), 400
 
-        # Save the new users configuration
         save_users(users_data)
         logger.info(f"Successfully uploaded {len(users_data)} users from file")
-        return jsonify(
-            {'status': 'ok', 'message': f'Successfully uploaded {len(users_data)} users'})
+
+        return jsonify({
+            "status": "ok",
+            "message": f"Successfully uploaded {len(users_data)} users"
+        })
 
     except json.JSONDecodeError as e:
         logger.error(f"Invalid JSON in uploaded file: {e}")
-        return jsonify({'error': 'Invalid JSON file format'}), 400
+        return jsonify({"error": "Invalid JSON file format"}), 400
     except UnicodeDecodeError as e:
         logger.error(f"File encoding error: {e}")
-        return jsonify(
-            {'error': 'File encoding not supported, please use UTF-8'}), 400
+        return jsonify({
+            "error": "File encoding not supported, please use UTF-8"
+        }), 400
     except Exception as e:
         logger.error(f"Error processing uploaded file: {e}")
-        return jsonify({'error': f'Error processing file: {str(e)}'}), 500
+        return jsonify({"error": f"Error processing file: {str(e)}"}), 500
 
 
-@app.route('/report')
+@app.route("/report")
 def report():
-    """Display the professional report presentation."""
+    """Display the professional report presentation.
+
+    Returns:
+        Rendered report template
+    """
     try:
-        data = get_mock_report_data()
-        return render_template('report.html', **data)
+        data = get_report_data()
+        return render_template("report.html", **data)
     except Exception as e:
         logger.error(f"Error rendering report: {e}")
-        return jsonify({'error': 'Internal server error'}), 500
+        return jsonify({"error": "Internal server error"}), 500
 
 
-@app.route('/logs/app')
+@app.route("/logs/app")
 def get_app_logs():
-    """Get the contents of app.log file."""
+    """Get the contents of app.log file.
+
+    Returns:
+        Plain text log contents or JSON error
+    """
     try:
-        # Determine log file location based on execution context
-        if getattr(sys, 'frozen', False):  # If running as a frozen executable
-            # Logs are written to the _MEIPASS directory (PyInstaller temp
-            # directory)
-            log_file_path = os.path.join(sys._MEIPASS, 'app.log')
-        else:
-            # Running in development - logs are in current directory
-            log_file_path = 'app.log'
+        log_file_path = get_log_file_path("app.log")
 
         if not os.path.exists(log_file_path):
             logger.warning(f"app.log file not found at {log_file_path}")
-            return jsonify({'error': 'Log file not found'}), 404
+            return jsonify({"error": "Log file not found"}), 404
 
-        with open(log_file_path, 'r', encoding='utf-8') as f:
+        with open(log_file_path, "r", encoding="utf-8") as f:
             log_content = f.read()
 
-        return log_content, 200, {'Content-Type': 'text/plain; charset=utf-8'}
+        return log_content, 200, {"Content-Type": "text/plain; charset=utf-8"}
 
     except Exception as e:
         logger.error(f"Error reading app.log: {e}")
-        return jsonify({'error': 'Failed to read log file'}), 500
+        return jsonify({"error": "Failed to read log file"}), 500
 
 
-@app.route('/templates/images/<filename>')
-def serve_template_image(filename):
-    """Serve images from templates/images directory."""
+@app.route("/templates/images/<filename>")
+def serve_template_image(filename: str):
+    """Serve images from templates/images directory.
+
+    Args:
+        filename: Image filename
+
+    Returns:
+        Image file or JSON error
+    """
     try:
-        return send_from_directory('templates/images', filename)
+        return send_from_directory("templates/images", filename)
     except Exception as e:
         logger.error(f"Error serving image {filename}: {e}")
-        return jsonify({'error': 'Image not found'}), 404
+        return jsonify({"error": "Image not found"}), 404
 
 
 def cleanup_reports_directory() -> None:
     """Clean up the reports directory on startup."""
+    from path_helpers import get_all_reports_directories
+
     try:
-        # Determine which directories to clean based on execution context
-        directories_to_clean = []
-
-        if getattr(sys, 'frozen', False):
-            # Running as PyInstaller executable - clean both directories
-            base_path = sys._MEIPASS
-            external_reports_dir = os.path.join(
-                os.path.dirname(sys.executable), REPORTS_DIR)
-            internal_reports_dir = os.path.join(base_path, REPORTS_DIR)
-            directories_to_clean = [external_reports_dir, internal_reports_dir]
-        else:
-            # Running in development - clean only the local reports directory
-            directories_to_clean = [REPORTS_DIR]
-
+        directories_to_clean = get_all_reports_directories(REPORTS_DIR)
         total_files_removed = 0
 
         for reports_dir in directories_to_clean:
             try:
-                os.makedirs(reports_dir, exist_ok=True)
+                reports_dir.mkdir(parents=True, exist_ok=True)
 
-                # Delete all files in the reports directory
                 files_removed = 0
-                for f in os.listdir(reports_dir):
-                    file_path = os.path.join(reports_dir, f)
-                    if os.path.isfile(file_path):
-                        os.remove(file_path)
+                for file_path in reports_dir.glob("*"):
+                    if file_path.is_file():
+                        file_path.unlink()
                         files_removed += 1
 
                 if files_removed > 0:
                     logger.info(
-                        f"Cleaned up {files_removed} files from {reports_dir}")
+                        f"Cleaned up {files_removed} files from {reports_dir}"
+                    )
                     total_files_removed += files_removed
                 else:
                     logger.info(f"Reports directory {reports_dir} is clean")
 
             except Exception as e:
                 logger.warning(
-                    f"Error cleaning up reports directory {reports_dir}: {e}")
-                # Continue with other directories
+                    f"Error cleaning up reports directory {reports_dir}: {e}"
+                )
 
         if total_files_removed > 0:
             logger.info(
-                f"Total cleaned up {total_files_removed} files from all reports directories")
+                f"Total cleaned up {total_files_removed} files from "
+                f"all reports directories"
+            )
         else:
             logger.info("All reports directories are clean")
 
@@ -1156,17 +1184,20 @@ def cleanup_reports_directory() -> None:
         logger.error(f"Error in cleanup_reports_directory: {e}")
 
 
-def open_browser(host: str = 'localhost', port: int = 5000,
-                 delay: float = 1.5) -> None:
+def open_browser(
+    host: str = "localhost",
+    port: int = 5000,
+    delay: float = 1.5
+) -> None:
     """Open the default web browser to the application URL.
 
     Args:
-                    host: Host address (use localhost for browser access)
-                    port: Port number
-                    delay: Delay in seconds before opening browser
+        host: Host address (use localhost for browser access)
+        port: Port number
+        delay: Delay in seconds before opening browser
     """
     def _open_browser():
-        time.sleep(delay)  # Wait for server to start
+        time.sleep(delay)
         url = f"http://{host}:{port}"
         try:
             logger.info(f"Opening browser to {url}")
@@ -1175,34 +1206,31 @@ def open_browser(host: str = 'localhost', port: int = 5000,
             logger.warning(f"Could not open browser automatically: {e}")
             logger.info(f"Please open your browser manually and go to {url}")
 
-    # Run in a separate thread to avoid blocking the server
     browser_thread = threading.Thread(target=_open_browser, daemon=True)
     browser_thread.start()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Configuration
-    HOST = os.getenv('FLASK_HOST', '0.0.0.0')  # Server binds to all interfaces
-    PORT = int(os.getenv('FLASK_PORT', '5000'))
-    BROWSER_HOST = 'localhost'  # Browser should connect to localhost
-    AUTO_OPEN_BROWSER = os.getenv(
-        'AUTO_OPEN_BROWSER',
-        'true').lower() == 'true'
+    HOST = os.getenv("FLASK_HOST", "0.0.0.0")
+    PORT = int(os.getenv("FLASK_PORT", "5000"))
+    BROWSER_HOST = "localhost"
+    AUTO_OPEN_BROWSER = (
+        os.getenv("AUTO_OPEN_BROWSER", "true").lower() == "true"
+    )
 
     cleanup_reports_directory()
-    open('app.log', 'w').close()
+    clear_log_file("app.log")
     logger.info("Cleared app.log file")
     logger.info("Starting Flask application")
     logger.info(f"Server will be available at http://{BROWSER_HOST}:{PORT}")
 
-    # Start browser opening in background (if enabled)
     if AUTO_OPEN_BROWSER:
         open_browser(host=BROWSER_HOST, port=PORT)
         logger.info("Browser will open automatically in 1.5 seconds...")
     else:
-        logger.info("Auto-open browser disabled. Open your browser manually.")
+        logger.info("Auto-open browser disabled. Open manually.")
 
-    # Start the server
     try:
         serve(app, host=HOST, port=PORT)
     except KeyboardInterrupt:
