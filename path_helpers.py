@@ -149,13 +149,13 @@ def get_all_reports_directories(reports_dir: str = "reports") -> List[Path]:
 def get_playwright_browsers_path() -> Path:
     """Get the path to Playwright browsers directory.
 
-    Always uses the 'playwright-browsers' directory in the current working
-    directory for consistency. Creates the path if it doesn't exist.
+    Checks multiple locations and returns the first existing path.
+    Priority: current working directory, then base path, then executable dir.
 
     Returns:
         Path to playwright-browsers directory
     """
-    # Always use current working directory for consistency
+    # Primary path: current working directory
     browsers_path = Path.cwd() / 'playwright-browsers'
 
     if not is_frozen():
@@ -168,32 +168,27 @@ def get_playwright_browsers_path() -> Path:
             )
         return browsers_path
 
-    # PyInstaller mode - check if it exists, but always return the path
+    # PyInstaller mode - check if primary path exists
     if browsers_path.exists():
         logger.info(f"Found Playwright browsers at: {browsers_path}")
-    else:
-        # Check alternative locations for reference
-        alternative_paths = [
-            get_base_path() / 'playwright-browsers',
-            get_executable_dir() / 'playwright-browsers',
-        ]
+        return browsers_path
 
-        found_alternative = False
-        for alt_path in alternative_paths:
-            if alt_path.exists():
-                logger.warning(
-                    f"Found browsers at {alt_path}, but will use {browsers_path}. "
-                    f"Consider moving the browsers directory."
-                )
-                found_alternative = True
-                break
+    # Check alternative locations
+    alternative_paths = [
+        get_base_path() / 'playwright-browsers',
+        get_executable_dir() / 'playwright-browsers',
+    ]
 
-        if not found_alternative:
-            logger.warning(
-                f"Playwright browsers not found at: {browsers_path}. "
-                f"Browser may fail to launch."
-            )
+    for alt_path in alternative_paths:
+        if alt_path.exists():
+            logger.info(f"Found Playwright browsers at alternative location: {alt_path}")
+            return alt_path
 
+    # No existing path found - return primary path and warn
+    logger.warning(
+        f"Playwright browsers not found at: {browsers_path}. "
+        f"Browser may fail to launch."
+    )
     return browsers_path
 
 
