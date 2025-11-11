@@ -37,6 +37,7 @@ from constants import (
     SELECTOR_USERNAME_INPUT, SELECTOR_PASSWORD_INPUT,
     SELECTOR_LOGIN_BUTTON_ENABLED, SELECTOR_LOGIN_BUTTON,
     SELECTOR_MENU_BUTTON, SELECTOR_CLASSROOM_REPORTS,
+    SELECTOR_CLASSROOM_GREETING,
     SELECTOR_DATE_FILTER, SELECTOR_PRODUCTS_FILTER, SELECTOR_FILTER_OPTION,
     SELECTOR_START_DATE_INPUT, SELECTOR_END_DATE_INPUT,
     SELECTOR_REPORT_TAB, SELECTOR_ELLIPSIS_BUTTON, SELECTOR_CSV_DOWNLOAD,
@@ -186,6 +187,42 @@ def navigate_to_reports(page: Page) -> bool:
     except Exception as e:
         logger.error(f"Error navigating to reports: {e}")
         return False
+
+
+def extract_classroom_name(page: Page) -> Optional[str]:
+    """Extract classroom name from homepage greeting.
+
+    Args:
+        page: Playwright page object
+
+    Returns:
+        Classroom name (e.g., "1A Josefa Andrea") or None if not found
+    """
+    try:
+        logger.debug("Attempting to extract classroom name from greeting")
+
+        # Look for the greeting element
+        greeting_locator = page.locator(SELECTOR_CLASSROOM_GREETING)
+        if greeting_locator.count() > 0:
+            greeting_text = greeting_locator.first.inner_text().strip()
+            logger.debug(f"Found greeting text: {greeting_text}")
+
+            # Remove "Hi " prefix if present
+            if greeting_text.startswith("Hi "):
+                classroom_name = greeting_text[3:].strip()
+                logger.info(f"Extracted classroom name: {classroom_name}")
+                return classroom_name[:-1]  # Remove trailing punctuation if any
+            else:
+                # If no "Hi " prefix, return the text as-is
+                logger.info(f"Extracted classroom name: {greeting_text}")
+                return greeting_text
+
+        logger.warning("Could not find classroom greeting element")
+        return None
+
+    except Exception as e:
+        logger.error(f"Error extracting classroom name: {e}")
+        return None
 
 
 def select_date_filter(
@@ -345,12 +382,13 @@ def select_products_filter(
         return False
 
 
-def download_report(page: Page, username: str) -> bool:
+def download_report(page: Page, username: str, classroom_name: str) -> bool:
     """Download the current report as CSV and convert to XLSX.
 
     Args:
         page: Playwright page object
-        username: Username to include in filename
+        username: Username (for logging purposes)
+        classroom_name: Classroom name to include in filename
 
     Returns:
         True if download successful, False otherwise
@@ -380,14 +418,14 @@ def download_report(page: Page, username: str) -> bool:
         download = download_info.value
         original_filename = download.suggested_filename
 
-        # Create user-specific filename
-        user_filename = f"{username}_{original_filename}"
+        # Create classroom-specific filename
+        classroom_filename = f"{classroom_name}_{original_filename}"
 
         reports_dir = get_reports_directory(REPORTS_DIR)
-        csv_path = reports_dir / user_filename
+        csv_path = reports_dir / classroom_filename
 
         download.save_as(str(csv_path))
-        logger.info(f"Downloaded CSV report: {user_filename}")
+        logger.info(f"Downloaded CSV report: {classroom_filename}")
 
         # Convert CSV to XLSX
         if convert_csv_to_xlsx(str(csv_path)):
@@ -469,6 +507,7 @@ def create_browser_context(browser: Browser) -> BrowserContext:
 def process_user_reports(
     page: Page,
     username: str,
+    classroom_name: str,
     config: Dict
 ) -> tuple[int, int]:
     """Process and download all selected report tabs for a user.
@@ -476,6 +515,7 @@ def process_user_reports(
     Args:
         page: Playwright page object
         username: Username for the reports
+        classroom_name: Classroom name to use in filenames
         config: Scraper configuration dictionary
 
     Returns:
@@ -507,7 +547,7 @@ def process_user_reports(
                     else:
                         select_products_filter(page, products_filter)
 
-                if download_report(page, username):
+                if download_report(page, username, classroom_name):
                     successful_downloads += 1
                     logger.info(f"Successfully downloaded {tab_name} report")
                 else:
@@ -562,6 +602,19 @@ def login_and_download_reports_for_user(
                 logger.debug("Navigating back to Raz-Plus main page")
                 page.goto(RAZ_PLUS_URL)
                 page.wait_for_load_state("networkidle")
+
+                # Extract classroom name from homepage
+                classroom_name = extract_classroom_name(page)
+                if not classroom_name:
+                    logger.warning(
+                        f"Could not extract classroom name for {username}, "
+                        f"using username instead"
+                    )
+                    classroom_name = username
+                else:
+                    logger.info(
+                        f"Using classroom name '{classroom_name}' for {username}"
+                    )
 
                 # Navigate to reports section
                 if not navigate_to_reports(page):
@@ -624,6 +677,7 @@ def login_and_download_reports_for_user(
                 successful_downloads, total_tabs = process_user_reports(
                     page,
                     username,
+                    classroom_name,
                     config.to_dict()
                 )
 

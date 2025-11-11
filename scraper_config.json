@@ -3,12 +3,12 @@
   "tabs": {
     "Student Usage": true,
     "Skill": true,
-    "Assignment": false,
-    "Assessment": false,
+    "Assignment": true,
+    "Assessment": true,
     "Level Up Progress": true
   },
   "products_filter": "All",
   "institution_name": "Colegio Patagonia",
-  "custom_start_date": "01/09/2025",
-  "custom_end_date": "30/10/2025"
+  "custom_start_date": "01/08/2025",
+  "custom_end_date": "11/11/2025"
 }

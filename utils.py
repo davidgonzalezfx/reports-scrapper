@@ -766,6 +766,17 @@ def get_classroom_summaries(
                     )
                     continue
 
+                # Extract classroom name from filename
+                filename = file_path.name
+                if "_Student Usage_" in filename:
+                    classroom_name = filename.split("_Student Usage_")[0]
+                else:
+                    logger.warning(
+                        f"Could not extract classroom name from {filename}, "
+                        f"using 'Unknown'"
+                    )
+                    classroom_name = "Unknown"
+
                 df = pd.read_excel(file_path, engine="openpyxl")
 
                 if df.empty:
@@ -777,13 +788,6 @@ def get_classroom_summaries(
                 # Process each row in the file
                 for _, row in df.iterrows():
                     cleaned_row = clean_row_data(list(row))
-
-                    # Extract classroom name
-                    classroom_name = (
-                        str(cleaned_row[STUDENT_USAGE_COL_CLASSROOM]).strip()
-                        if len(cleaned_row) > STUDENT_USAGE_COL_CLASSROOM
-                        else "Unknown"
-                    )
 
                     # Initialize classroom data if not exists
                     if classroom_name not in classroom_data:
@@ -1056,6 +1060,17 @@ def get_top_readers_per_classroom(
                     )
                     continue
 
+                # Extract classroom name from filename
+                filename = file_path.name
+                if "_Student Usage_" in filename:
+                    classroom_name = filename.split("_Student Usage_")[0]
+                else:
+                    logger.warning(
+                        f"Could not extract classroom name from {filename}, "
+                        f"using 'Unknown'"
+                    )
+                    classroom_name = "Unknown"
+
                 df = pd.read_excel(file_path, engine="openpyxl")
 
                 if df.empty:
@@ -1068,16 +1083,11 @@ def get_top_readers_per_classroom(
                 for _, row in df.iterrows():
                     cleaned_row = clean_row_data(list(row))
 
-                    # Extract student name and classroom
+                    # Extract student name
                     student_name = (
                         str(cleaned_row[STUDENT_USAGE_COL_STUDENT_NAME]).strip()
                         if len(cleaned_row) > STUDENT_USAGE_COL_STUDENT_NAME
                         else ""
-                    )
-                    classroom_name = (
-                        str(cleaned_row[STUDENT_USAGE_COL_CLASSROOM]).strip()
-                        if len(cleaned_row) > STUDENT_USAGE_COL_CLASSROOM
-                        else "Unknown"
                     )
 
                     if not student_name:

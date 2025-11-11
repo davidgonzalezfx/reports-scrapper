@@ -48,6 +48,7 @@ SELECTOR_LOGIN_BUTTON_ENABLED: str = "button#memberLoginSubmitButton:not([disabl
 # Navigation selectors
 SELECTOR_MENU_BUTTON: str = "span.buttonText"
 SELECTOR_CLASSROOM_REPORTS: str = 'a:has-text("Classroom Reports")'
+SELECTOR_CLASSROOM_GREETING: str = "h2.homepageGreeting.frazHomepageGreeting"
 
 # Filter selectors
 SELECTOR_DATE_FILTER: str = "#mat-select-0"
