@@ -1141,10 +1141,18 @@ def serve_template_image(filename: str):
         return jsonify({"error": "Image not found"}), 404
 
 
-def cleanup_reports_directory() -> None:
-    """Clean up the reports directory on startup."""
+def cleanup_on_startup() -> None:
+    """Clean up reports and users on application startup.
+
+    This function performs the following cleanup operations:
+    1. Removes all files from reports directories
+    2. Clears all configured users
+
+    All errors are logged but do not prevent application startup.
+    """
     from path_helpers import get_all_reports_directories
 
+    # Clean up reports directories
     try:
         directories_to_clean = get_all_reports_directories(REPORTS_DIR)
         total_files_removed = 0
@@ -1181,7 +1189,17 @@ def cleanup_reports_directory() -> None:
             logger.info("All reports directories are clean")
 
     except Exception as e:
-        logger.error(f"Error in cleanup_reports_directory: {e}")
+        logger.error(f"Error cleaning up reports directories: {e}")
+
+    # Clean up users
+    try:
+        logger.info("Clearing all configured users on startup")
+        save_users([])
+        logger.info("Successfully cleared all users")
+    except FileOperationError as e:
+        logger.error(f"Failed to clear users during startup: {e}")
+    except Exception as e:
+        logger.error(f"Unexpected error clearing users during startup: {e}")
 
 
 def open_browser(
@@ -1219,7 +1237,7 @@ if __name__ == "__main__":
         os.getenv("AUTO_OPEN_BROWSER", "true").lower() == "true"
     )
 
-    cleanup_reports_directory()
+    cleanup_on_startup()
     clear_log_file("app.log")
     logger.info("Cleared app.log file")
     logger.info("Starting Flask application")
