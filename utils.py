@@ -638,13 +638,23 @@ def combine_all_reports(directory: Union[str, Path]) -> Optional[str]:
         timestamp = get_current_timestamp(TIMESTAMP_FORMAT)
         combined_filename = f"Combined_All_Reports_{timestamp}.xlsx"
 
-        # Determine save path
-        base_path = get_base_path()
-        reports_dir_path = base_path / REPORTS_DIR
+        # Determine save path with PyInstaller support
+        # For frozen apps, save to external directory (next to .exe)
+        # For development, save to base path
+        if is_frozen():
+            # Save to external directory where reports are downloaded
+            reports_dir_path = get_executable_dir() / REPORTS_DIR
+        else:
+            # Development mode: use base path
+            reports_dir_path = get_base_path() / REPORTS_DIR
+
+        # Ensure directory exists
+        reports_dir_path.mkdir(parents=True, exist_ok=True)
         combined_file_path = reports_dir_path / combined_filename
 
         # Save the combined workbook
         combined_wb.save(combined_file_path)
+        logger.debug(f"Saved combined report to: {combined_file_path}")
         logger.info(f"Successfully created combined report: {combined_filename}")
         logger.info(
             f"Combined {successful_sheets} report type sheets into single file"
