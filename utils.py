@@ -25,7 +25,10 @@ from constants import (
     SUMMARY_LABEL_QUIZZES, SUMMARY_LABEL_TOTAL, TIMESTAMP_FORMAT,
     DANGEROUS_FILENAME_PATTERNS
 )
-from path_helpers import get_base_path, is_frozen
+from path_helpers import (
+    get_base_path, is_frozen, get_executable_dir,
+    get_all_reports_directories
+)
 from excel_helpers import (
     apply_header_style, auto_adjust_column_widths, add_data_bars,
     make_unique_sheet_name, create_summary_row, style_summary_row,
@@ -247,30 +250,62 @@ def get_report_files(directory: Union[str, Path]) -> List[str]:
 
 
 def _resolve_reports_directory(directory: Union[str, Path]) -> Optional[Path]:
-    """Resolve reports directory path.
+    """Resolve reports directory path with PyInstaller support.
+
+    This function handles both development and PyInstaller frozen executable modes.
+    For frozen apps, it checks both external (next to .exe) and internal (_MEIPASS)
+    directories, preferring the external directory where reports are downloaded.
 
     Args:
         directory: Path to reports directory (relative or absolute)
 
     Returns:
-        Resolved Path object or None if not found
+        First existing Path found, or None if no directory exists
     """
     import os
 
-    # Handle both relative and absolute paths, with PyInstaller compatibility
+    # Handle absolute paths directly
     if os.path.isabs(str(directory)):
-        # If absolute path, use as-is
-        reports_directory = Path(directory)
-    else:
-        # For relative paths, resolve against the correct base directory
-        base_path = get_base_path()
-        reports_directory = base_path / directory
-
-    if not reports_directory.exists():
-        logger.warning(f"Reports directory not found: {reports_directory}")
+        abs_path = Path(directory)
+        if abs_path.exists():
+            logger.debug(f"Using absolute reports directory: {abs_path}")
+            return abs_path
+        logger.warning(f"Absolute reports directory not found: {abs_path}")
         return None
 
-    return reports_directory
+    # For relative paths, check all possible locations
+    if is_frozen():
+        # PyInstaller mode: check both external and internal directories
+        # External directory (next to .exe) is checked first as it's where
+        # reports are actually downloaded
+        external_dir = get_executable_dir() / directory
+        internal_dir = get_base_path() / directory
+
+        # Prefer external directory (where reports are written)
+        if external_dir.exists():
+            logger.debug(f"Using external reports directory: {external_dir}")
+            return external_dir
+
+        # Fallback to internal directory
+        if internal_dir.exists():
+            logger.debug(f"Using internal reports directory: {internal_dir}")
+            return internal_dir
+
+        logger.warning(
+            f"Reports directory not found in external ({external_dir}) "
+            f"or internal ({internal_dir}) locations"
+        )
+        return None
+    else:
+        # Development mode: resolve against base path
+        reports_directory = get_base_path() / directory
+
+        if not reports_directory.exists():
+            logger.warning(f"Reports directory not found: {reports_directory}")
+            return None
+
+        logger.debug(f"Using development reports directory: {reports_directory}")
+        return reports_directory
 
 
 def _create_combined_sheet(
