@@ -1,0 +1,50 @@
+name: Build and Release
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Install Playwright browsers to local folder
+        run: playwright install chromium
+        env:
+          PLAYWRIGHT_BROWSERS_PATH: playwright-browsers
+
+      - name: Build with PyInstaller
+        run: pyinstaller --clean --noconfirm app.spec
+
+      - name: Prepare release package
+        run: |
+          # Copy playwright-browsers next to the executable
+          # Copy-Item -Path playwright-browsers -Destination dist/app/playwright-browsers -Recurse
+          # Create zip with app folder contents
+          Compress-Archive -Path dist/app/* -DestinationPath dist/app-v${{ github.run_number }}.zip
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ github.run_number }}
+          name: Release v${{ github.run_number }}
+          files: dist/app-v${{ github.run_number }}.zip
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -11,8 +11,8 @@ a = Analysis(
     binaries=[],
     datas=[
         ('templates', 'templates'),
-        ('users.json', '.'),
-        ('scraper_config.json', '.')
+        ('scraper_config.json', '.'),
+        ('playwright-browsers', 'playwright-browsers')
     ],
     hiddenimports=[
         'playwright.sync_api',
@@ -48,16 +48,12 @@ exe = EXE(
     [],
     exclude_binaries=True,
     name='app',
-    debug=False,
-    bootloader_ignore_signals=False,
+    debug=True,
     strip=False,
     upx=False,  # Disable UPX compression to avoid issues
-    console=False,  # Set to windowed app
+    console=True,  # Set to windowed app
     disable_windowed_traceback=False,
-    argv_emulation=False,
     target_arch=None,
-    codesign_identity=None,
-    entitlements_file=None,
 )
 coll = COLLECT(
     exe,
