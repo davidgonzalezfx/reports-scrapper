@@ -995,7 +995,66 @@
       </div>
     </div>
 
-    <!-- Reading Skills Slides (Dynamic - one per classroom) -->
+    <!-- Skills Summary Slide (before per-classroom slides) -->
+    {% if skills_summary and skills_summary.stats %}
+    <div class="slide slide-2">
+      <div class="slide-content">
+        <div class="header">
+          <div class="title">{{ skills_summary.title }}</div>
+          <div class="subtitle">{{ skills_summary.subtitle }}</div>
+          <img src="templates/images/logo-b1-tech-white.png" alt="B1 Tech Logo" class="header-logo">
+        </div>
+        <div class="content">
+          <div class="left-section">
+            <div class="stats-container">
+              {% for stat in skills_summary.stats %}
+              <div class="stat-box">
+                <div class="stat-number">{{ stat.number }}</div>
+                <div class="stat-label">{{ stat.label }}</div>
+              </div>
+              {% endfor %}
+            </div>
+
+            <div class="activity-summary">
+              <div class="activity-title">Totales Generales</div>
+              <div class="activity-stats">
+                <div class="activity-item">
+                  <div class="activity-number">{{ skills_summary.totals.correct }}</div>
+                  <div class="activity-name">Correctas</div>
+                </div>
+                <div class="activity-item">
+                  <div class="activity-number">{{ skills_summary.totals.total }}</div>
+                  <div class="activity-name">Total Preguntas</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="total-activities">
+              <div class="total-number">{{ skills_summary.totals.accuracy }}%</div>
+              <div class="total-label">Precisión General</div>
+            </div>
+
+            <div class="activity-description">
+              <div class="description-title">Top 5 Habilidades</div>
+              {% for skill in skills_summary.top_skills %}
+              <div class="description-item">
+                <i class="material-icons description-icon">check_circle</i>
+                <div class="description-text">{{ skill.name }}: {{ skill.accuracy }}%</div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+
+          <div class="right-section">
+            <div class="chart-container">
+              <canvas id="skillsChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
     <!-- Reading Skills Slides (Dynamic - one per classroom) -->
     {% for classroom_data in reading_skills %}
     <div class="slide slide-5">
@@ -1445,6 +1504,74 @@
       }
     }
         });
+
+    // Initialize Chart.js for Skills Summary Slide
+    {% if skills_summary and skills_summary.stats %}
+    const skillsCtx = document.getElementById('skillsChart');
+    if (skillsCtx) {
+      const skillsChart = new Chart(skillsCtx.getContext('2d'), {
+        type: 'pie',
+        data: {
+          labels: ['Alta (≥80%)', 'Media (60-79%)', 'Baja (<60%)'],
+          datasets: [{
+            data: [{{ skills_summary.chart_data | join(', ') }}],
+            backgroundColor: [
+              '#64B5F6',
+              '#1976D2',
+              '#0D47A1'
+            ],
+            borderColor: 'white',
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: {
+                font: {
+                  size: 14
+                },
+                padding: 15
+              }
+            },
+            title: {
+              display: true,
+              text: 'Distribución de Precisión por Habilidad',
+              font: {
+                size: 18,
+                weight: 'bold'
+              },
+              padding: {
+                top: 10,
+                bottom: 20
+              }
+            },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  return context.label + ': ' + context.raw + ' habilidades';
+                }
+              }
+            },
+            datalabels: {
+              formatter: (value, ctx) => {
+                if (value === 0) return '';
+                return value;
+              },
+              color: 'white',
+              font: {
+                size: 14,
+                weight: 'bold'
+              }
+            }
+          }
+        }
+      });
+    }
+    {% endif %}
   </script>
 </body>
 

@@ -39,7 +39,7 @@ from exceptions import ConfigurationError, ValidationError, FileOperationError
 from utils import (
     load_json, save_json, validate_filename, validate_user_data,
     get_report_files, get_school_summary, get_classroom_summaries,
-    get_reading_skills_data, get_top_readers_per_classroom,
+    get_reading_skills_data, get_skills_summary, get_top_readers_per_classroom,
     get_level_up_progress_data, get_classroom_comparison_data
 )
 
@@ -379,6 +379,7 @@ def get_report_data() -> Dict[str, Any]:
     summary = get_school_summary(REPORTS_DIR)
     classroom_summaries = get_classroom_summaries(REPORTS_DIR)
     reading_skills = get_reading_skills_data(REPORTS_DIR)
+    skills_summary = get_skills_summary(REPORTS_DIR)
     level_up_progress = get_level_up_progress_data(REPORTS_DIR)
     top_readers = get_top_readers_per_classroom(REPORTS_DIR)
     classroom_comparison = get_classroom_comparison_data(REPORTS_DIR)
@@ -399,7 +400,10 @@ def get_report_data() -> Dict[str, Any]:
             subtitle
         ),
 
-        # Slide 4: Reading Skills
+        # Skills Summary (before per-classroom skills)
+        "skills_summary": _build_skills_summary(skills_summary, subtitle),
+
+        # Slide 4: Reading Skills (per-classroom)
         "reading_skills": reading_skills if reading_skills else [],
 
         # Slide 5: Level Up Progress
@@ -452,7 +456,7 @@ def _build_school_overview(
         listen_pct, read_pct, quiz_pct = 28.8, 34.6, 36.5
 
     return {
-        "title": "School General Overview",
+        "title": "RESUMEN DE USO",
         "subtitle": subtitle,
         "stats": [
             {
@@ -580,6 +584,58 @@ def _build_detailed_activities(
                 sum(c["practice_recording"] for c in classroom_summaries)
             )
         }
+    }
+
+
+def _build_skills_summary(
+    summary: Optional[Dict[str, Any]],
+    subtitle: str
+) -> Dict[str, Any]:
+    """Build skills summary data for presentation.
+
+    Args:
+        summary: Skills summary data from get_skills_summary()
+        subtitle: Date subtitle string
+
+    Returns:
+        Dictionary with formatted skills summary data
+    """
+    if not summary:
+        return {
+            "title": "RESUMEN DE HABILIDADES",
+            "subtitle": subtitle,
+            "stats": [],
+            "totals": {"correct": 0, "total": 0, "accuracy": 0},
+            "top_skills": [],
+            "chart_data": [0, 0, 0]
+        }
+
+    accuracy_dist = summary.get("accuracy_distribution", {})
+
+    return {
+        "title": "RESUMEN DE HABILIDADES",
+        "subtitle": subtitle,
+        "stats": [
+            {
+                "number": str(summary.get("total_classrooms", 0)),
+                "label": "Aulas"
+            },
+            {
+                "number": f"{summary.get('overall_accuracy', 0)}%",
+                "label": "Precisión General"
+            }
+        ],
+        "totals": {
+            "correct": summary.get("total_correct", 0),
+            "total": summary.get("total_questions", 0),
+            "accuracy": summary.get("overall_accuracy", 0)
+        },
+        "top_skills": summary.get("top_skills", [])[:5],
+        "chart_data": [
+            accuracy_dist.get("high", 0),
+            accuracy_dist.get("medium", 0),
+            accuracy_dist.get("low", 0)
+        ]
     }
 
 

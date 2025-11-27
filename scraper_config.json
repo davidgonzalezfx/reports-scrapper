@@ -1,14 +1,14 @@
 {
   "date_filter": "Custom",
+  "custom_start_date": "01/08/2025",
+  "custom_end_date": "11/11/2025",
+  "products_filter": "All",
   "tabs": {
     "Student Usage": true,
     "Skill": true,
-    "Assignment": true,
-    "Assessment": true,
+    "Assignment": false,
+    "Assessment": false,
     "Level Up Progress": true
   },
-  "products_filter": "All",
-  "institution_name": "Colegio Patagonia",
-  "custom_start_date": "01/08/2025",
-  "custom_end_date": "11/11/2025"
+  "institution_name": "Colegio Patagonia"
 }

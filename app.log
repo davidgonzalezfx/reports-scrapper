@@ -1,9 +1,17 @@
-2025-11-06 21:08:29,267 - root - INFO - Cleared log file: app.log
-2025-11-06 21:08:29,267 - __main__ - INFO - Cleared app.log file
-2025-11-06 21:08:29,267 - __main__ - INFO - Starting Flask application
-2025-11-06 21:08:29,267 - __main__ - INFO - Server will be available at http://localhost:5000
-2025-11-06 21:08:29,268 - __main__ - INFO - Browser will open automatically in 1.5 seconds...
-2025-11-06 21:08:29,278 - waitress - INFO - Serving on http://0.0.0.0:5000
-2025-11-06 21:08:30,768 - __main__ - INFO - Opening browser to http://localhost:5000
-2025-11-06 21:08:31,061 - config - INFO - Configuration loaded successfully
-2025-11-06 21:08:31,063 - __main__ - INFO - Loaded 1 users successfully
+2025-11-27 14:11:28,077 - root - INFO - Cleared log file: app.log
+2025-11-27 14:11:28,077 - __main__ - INFO - Cleared app.log file
+2025-11-27 14:11:28,077 - __main__ - INFO - Starting Flask application
+2025-11-27 14:11:28,077 - __main__ - INFO - Server will be available at http://localhost:5000
+2025-11-27 14:11:28,077 - __main__ - INFO - Browser will open automatically in 1.5 seconds...
+2025-11-27 14:11:28,081 - waitress - INFO - Serving on http://0.0.0.0:5000
+2025-11-27 14:11:29,577 - __main__ - INFO - Opening browser to http://localhost:5000
+2025-11-27 14:11:29,845 - config - INFO - Configuration loaded successfully
+2025-11-27 14:11:29,848 - __main__ - INFO - Loaded 3 users successfully
+2025-11-27 14:11:33,793 - config - INFO - Configuration loaded successfully
+2025-11-27 14:11:33,794 - utils - INFO - Found 3 Student Usage reports
+2025-11-27 14:11:33,867 - utils - INFO - Found 3 Student Usage reports for classroom summaries
+2025-11-27 14:11:33,914 - utils - INFO - Found 3 Skill reports
+2025-11-27 14:11:33,957 - utils - INFO - Found 3 Skill reports
+2025-11-27 14:11:33,997 - utils - INFO - Found 3 Level Up Progress reports
+2025-11-27 14:11:34,067 - utils - INFO - Found 3 Student Usage reports for top readers
+2025-11-27 14:11:34,107 - utils - INFO - Found 3 Student Usage reports for classroom summaries

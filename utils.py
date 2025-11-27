@@ -1068,6 +1068,116 @@ def get_reading_skills_data(
         return None
 
 
+def get_skills_summary(
+    directory: Union[str, Path]
+) -> Optional[Dict[str, Any]]:
+    """Get aggregated skills summary across all classrooms.
+
+    Args:
+        directory: Path to the reports directory
+
+    Returns:
+        Dictionary with totals and averages or None if no data found
+    """
+    try:
+        # Get per-classroom skills data
+        reading_skills_data = get_reading_skills_data(directory)
+
+        if not reading_skills_data:
+            logger.info("No reading skills data found for summary")
+            return None
+
+        # Initialize accumulators
+        total_classrooms = len(reading_skills_data)
+        total_correct = 0
+        total_questions = 0
+
+        # Dictionary to accumulate per-skill data for averaging
+        skill_accumulator: Dict[str, Dict[str, Any]] = {}
+
+        # Process each classroom
+        for classroom_data in reading_skills_data:
+            skills = classroom_data.get("skills", [])
+
+            for skill in skills:
+                correct = skill.get("correct", 0)
+                total = skill.get("total", 0)
+                accuracy = skill.get("accuracy", 0.0)
+                skill_name = skill.get("name", "Unknown")
+
+                total_correct += correct
+                total_questions += total
+
+                # Accumulate for per-skill averaging
+                if skill_name not in skill_accumulator:
+                    skill_accumulator[skill_name] = {
+                        "total_accuracy": 0.0,
+                        "count": 0,
+                        "total_correct": 0,
+                        "total_questions": 0
+                    }
+
+                skill_accumulator[skill_name]["total_accuracy"] += accuracy
+                skill_accumulator[skill_name]["count"] += 1
+                skill_accumulator[skill_name]["total_correct"] += correct
+                skill_accumulator[skill_name]["total_questions"] += total
+
+        # Calculate overall accuracy
+        overall_accuracy = 0.0
+        if total_questions > 0:
+            overall_accuracy = round((total_correct / total_questions) * 100, 1)
+
+        # Calculate per-skill averages and sort by accuracy
+        skill_averages = []
+        for skill_name, data in skill_accumulator.items():
+            if data["count"] > 0:
+                avg_accuracy = round(data["total_accuracy"] / data["count"], 1)
+                skill_averages.append({
+                    "name": skill_name,
+                    "accuracy": avg_accuracy,
+                    "correct": data["total_correct"],
+                    "total": data["total_questions"]
+                })
+
+        # Sort by accuracy descending
+        skill_averages.sort(key=lambda x: x["accuracy"], reverse=True)
+
+        # Count skills by accuracy category for pie chart
+        high_accuracy_count = sum(
+            1 for s in skill_averages if s["accuracy"] >= 80
+        )
+        medium_accuracy_count = sum(
+            1 for s in skill_averages if 60 <= s["accuracy"] < 80
+        )
+        low_accuracy_count = sum(
+            1 for s in skill_averages if s["accuracy"] < 60
+        )
+
+        summary = {
+            "total_classrooms": total_classrooms,
+            "total_correct": total_correct,
+            "total_questions": total_questions,
+            "overall_accuracy": overall_accuracy,
+            "skill_averages": skill_averages,
+            "top_skills": skill_averages[:5],
+            "accuracy_distribution": {
+                "high": high_accuracy_count,
+                "medium": medium_accuracy_count,
+                "low": low_accuracy_count
+            }
+        }
+
+        logger.debug(
+            f"Calculated skills summary: {total_classrooms} classrooms, "
+            f"{overall_accuracy}% accuracy"
+        )
+        return summary
+
+    except Exception as e:
+        logger.error(f"Error getting skills summary: {e}")
+        return None
+
+
 def get_top_readers_per_classroom(
     directory: Union[str, Path]
 ) -> Optional[List[Dict[str, Any]]]:
