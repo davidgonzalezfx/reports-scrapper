@@ -3,12 +3,13 @@
   "custom_start_date": "01/08/2025",
   "custom_end_date": "11/11/2025",
   "products_filter": "All",
+  "skill_filter": "Foundational Skills",
   "tabs": {
-    "Student Usage": true,
+    "Student Usage": false,
     "Skill": true,
     "Assignment": false,
     "Assessment": false,
-    "Level Up Progress": true
+    "Level Up Progress": false
   },
   "institution_name": "Colegio Patagonia"
 }

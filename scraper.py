@@ -38,7 +38,8 @@ from constants import (
     SELECTOR_LOGIN_BUTTON_ENABLED, SELECTOR_LOGIN_BUTTON,
     SELECTOR_MENU_BUTTON, SELECTOR_CLASSROOM_REPORTS,
     SELECTOR_CLASSROOM_GREETING,
-    SELECTOR_DATE_FILTER, SELECTOR_PRODUCTS_FILTER, SELECTOR_FILTER_OPTION,
+    SELECTOR_DATE_FILTER, SELECTOR_PRODUCTS_FILTER, SELECTOR_SKILL_FILTER,
+    SELECTOR_FILTER_OPTION,
     SELECTOR_START_DATE_INPUT, SELECTOR_END_DATE_INPUT,
     SELECTOR_REPORT_TAB, SELECTOR_ELLIPSIS_BUTTON, SELECTOR_CSV_DOWNLOAD,
     SELECTOR_NO_RESULTS, TABS, BROWSER_ARGS, BROWSER_USER_AGENT,
@@ -382,6 +383,47 @@ def select_products_filter(
         return False
 
 
+def select_skill_filter(page: Page, label: str) -> bool:
+    """Select a skill filter option from the dropdown.
+
+    Args:
+        page: Playwright page object
+        label: Skill filter label to select
+
+    Returns:
+        True if selection successful, False otherwise
+    """
+    try:
+        logger.debug(f"Selecting skill filter: {label}")
+
+        # Click on the skill filter dropdown
+        page.wait_for_selector(SELECTOR_SKILL_FILTER, timeout=DEFAULT_TIMEOUT)
+        page.click(SELECTOR_SKILL_FILTER)
+        time.sleep(1)
+
+        # Wait for options and select
+        page.wait_for_selector(SELECTOR_FILTER_OPTION, timeout=DEFAULT_TIMEOUT)
+        options = page.locator(SELECTOR_FILTER_OPTION)
+
+        for i in range(options.count()):
+            option_text = options.nth(i).inner_text().strip()
+            if option_text == label:
+                options.nth(i).click()
+                logger.info(f"Selected skill filter: {label}")
+                time.sleep(2)  # Allow filter to apply
+                return True
+
+        logger.warning(f"Skill filter option '{label}' not found")
+        return False
+
+    except PlaywrightTimeoutError as e:
+        logger.error(f"Timeout selecting skill filter '{label}': {e}")
+        return False
+    except Exception as e:
+        logger.error(f"Error selecting skill filter '{label}': {e}")
+        return False
+
+
 def download_report(page: Page, username: str, classroom_name: str) -> bool:
     """Download the current report as CSV and convert to XLSX.
 
@@ -539,6 +581,14 @@ def process_user_reports(
 
         try:
             if switch_tab(page, tab_name):
+                # Apply skill filter for Skill tab
+                if tab_name == "Skill":
+                    skill_filter = config.get("skill_filter", "All")
+                    if not select_skill_filter(page, skill_filter):
+                        logger.warning(
+                            f"Failed to apply skill filter '{skill_filter}'"
+                        )
+
                 # Special handling for Level Up Progress
                 if tab_name == "Level Up Progress":
                     products_filter = config.get("products_filter", "All")

@@ -20,7 +20,7 @@ from waitress import serve
 
 # Import new helper modules
 from constants import (
-    USERS_FILE, REPORTS_DIR, DATE_FILTERS, PRODUCTS_FILTERS,
+    USERS_FILE, REPORTS_DIR, DATE_FILTERS, PRODUCTS_FILTERS, SKILL_FILTERS,
     TABS, FLASK_MAX_CONTENT_LENGTH, LEGACY_REPORT_PREFIXES,
     COMBINED_REPORT_PREFIX
 )
@@ -704,6 +704,8 @@ def index():
             custom_end_date=custom_end_html,
             products_filters=PRODUCTS_FILTERS,
             selected_products_filter=config.products_filter,
+            skill_filters=SKILL_FILTERS,
+            selected_skill_filter=config.skill_filter,
             tabs=TABS,
             selected_tabs=config.tabs.to_dict(),
             selected_institution_name=config.institution_name,
@@ -776,6 +778,18 @@ def set_filter():
             products_filter = PRODUCTS_FILTERS[0]
         config.products_filter = products_filter
 
+        # Update skill filter
+        skill_filter = request.form.get(
+            "skill_filter",
+            SKILL_FILTERS[0]
+        )
+        if skill_filter not in SKILL_FILTERS:
+            logger.warning(
+                f"Invalid skill filter received: {skill_filter}"
+            )
+            skill_filter = SKILL_FILTERS[0]
+        config.skill_filter = skill_filter
+
         # Update tabs selection
         selected_tabs = request.form.getlist("tabs")
         tabs_dict = {
@@ -796,8 +810,8 @@ def set_filter():
         save_config(config)
         logger.info(
             f"Filter configuration updated: date={date_filter}, "
-            f"products={products_filter}, tabs={selected_tabs}, "
-            f"institution={institution_name}"
+            f"products={products_filter}, skill={skill_filter}, "
+            f"tabs={selected_tabs}, institution={institution_name}"
         )
 
         return redirect(url_for("index"))

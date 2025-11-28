@@ -1,17 +1,23 @@
-2025-11-27 14:11:28,077 - root - INFO - Cleared log file: app.log
-2025-11-27 14:11:28,077 - __main__ - INFO - Cleared app.log file
-2025-11-27 14:11:28,077 - __main__ - INFO - Starting Flask application
-2025-11-27 14:11:28,077 - __main__ - INFO - Server will be available at http://localhost:5000
-2025-11-27 14:11:28,077 - __main__ - INFO - Browser will open automatically in 1.5 seconds...
-2025-11-27 14:11:28,081 - waitress - INFO - Serving on http://0.0.0.0:5000
-2025-11-27 14:11:29,577 - __main__ - INFO - Opening browser to http://localhost:5000
-2025-11-27 14:11:29,845 - config - INFO - Configuration loaded successfully
-2025-11-27 14:11:29,848 - __main__ - INFO - Loaded 3 users successfully
-2025-11-27 14:11:33,793 - config - INFO - Configuration loaded successfully
-2025-11-27 14:11:33,794 - utils - INFO - Found 3 Student Usage reports
-2025-11-27 14:11:33,867 - utils - INFO - Found 3 Student Usage reports for classroom summaries
-2025-11-27 14:11:33,914 - utils - INFO - Found 3 Skill reports
-2025-11-27 14:11:33,957 - utils - INFO - Found 3 Skill reports
-2025-11-27 14:11:33,997 - utils - INFO - Found 3 Level Up Progress reports
-2025-11-27 14:11:34,067 - utils - INFO - Found 3 Student Usage reports for top readers
-2025-11-27 14:11:34,107 - utils - INFO - Found 3 Student Usage reports for classroom summaries
+2025-11-28 16:44:07,638 - root - INFO - Cleared log file: app.log
+2025-11-28 16:44:07,638 - __main__ - INFO - Cleared app.log file
+2025-11-28 16:44:07,638 - __main__ - INFO - Starting Flask application
+2025-11-28 16:44:07,638 - __main__ - INFO - Server will be available at http://localhost:5000
+2025-11-28 16:44:07,638 - __main__ - INFO - Browser will open automatically in 1.5 seconds...
+2025-11-28 16:44:07,647 - waitress - INFO - Serving on http://0.0.0.0:5000
+2025-11-28 16:44:09,143 - __main__ - INFO - Opening browser to http://localhost:5000
+2025-11-28 16:44:09,410 - config - INFO - Configuration loaded successfully
+2025-11-28 16:44:09,413 - __main__ - INFO - Loaded 0 users successfully
+2025-11-28 16:44:17,627 - config - INFO - Configuration loaded successfully
+2025-11-28 16:44:17,628 - __main__ - INFO - Loaded 1 users successfully
+2025-11-28 16:44:30,555 - config - INFO - Configuration loaded successfully
+2025-11-28 16:44:30,556 - __main__ - INFO - Custom date range set: 01/08/2025 to 11/11/2025
+2025-11-28 16:44:30,557 - config - INFO - Configuration saved successfully
+2025-11-28 16:44:30,557 - __main__ - INFO - Filter configuration updated: date=Custom, products=All, skill=Foundational Skills, tabs=['Skill'], institution=Colegio Patagonia
+2025-11-28 16:44:30,568 - config - INFO - Configuration loaded successfully
+2025-11-28 16:44:30,569 - __main__ - INFO - Loaded 1 users successfully
+2025-11-28 16:44:36,512 - __main__ - INFO - Starting new scrape job
+2025-11-28 16:44:36,513 - __main__ - INFO - Cleared all notifications
+2025-11-28 16:44:36,514 - __main__ - INFO - Starting scraper process
+2025-11-28 16:44:36,516 - __main__ - INFO - Loaded 1 users successfully
+2025-11-28 16:44:36,555 - path_helpers - INFO - Using Playwright browsers path: /Users/david.gonzalez01/Personal/reports-scrapper/playwright-browsers
+2025-11-28 16:44:36,555 - path_helpers - INFO - Set PLAYWRIGHT_BROWSERS_PATH to: /Users/david.gonzalez01/Personal/reports-scrapper/playwright-browsers

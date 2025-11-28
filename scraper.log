@@ -349,3 +349,36 @@ playwright._impl._errors.TargetClosedError: Target page, context or browser has 
 2025-11-27 13:29:25,272 - utils - INFO - Successfully created combined report: Combined_All_Reports_20251127_132925.xlsx
 2025-11-27 13:29:25,272 - utils - INFO - Combined 3 report type sheets into single file
 2025-11-27 13:29:25,273 - __main__ - INFO - Successfully created combined reports: /Users/david.gonzalez01/Personal/reports-scrapper/reports/Combined_All_Reports_20251127_132925.xlsx
+2025-11-28 16:44:37,062 - scraper - INFO - Starting scraper execution
+2025-11-28 16:44:37,063 - scraper - INFO - Loaded 1 users from users.json
+2025-11-28 16:44:37,063 - scraper - INFO - Found 1 users to process
+2025-11-28 16:44:37,063 - scraper - INFO - Processing user 1/1: PDV1A
+2025-11-28 16:44:37,063 - scraper - INFO - Starting report download process for user: PDV1A
+2025-11-28 16:44:42,705 - scraper - INFO - Attempting login for user: PDV1A
+2025-11-28 16:45:04,114 - scraper - INFO - Login successful for user: PDV1A
+2025-11-28 16:45:06,367 - scraper - INFO - Extracted classroom name: 1A Josefa Andrea!
+2025-11-28 16:45:06,367 - scraper - INFO - Using classroom name '1A Josefa Andrea' for PDV1A
+2025-11-28 16:45:27,507 - scraper - INFO - Successfully navigated to reports: https://www.kidsa-z.com/main/reports#!/student-usage
+2025-11-28 16:45:30,511 - config - INFO - Configuration loaded successfully
+2025-11-28 16:45:30,512 - scraper - INFO - Using date filter: Custom
+2025-11-28 16:45:30,512 - scraper - INFO - Using products filter: All
+2025-11-28 16:45:31,899 - scraper - INFO - Selected products filter: All
+2025-11-28 16:45:35,068 - scraper - INFO - Selected date filter: Custom
+2025-11-28 16:45:40,152 - scraper - INFO - Skipping Student Usage report (not selected)
+2025-11-28 16:45:40,153 - scraper - INFO - Processing Skill report
+2025-11-28 16:45:42,364 - scraper - INFO - Successfully switched to tab: Skill
+2025-11-28 16:45:43,505 - scraper - INFO - Selected skill filter: Foundational Skills
+2025-11-28 16:45:45,518 - scraper - WARNING - No results for filter criteria, skipping download
+2025-11-28 16:45:45,518 - scraper - WARNING - Failed to download Skill report
+2025-11-28 16:45:45,518 - scraper - INFO - Skipping Assignment report (not selected)
+2025-11-28 16:45:45,518 - scraper - INFO - Skipping Assessment report (not selected)
+2025-11-28 16:45:45,518 - scraper - INFO - Skipping Level Up Progress report (not selected)
+2025-11-28 16:45:45,518 - scraper - INFO - Completed report download for PDV1A: 0/1 successful
+2025-11-28 16:45:45,897 - scraper - ERROR - Failed to process user: PDV1A - No reports could be downloaded (0/1 successful)
+2025-11-28 16:45:45,897 - scraper - INFO - Scraper completed: 0/1 users processed successfully
+2025-11-28 16:45:45,898 - scraper - INFO - Error summary: Download error for: PDV1A
+2025-11-28 16:45:45,898 - __main__ - ERROR - Scraper failed - no users processed successfully
+2025-11-28 16:45:45,898 - __main__ - INFO - Added notification: error - Download error for: PDV1A
+2025-11-28 16:45:45,898 - __main__ - INFO - Scraper process finished
+2025-11-28 16:45:48,320 - config - INFO - Configuration loaded successfully
+2025-11-28 16:45:48,321 - __main__ - INFO - Loaded 1 users successfully

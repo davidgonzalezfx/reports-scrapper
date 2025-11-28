@@ -53,6 +53,7 @@ SELECTOR_CLASSROOM_GREETING: str = "h2.homepageGreeting.frazHomepageGreeting"
 # Filter selectors
 SELECTOR_DATE_FILTER: str = "#mat-select-0"
 SELECTOR_PRODUCTS_FILTER: str = "#mat-select-2"
+SELECTOR_SKILL_FILTER: str = "#mat-select-6"
 SELECTOR_FILTER_OPTION: str = "mat-option"
 
 # Date input selectors
@@ -110,6 +111,14 @@ PRODUCTS_FILTERS: List[str] = [
     "Foundations A-Z"
 ]
 
+SKILL_FILTERS: List[str] = [
+    "All",
+    "Common Core",
+    "Comprehension",
+    "Foundational Skills",
+    "Grammar & Mechanics",
+    "Vocabulary & Word Work"
+]
 
 # ============================================================================
 # Excel Column Indices (0-based)
