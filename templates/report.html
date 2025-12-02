@@ -967,6 +967,10 @@
               </tbody>
             </table>
           </div>
+
+          <div class="chart-container" style="margin-top: 30px; height: 400px;">
+            <canvas id="detailedActivitiesChart"></canvas>
+          </div>
         </div>
       </div>
     </div>
@@ -1572,6 +1576,106 @@
       });
     }
     {% endif %}
+
+    // Initialize Chart.js for Detailed Activities Stacked Bar Chart
+    const detailedCtx = document.getElementById('detailedActivitiesChart');
+    if (detailedCtx) {
+      const detailedChart = new Chart(detailedCtx.getContext('2d'), {
+        type: 'bar',
+        data: {
+          labels: {{ detailed_activities.classrooms | map(attribute='name') | list | tojson }},
+          datasets: [{
+            label: 'Listen',
+            data: {{ detailed_activities.classrooms | map(attribute='listen') | list | tojson }},
+            backgroundColor: '#64B5F6',
+            borderColor: '#0f7ec2',
+            borderWidth: 1
+          }, {
+            label: 'Read',
+            data: {{ detailed_activities.classrooms | map(attribute='read') | list | tojson }},
+            backgroundColor: '#1976D2',
+            borderColor: '#0D47A1',
+            borderWidth: 1
+          }, {
+            label: 'Quiz',
+            data: {{ detailed_activities.classrooms | map(attribute='quiz') | list | tojson }},
+            backgroundColor: '#0D47A1',
+            borderColor: '#000051',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            title: {
+              display: true,
+              text: 'Actividades por Aula',
+              font: {
+                size: 18,
+                weight: 'bold'
+              },
+              padding: {
+                top: 10,
+                bottom: 20
+              }
+            },
+            legend: {
+              position: 'bottom',
+              labels: {
+                font: {
+                  size: 14
+                },
+                padding: 15
+              }
+            },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  return context.dataset.label + ': ' + context.raw;
+                }
+              }
+            },
+            datalabels: {
+              color: 'white',
+              font: {
+                weight: 'bold',
+                size: 12
+              },
+              formatter: function(value) {
+                return value > 0 ? value : '';
+              }
+            }
+          },
+          scales: {
+            x: {
+              stacked: true,
+              title: {
+                display: true,
+                text: 'Aulas'
+              },
+              grid: {
+                display: false
+              }
+            },
+            y: {
+              stacked: true,
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: 'Total de Actividades'
+              },
+              grid: {
+                display: false
+              },
+              ticks: {
+                precision: 0
+              }
+            }
+          }
+        }
+      });
+    }
   </script>
 </body>
 
