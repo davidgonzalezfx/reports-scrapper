@@ -1421,6 +1421,11 @@ def get_level_up_progress_data(
 
         # Convert to list and sort by classroom name
         level_up_progress_data = list(classroom_data.values())
+        # Sort students alphabetically by name within each classroom
+        for classroom in level_up_progress_data:
+            classroom["students"].sort(key=lambda x: x["student"])
+
+        # Sort by classroom name
         level_up_progress_data.sort(key=lambda x: x["classroom"])
 
         logger.debug(
