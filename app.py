@@ -39,8 +39,9 @@ from exceptions import ConfigurationError, ValidationError, FileOperationError
 from utils import (
     load_json, save_json, validate_filename, validate_user_data,
     get_report_files, get_school_summary, get_classroom_summaries,
-    get_reading_skills_data, get_skills_summary, get_top_readers_per_classroom,
-    get_level_up_progress_data, get_classroom_comparison_data
+    get_reading_skills_data, get_skills_summary, get_overall_skills_table,
+    get_top_readers_per_classroom, get_level_up_progress_data,
+    get_classroom_comparison_data
 )
 
 # Setup logging
@@ -380,6 +381,7 @@ def get_report_data() -> Dict[str, Any]:
     classroom_summaries = get_classroom_summaries(REPORTS_DIR)
     reading_skills = get_reading_skills_data(REPORTS_DIR)
     skills_summary = get_skills_summary(REPORTS_DIR)
+    overall_skills_table = get_overall_skills_table(REPORTS_DIR)
     level_up_progress = get_level_up_progress_data(REPORTS_DIR)
     top_readers = get_top_readers_per_classroom(REPORTS_DIR)
     classroom_comparison = get_classroom_comparison_data(REPORTS_DIR)
@@ -401,7 +403,10 @@ def get_report_data() -> Dict[str, Any]:
         ),
 
         # Skills Summary (before per-classroom skills)
-        "skills_summary": _build_skills_summary(skills_summary, subtitle),
+        "skills_summary": _build_skills_summary(skills_summary, overall_skills_table, subtitle),
+
+        # Overall Skills Table (after summary, before per-classroom)
+        "overall_skills_table": overall_skills_table if overall_skills_table else [],
 
         # Slide 4: Reading Skills (per-classroom)
         "reading_skills": reading_skills if reading_skills else [],
@@ -589,6 +594,7 @@ def _build_detailed_activities(
 
 def _build_skills_summary(
     summary: Optional[Dict[str, Any]],
+    overall_skills_table: Optional[List[Dict[str, Any]]],
     subtitle: str
 ) -> Dict[str, Any]:
     """Build skills summary data for presentation.
@@ -612,6 +618,14 @@ def _build_skills_summary(
 
     accuracy_dist = summary.get("accuracy_distribution", {})
 
+    # Use top 5 skills from overall skills table if available, otherwise from summary
+    if overall_skills_table:
+        # Sort by accuracy descending and take top 5
+        sorted_skills = sorted(overall_skills_table, key=lambda x: x["accuracy"], reverse=True)
+        top_skills = sorted_skills[:5]
+    else:
+        top_skills = summary.get("top_skills", [])[:5]
+
     return {
         "title": "RESUMEN DE HABILIDADES",
         "subtitle": subtitle,
@@ -630,7 +644,7 @@ def _build_skills_summary(
             "total": summary.get("total_questions", 0),
             "accuracy": summary.get("overall_accuracy", 0)
         },
-        "top_skills": summary.get("top_skills", [])[:5],
+        "top_skills": top_skills,
         "chart_data": [
             accuracy_dist.get("high", 0),
             accuracy_dist.get("medium", 0),

@@ -1,11 +1,11 @@
 {
-  "date_filter": "Custom",
-  "custom_start_date": "01/08/2025",
-  "custom_end_date": "11/11/2025",
+  "date_filter": "Last 90 Days",
+  "custom_start_date": "",
+  "custom_end_date": "",
   "products_filter": "All",
-  "skill_filter": "Foundational Skills",
+  "skill_filter": "All",
   "tabs": {
-    "Student Usage": false,
+    "Student Usage": true,
     "Skill": true,
     "Assignment": false,
     "Assessment": false,

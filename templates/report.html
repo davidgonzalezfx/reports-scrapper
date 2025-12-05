@@ -1059,6 +1059,57 @@
     </div>
     {% endif %}
 
+    <!-- Overall Skills Table Slide (after summary, before per-classroom) -->
+    {% if overall_skills_table %}
+    <div class="slide slide-5">
+      <div class="slide-content">
+        <div class="header">
+          <div class="title">HABILIDADES GENERALES - TODAS LAS AULAS</div>
+          <div class="subtitle">Tabla consolidada de habilidades de lectura por todas las aulas</div>
+          <img src="templates/images/logo-b1-tech-white.png" alt="B1 Tech Logo" class="header-logo">
+        </div>
+        <div class="content">
+          <div class="skills-table-container">
+            <table class="skills-table">
+              <thead>
+                <tr>
+                  <th>Skill</th>
+                  <th>Correct</th>
+                  <th>Total</th>
+                  <th>Accuracy</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for skill in overall_skills_table %}
+                <tr>
+                  <td>
+                    <div class="skill-name">{{ skill.name }}</div>
+                  </td>
+                  <td class="correct-answers">{{ skill.correct }}</td>
+                  <td class="total-questions">{{ skill.total }}</td>
+                  <td>
+                    <div class="accuracy-container">
+                      <div class="accuracy-percentage
+                                                {% if skill.accuracy >= 80 %}high-accuracy
+                                                {% elif skill.accuracy >= 60 %}medium-accuracy
+                                                {% else %}low-accuracy{% endif %}">
+                        {{ skill.accuracy }}%
+                      </div>
+                      <div class="progress-bar-container">
+                        <div class="progress-bar" style="width: {{ skill.accuracy }}%"></div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
     <!-- Reading Skills Slides (Dynamic - one per classroom) -->
     {% for classroom_data in reading_skills %}
     <div class="slide slide-5">

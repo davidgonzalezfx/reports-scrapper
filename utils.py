@@ -1177,6 +1177,77 @@ def get_skills_summary(
         logger.error(f"Error getting skills summary: {e}")
         return None
 
+def get_overall_skills_table(
+    directory: Union[str, Path]
+) -> Optional[List[Dict[str, Any]]]:
+    """Get overall skills table data aggregated across all classrooms.
+
+    Args:
+        directory: Path to the reports directory
+
+    Returns:
+        List of skill dictionaries with summed correct/total and calculated accuracy or None if no data found
+    """
+    try:
+        # Get per-classroom skills data
+        reading_skills_data = get_reading_skills_data(directory)
+
+        if not reading_skills_data:
+            logger.info("No reading skills data found for overall skills table")
+            return None
+
+        # Dictionary to accumulate data per skill across all classrooms
+        skill_accumulator: Dict[str, Dict[str, Any]] = {}
+
+        # Process each classroom
+        for classroom_data in reading_skills_data:
+            skills = classroom_data.get("skills", [])
+
+            for skill in skills:
+                correct = skill.get("correct", 0)
+                total = skill.get("total", 0)
+                skill_name = skill.get("name", "Unknown")
+
+                # Accumulate for per-skill summing
+                if skill_name not in skill_accumulator:
+                    skill_accumulator[skill_name] = {
+                        "total_correct": 0,
+                        "total_questions": 0
+                    }
+
+                skill_accumulator[skill_name]["total_correct"] += correct
+                skill_accumulator[skill_name]["total_questions"] += total
+
+        # Calculate accuracy for each skill and create result list
+        overall_skills = []
+        for skill_name, data in skill_accumulator.items():
+            total_correct = data["total_correct"]
+            total_questions = data["total_questions"]
+
+            # Calculate accuracy
+            accuracy = 0.0
+            if total_questions > 0:
+                accuracy = round((total_correct / total_questions) * 100, 1)
+
+            overall_skills.append({
+                "name": skill_name,
+                "correct": total_correct,
+                "total": total_questions,
+                "accuracy": accuracy
+            })
+
+        # Sort by accuracy descending
+        overall_skills.sort(key=lambda x: x["accuracy"], reverse=True)
+
+        logger.debug(
+            f"Calculated overall skills table with {len(overall_skills)} skills"
+        )
+        return overall_skills
+
+    except Exception as e:
+        logger.error(f"Error getting overall skills table: {e}")
+        return None
+
 
 def get_top_readers_per_classroom(
     directory: Union[str, Path]

@@ -382,3 +382,478 @@ playwright._impl._errors.TargetClosedError: Target page, context or browser has 
 2025-11-28 16:45:45,898 - __main__ - INFO - Scraper process finished
 2025-11-28 16:45:48,320 - config - INFO - Configuration loaded successfully
 2025-11-28 16:45:48,321 - __main__ - INFO - Loaded 1 users successfully
+2025-12-01 19:33:35,824 - __main__ - INFO - Starting scraper execution
+2025-12-01 19:33:35,825 - __main__ - INFO - Loaded 1 users from users.json
+2025-12-01 19:33:35,825 - __main__ - INFO - Found 1 users to process
+2025-12-01 19:33:35,825 - __main__ - INFO - Processing user 1/1: PDV1A
+2025-12-01 19:33:35,825 - __main__ - INFO - Starting report download process for user: PDV1A
+2025-12-01 19:33:37,246 - __main__ - INFO - Attempting login for user: PDV1A
+2025-12-01 19:33:46,619 - __main__ - INFO - Login successful for user: PDV1A
+2025-12-01 19:33:48,966 - __main__ - INFO - Extracted classroom name: 1A Josefa Andrea!
+2025-12-01 19:33:48,966 - __main__ - INFO - Using classroom name '1A Josefa Andrea' for PDV1A
+2025-12-01 19:33:57,700 - __main__ - INFO - Successfully navigated to reports: https://www.kidsa-z.com/main/reports#!/student-usage
+2025-12-01 19:34:00,706 - config - INFO - Configuration loaded successfully
+2025-12-01 19:34:00,706 - __main__ - INFO - Using date filter: Custom
+2025-12-01 19:34:00,706 - __main__ - INFO - Using products filter: All
+2025-12-01 19:34:01,960 - __main__ - INFO - Selected products filter: All
+2025-12-01 19:34:05,077 - __main__ - INFO - Selected date filter: Custom
+2025-12-01 19:34:10,131 - __main__ - INFO - Skipping Student Usage report (not selected)
+2025-12-01 19:34:10,132 - __main__ - INFO - Processing Skill report
+2025-12-01 19:34:12,239 - __main__ - INFO - Successfully switched to tab: Skill
+2025-12-01 19:34:13,336 - __main__ - INFO - Selected skill filter: Foundational Skills
+2025-12-01 19:34:15,342 - __main__ - WARNING - No results for filter criteria, skipping download
+2025-12-01 19:34:15,342 - __main__ - WARNING - Failed to download Skill report
+2025-12-01 19:34:15,342 - __main__ - INFO - Skipping Assignment report (not selected)
+2025-12-01 19:34:15,342 - __main__ - INFO - Skipping Assessment report (not selected)
+2025-12-01 19:34:15,342 - __main__ - INFO - Skipping Level Up Progress report (not selected)
+2025-12-01 19:34:15,342 - __main__ - INFO - Completed report download for PDV1A: 0/1 successful
+2025-12-01 19:34:15,402 - __main__ - ERROR - Failed to process user: PDV1A - No reports could be downloaded (0/1 successful)
+2025-12-01 19:34:15,402 - __main__ - INFO - Scraper completed: 0/1 users processed successfully
+2025-12-01 19:34:15,402 - __main__ - INFO - Error summary: Download error for: PDV1A
+2025-12-01 19:35:29,327 - __main__ - INFO - Starting scraper execution
+2025-12-01 19:35:29,327 - __main__ - INFO - Loaded 1 users from users.json
+2025-12-01 19:35:29,327 - __main__ - INFO - Found 1 users to process
+2025-12-01 19:35:29,327 - __main__ - INFO - Processing user 1/1: PDV1A
+2025-12-01 19:35:29,327 - __main__ - INFO - Starting report download process for user: PDV1A
+2025-12-01 19:35:30,043 - __main__ - INFO - Attempting login for user: PDV1A
+2025-12-01 19:35:36,855 - __main__ - INFO - Login successful for user: PDV1A
+2025-12-01 19:35:39,013 - __main__ - INFO - Extracted classroom name: 1A Josefa Andrea!
+2025-12-01 19:35:39,013 - __main__ - INFO - Using classroom name '1A Josefa Andrea' for PDV1A
+2025-12-01 19:35:45,528 - __main__ - INFO - Successfully navigated to reports: https://www.kidsa-z.com/main/reports#!/student-usage
+2025-12-01 19:35:48,533 - config - INFO - Configuration loaded successfully
+2025-12-01 19:35:48,533 - __main__ - INFO - Using date filter: Custom
+2025-12-01 19:35:48,533 - __main__ - INFO - Using products filter: All
+2025-12-01 19:35:49,782 - __main__ - INFO - Selected products filter: All
+2025-12-01 19:35:52,910 - __main__ - INFO - Selected date filter: Custom
+2025-12-01 19:35:57,972 - __main__ - INFO - Skipping Student Usage report (not selected)
+2025-12-01 19:35:57,973 - __main__ - INFO - Processing Skill report
+2025-12-01 19:36:00,090 - __main__ - INFO - Successfully switched to tab: Skill
+2025-12-01 19:36:01,218 - __main__ - INFO - Selected skill filter: Foundational Skills
+2025-12-01 19:36:03,227 - __main__ - WARNING - No results for filter criteria, skipping download
+2025-12-01 19:36:03,227 - __main__ - WARNING - Failed to download Skill report
+2025-12-01 19:36:03,227 - __main__ - INFO - Skipping Assignment report (not selected)
+2025-12-01 19:36:03,227 - __main__ - INFO - Skipping Assessment report (not selected)
+2025-12-01 19:36:03,228 - __main__ - INFO - Skipping Level Up Progress report (not selected)
+2025-12-01 19:36:03,228 - __main__ - INFO - Completed report download for PDV1A: 0/1 successful
+2025-12-01 19:36:03,287 - __main__ - ERROR - Failed to process user: PDV1A - No reports could be downloaded (0/1 successful)
+2025-12-01 19:36:03,287 - __main__ - INFO - Scraper completed: 0/1 users processed successfully
+2025-12-01 19:36:03,287 - __main__ - INFO - Error summary: Download error for: PDV1A
+2025-12-01 19:36:18,922 - __main__ - INFO - Starting scraper execution
+2025-12-01 19:36:18,923 - __main__ - INFO - Loaded 1 users from users.json
+2025-12-01 19:36:18,923 - __main__ - INFO - Found 1 users to process
+2025-12-01 19:36:18,923 - __main__ - INFO - Processing user 1/1: PDV1A
+2025-12-01 19:36:18,923 - __main__ - INFO - Starting report download process for user: PDV1A
+2025-12-01 19:36:19,548 - __main__ - INFO - Attempting login for user: PDV1A
+2025-12-01 19:36:27,122 - __main__ - INFO - Login successful for user: PDV1A
+2025-12-01 19:36:29,288 - __main__ - INFO - Extracted classroom name: 1A Josefa Andrea!
+2025-12-01 19:36:29,288 - __main__ - INFO - Using classroom name '1A Josefa Andrea' for PDV1A
+2025-12-01 19:36:36,014 - __main__ - INFO - Successfully navigated to reports: https://www.kidsa-z.com/main/reports#!/student-usage
+2025-12-01 19:36:39,016 - config - INFO - Configuration loaded successfully
+2025-12-01 19:36:39,016 - __main__ - INFO - Using date filter: Custom
+2025-12-01 19:36:39,016 - __main__ - INFO - Using products filter: All
+2025-12-01 19:36:40,272 - __main__ - INFO - Selected products filter: All
+2025-12-01 19:36:43,409 - __main__ - INFO - Selected date filter: Custom
+2025-12-01 19:36:48,478 - __main__ - INFO - Skipping Student Usage report (not selected)
+2025-12-01 19:36:48,478 - __main__ - INFO - Processing Skill report
+2025-12-01 19:36:50,591 - __main__ - INFO - Successfully switched to tab: Skill
+2025-12-01 19:36:51,684 - __main__ - INFO - Selected skill filter: All
+2025-12-01 19:36:54,878 - __main__ - INFO - Downloaded CSV report: 1A Josefa Andrea_Skill_All_2025-05-01_2025-11-11.csv
+2025-12-01 19:36:54,977 - utils - INFO - Successfully converted to XLSX: 1A Josefa Andrea_Skill_All_2025-05-01_2025-11-11.xlsx
+2025-12-01 19:36:54,978 - __main__ - INFO - Successfully downloaded Skill report
+2025-12-01 19:36:54,978 - __main__ - INFO - Skipping Assignment report (not selected)
+2025-12-01 19:36:54,978 - __main__ - INFO - Skipping Assessment report (not selected)
+2025-12-01 19:36:54,978 - __main__ - INFO - Skipping Level Up Progress report (not selected)
+2025-12-01 19:36:54,978 - __main__ - INFO - Completed report download for PDV1A: 1/1 successful
+2025-12-01 19:36:55,035 - __main__ - INFO - Successfully processed user: PDV1A
+2025-12-01 19:36:55,036 - __main__ - INFO - Scraper completed: 1/1 users processed successfully
+2025-12-01 19:36:55,036 - __main__ - INFO - Attempting to combine all reports by type...
+2025-12-01 19:36:55,037 - utils - INFO - Found 1 Skill reports
+2025-12-01 19:36:55,078 - utils - INFO - Successfully created combined report: Combined_All_Reports_20251201_193655.xlsx
+2025-12-01 19:36:55,078 - utils - INFO - Combined 1 report type sheets into single file
+2025-12-01 19:36:55,078 - __main__ - INFO - Successfully created combined reports: /Users/david.gonzalez01/Personal/reports-scrapper/reports/Combined_All_Reports_20251201_193655.xlsx
+2025-12-01 19:38:18,201 - scraper - INFO - Starting scraper execution
+2025-12-01 19:38:18,201 - scraper - INFO - Loaded 1 users from users.json
+2025-12-01 19:38:18,201 - scraper - INFO - Found 1 users to process
+2025-12-01 19:38:18,201 - scraper - INFO - Processing user 1/1: PDV1A
+2025-12-01 19:38:18,201 - scraper - INFO - Starting report download process for user: PDV1A
+2025-12-01 19:38:18,996 - scraper - INFO - Attempting login for user: PDV1A
+2025-12-01 19:38:29,270 - scraper - INFO - Login successful for user: PDV1A
+2025-12-01 19:38:31,642 - scraper - INFO - Extracted classroom name: 1A Josefa Andrea!
+2025-12-01 19:38:31,642 - scraper - INFO - Using classroom name '1A Josefa Andrea' for PDV1A
+2025-12-01 19:38:39,819 - scraper - INFO - Successfully navigated to reports: https://www.kidsa-z.com/main/reports#!/student-usage
+2025-12-01 19:38:42,823 - config - INFO - Configuration loaded successfully
+2025-12-01 19:38:42,824 - scraper - INFO - Using date filter: Custom
+2025-12-01 19:38:42,824 - scraper - INFO - Using products filter: All
+2025-12-01 19:38:44,117 - scraper - INFO - Selected products filter: All
+2025-12-01 19:38:47,250 - scraper - INFO - Selected date filter: Custom
+2025-12-01 19:38:52,325 - scraper - INFO - Processing Student Usage report
+2025-12-01 19:38:54,397 - scraper - INFO - Successfully switched to tab: Student Usage
+2025-12-01 19:38:55,581 - scraper - INFO - Downloaded CSV report: 1A Josefa Andrea_Student Usage_All_2025-05-01_2025-11-11.csv
+2025-12-01 19:38:55,625 - utils - INFO - Successfully converted to XLSX: 1A Josefa Andrea_Student Usage_All_2025-05-01_2025-11-11.xlsx
+2025-12-01 19:38:55,626 - scraper - INFO - Successfully downloaded Student Usage report
+2025-12-01 19:38:55,626 - scraper - INFO - Skipping Skill report (not selected)
+2025-12-01 19:38:55,626 - scraper - INFO - Skipping Assignment report (not selected)
+2025-12-01 19:38:55,626 - scraper - INFO - Skipping Assessment report (not selected)
+2025-12-01 19:38:55,626 - scraper - INFO - Skipping Level Up Progress report (not selected)
+2025-12-01 19:38:55,626 - scraper - INFO - Completed report download for PDV1A: 1/1 successful
+2025-12-01 19:38:55,682 - scraper - INFO - Successfully processed user: PDV1A
+2025-12-01 19:38:55,682 - scraper - INFO - Scraper completed: 1/1 users processed successfully
+2025-12-01 19:38:55,683 - scraper - INFO - Attempting to combine all reports by type...
+2025-12-01 19:38:55,683 - utils - INFO - Found 1 Student Usage reports
+2025-12-01 19:38:55,684 - utils - INFO - Found 1 Skill reports
+2025-12-01 19:38:55,738 - utils - INFO - Successfully created combined report: Combined_All_Reports_20251201_193855.xlsx
+2025-12-01 19:38:55,738 - utils - INFO - Combined 2 report type sheets into single file
+2025-12-01 19:38:55,738 - scraper - INFO - Successfully created combined reports: /Users/david.gonzalez01/Personal/reports-scrapper/reports/Combined_All_Reports_20251201_193855.xlsx
+2025-12-01 19:38:55,738 - __main__ - INFO - Scraper completed successfully
+2025-12-01 19:38:55,738 - __main__ - INFO - Added notification: success - All 1 users processed successfully
+2025-12-01 19:38:55,738 - __main__ - INFO - Added notification: warning - Combined reports saved to: Combined_All_Reports_20251201_193855.xlsx
+2025-12-01 19:38:55,738 - __main__ - INFO - Scraper process finished
+2025-12-01 19:38:57,179 - config - INFO - Configuration loaded successfully
+2025-12-01 19:38:57,180 - __main__ - INFO - Loaded 1 users successfully
+2025-12-01 19:39:00,643 - config - INFO - Configuration loaded successfully
+2025-12-01 19:39:00,643 - utils - INFO - Found 1 Student Usage reports
+2025-12-01 19:39:00,661 - utils - INFO - Found 1 Student Usage reports for classroom summaries
+2025-12-01 19:39:00,676 - utils - INFO - Found 1 Skill reports
+2025-12-01 19:39:00,693 - utils - INFO - Found 1 Skill reports
+2025-12-01 19:39:00,707 - utils - INFO - No Level Up Progress reports found
+2025-12-01 19:39:00,707 - utils - INFO - Found 1 Student Usage reports for top readers
+2025-12-01 19:39:00,720 - utils - INFO - Found 1 Student Usage reports for classroom summaries
+2025-12-01 19:39:23,607 - config - INFO - Configuration loaded successfully
+2025-12-01 19:39:23,608 - __main__ - INFO - Loaded 1 users successfully
+2025-12-01 19:39:28,651 - __main__ - INFO - Starting new scrape job
+2025-12-01 19:39:28,651 - __main__ - INFO - Cleared all notifications
+2025-12-01 19:39:28,651 - __main__ - INFO - Starting scraper process
+2025-12-01 19:39:28,653 - __main__ - INFO - Loaded 1 users successfully
+2025-12-01 19:39:28,653 - scraper - INFO - Starting scraper execution
+2025-12-01 19:39:28,653 - scraper - INFO - Loaded 1 users from users.json
+2025-12-01 19:39:28,653 - scraper - INFO - Found 1 users to process
+2025-12-01 19:39:28,654 - scraper - INFO - Processing user 1/1: PDV1A
+2025-12-01 19:39:28,654 - scraper - INFO - Starting report download process for user: PDV1A
+2025-12-01 19:39:29,510 - scraper - INFO - Attempting login for user: PDV1A
+2025-12-01 19:39:37,321 - scraper - INFO - Login successful for user: PDV1A
+2025-12-01 19:39:39,715 - scraper - INFO - Extracted classroom name: 1A Josefa Andrea!
+2025-12-01 19:39:39,716 - scraper - INFO - Using classroom name '1A Josefa Andrea' for PDV1A
+2025-12-01 19:39:46,657 - scraper - INFO - Successfully navigated to reports: https://www.kidsa-z.com/main/reports#!/student-usage
+2025-12-01 19:39:49,659 - config - INFO - Configuration loaded successfully
+2025-12-01 19:39:49,659 - scraper - INFO - Using date filter: Custom
+2025-12-01 19:39:49,659 - scraper - INFO - Using products filter: All
+2025-12-01 19:39:50,957 - scraper - INFO - Selected products filter: All
+2025-12-01 19:39:54,081 - scraper - INFO - Selected date filter: Custom
+2025-12-01 19:39:59,149 - scraper - INFO - Skipping Student Usage report (not selected)
+2025-12-01 19:39:59,149 - scraper - INFO - Skipping Skill report (not selected)
+2025-12-01 19:39:59,149 - scraper - INFO - Skipping Assignment report (not selected)
+2025-12-01 19:39:59,149 - scraper - INFO - Skipping Assessment report (not selected)
+2025-12-01 19:39:59,149 - scraper - INFO - Processing Level Up Progress report
+2025-12-01 19:40:01,262 - scraper - INFO - Successfully switched to tab: Level Up Progress
+2025-12-01 19:40:02,497 - scraper - INFO - Selected products filter: Raz-Plus
+2025-12-01 19:40:05,690 - scraper - INFO - Downloaded CSV report: 1A Josefa Andrea_Level Up Progress_All_2025-05-01_2025-11-11.csv
+2025-12-01 19:40:05,734 - utils - INFO - Successfully converted to XLSX: 1A Josefa Andrea_Level Up Progress_All_2025-05-01_2025-11-11.xlsx
+2025-12-01 19:40:05,734 - scraper - INFO - Successfully downloaded Level Up Progress report
+2025-12-01 19:40:05,734 - scraper - INFO - Completed report download for PDV1A: 1/1 successful
+2025-12-01 19:40:05,800 - scraper - INFO - Successfully processed user: PDV1A
+2025-12-01 19:40:05,800 - scraper - INFO - Scraper completed: 1/1 users processed successfully
+2025-12-01 19:40:05,801 - scraper - INFO - Attempting to combine all reports by type...
+2025-12-01 19:40:05,801 - utils - INFO - Found 1 Student Usage reports
+2025-12-01 19:40:05,802 - utils - INFO - Found 1 Skill reports
+2025-12-01 19:40:05,803 - utils - INFO - Found 1 Level Up Progress reports
+2025-12-01 19:40:05,906 - utils - INFO - Successfully created combined report: Combined_All_Reports_20251201_194005.xlsx
+2025-12-01 19:40:05,906 - utils - INFO - Combined 3 report type sheets into single file
+2025-12-01 19:40:05,906 - scraper - INFO - Successfully created combined reports: /Users/david.gonzalez01/Personal/reports-scrapper/reports/Combined_All_Reports_20251201_194005.xlsx
+2025-12-01 19:40:05,906 - __main__ - INFO - Scraper completed successfully
+2025-12-01 19:40:05,906 - __main__ - INFO - Added notification: success - All 1 users processed successfully
+2025-12-01 19:40:05,906 - __main__ - INFO - Added notification: warning - Combined reports saved to: Combined_All_Reports_20251201_194005.xlsx
+2025-12-01 19:40:05,906 - __main__ - INFO - Scraper process finished
+2025-12-01 19:40:07,901 - config - INFO - Configuration loaded successfully
+2025-12-01 19:40:07,902 - __main__ - INFO - Loaded 1 users successfully
+2025-12-01 19:40:14,691 - config - INFO - Configuration loaded successfully
+2025-12-01 19:40:14,692 - utils - INFO - Found 1 Student Usage reports
+2025-12-01 19:40:14,710 - utils - INFO - Found 1 Student Usage reports for classroom summaries
+2025-12-01 19:40:14,724 - utils - INFO - Found 1 Skill reports
+2025-12-01 19:40:14,737 - utils - INFO - Found 1 Skill reports
+2025-12-01 19:40:14,750 - utils - INFO - Found 1 Level Up Progress reports
+2025-12-01 19:40:14,777 - utils - INFO - Found 1 Student Usage reports for top readers
+2025-12-01 19:40:14,790 - utils - INFO - Found 1 Student Usage reports for classroom summaries
+2025-12-01 19:47:14,353 - __main__ - INFO - Starting scraper execution
+2025-12-01 19:47:14,356 - __main__ - INFO - Loaded 1 users from users.json
+2025-12-01 19:47:14,357 - __main__ - INFO - Found 1 users to process
+2025-12-01 19:47:14,357 - __main__ - INFO - Processing user 1/1: PDV1A
+2025-12-01 19:47:14,357 - __main__ - INFO - Starting report download process for user: PDV1A
+2025-12-01 19:47:17,718 - __main__ - INFO - Attempting login for user: PDV1A
+2025-12-01 19:47:25,688 - __main__ - INFO - Login successful for user: PDV1A
+2025-12-01 19:47:28,043 - __main__ - INFO - Extracted classroom name: 1A Josefa Andrea!
+2025-12-01 19:47:28,044 - __main__ - INFO - Using classroom name '1A Josefa Andrea' for PDV1A
+2025-12-01 19:47:36,372 - __main__ - INFO - Successfully navigated to reports: https://www.kidsa-z.com/main/reports#!/student-usage
+2025-12-01 19:47:39,379 - config - INFO - Configuration loaded successfully
+2025-12-01 19:47:39,379 - __main__ - INFO - Using date filter: Custom
+2025-12-01 19:47:39,379 - __main__ - INFO - Using products filter: All
+2025-12-01 19:47:40,661 - __main__ - INFO - Selected products filter: All
+2025-12-01 19:47:43,792 - __main__ - INFO - Selected date filter: Custom
+2025-12-01 19:47:48,856 - __main__ - INFO - Processing Student Usage report
+2025-12-01 19:47:50,935 - __main__ - INFO - Successfully switched to tab: Student Usage
+2025-12-01 19:47:52,126 - __main__ - INFO - Downloaded CSV report: 1A Josefa Andrea_Student Usage_All_2025-05-01_2025-11-11.csv
+2025-12-01 19:47:52,184 - utils - INFO - Successfully converted to XLSX: 1A Josefa Andrea_Student Usage_All_2025-05-01_2025-11-11.xlsx
+2025-12-01 19:47:52,184 - __main__ - INFO - Successfully downloaded Student Usage report
+2025-12-01 19:47:52,184 - __main__ - INFO - Processing Skill report
+2025-12-01 19:47:54,230 - __main__ - INFO - Successfully switched to tab: Skill
+2025-12-01 19:47:55,321 - __main__ - INFO - Selected skill filter: All
+2025-12-01 19:47:58,501 - __main__ - INFO - Downloaded CSV report: 1A Josefa Andrea_Skill_All_2025-05-01_2025-11-11.csv
+2025-12-01 19:47:58,518 - utils - INFO - Successfully converted to XLSX: 1A Josefa Andrea_Skill_All_2025-05-01_2025-11-11.xlsx
+2025-12-01 19:47:58,518 - __main__ - INFO - Successfully downloaded Skill report
+2025-12-01 19:47:58,518 - __main__ - INFO - Skipping Assignment report (not selected)
+2025-12-01 19:47:58,519 - __main__ - INFO - Skipping Assessment report (not selected)
+2025-12-01 19:47:58,519 - __main__ - INFO - Processing Level Up Progress report
+2025-12-01 19:48:00,567 - __main__ - INFO - Successfully switched to tab: Level Up Progress
+2025-12-01 19:48:01,764 - __main__ - INFO - Selected products filter: Raz-Plus
+2025-12-01 19:48:04,902 - __main__ - INFO - Downloaded CSV report: 1A Josefa Andrea_Level Up Progress_All_2025-05-01_2025-11-11.csv
+2025-12-01 19:48:04,929 - utils - INFO - Successfully converted to XLSX: 1A Josefa Andrea_Level Up Progress_All_2025-05-01_2025-11-11.xlsx
+2025-12-01 19:48:04,929 - __main__ - INFO - Successfully downloaded Level Up Progress report
+2025-12-01 19:48:04,930 - __main__ - INFO - Completed report download for PDV1A: 3/3 successful
+2025-12-01 19:48:04,997 - __main__ - INFO - Successfully processed user: PDV1A
+2025-12-01 19:48:04,998 - __main__ - INFO - Scraper completed: 1/1 users processed successfully
+2025-12-01 19:48:04,998 - __main__ - INFO - Attempting to combine all reports by type...
+2025-12-01 19:48:04,999 - utils - INFO - Found 1 Student Usage reports
+2025-12-01 19:48:04,999 - utils - INFO - Found 1 Skill reports
+2025-12-01 19:48:05,000 - utils - INFO - Found 1 Level Up Progress reports
+2025-12-01 19:48:05,116 - utils - INFO - Successfully created combined report: Combined_All_Reports_20251201_194805.xlsx
+2025-12-01 19:48:05,116 - utils - INFO - Combined 3 report type sheets into single file
+2025-12-01 19:48:05,116 - __main__ - INFO - Successfully created combined reports: /Users/david.gonzalez01/Personal/reports-scrapper/reports/Combined_All_Reports_20251201_194805.xlsx
+2025-12-01 20:18:29,591 - scraper - INFO - Starting scraper execution
+2025-12-01 20:18:29,592 - scraper - INFO - Loaded 2 users from users.json
+2025-12-01 20:18:29,592 - scraper - INFO - Found 2 users to process
+2025-12-01 20:18:29,592 - scraper - INFO - Processing user 1/2: PDV1A
+2025-12-01 20:18:29,592 - scraper - INFO - Starting report download process for user: PDV1A
+2025-12-01 20:18:30,779 - scraper - INFO - Attempting login for user: PDV1A
+2025-12-01 20:18:50,073 - scraper - INFO - Login successful for user: PDV1A
+2025-12-01 20:18:52,512 - scraper - INFO - Extracted classroom name: 1A Josefa Andrea!
+2025-12-01 20:18:52,513 - scraper - INFO - Using classroom name '1A Josefa Andrea' for PDV1A
+2025-12-01 20:19:04,201 - scraper - INFO - Successfully navigated to reports: https://www.kidsa-z.com/main/reports#!/student-usage
+2025-12-01 20:19:07,207 - config - INFO - Configuration loaded successfully
+2025-12-01 20:19:07,207 - scraper - INFO - Using date filter: Last 90 Days
+2025-12-01 20:19:07,207 - scraper - INFO - Using products filter: All
+2025-12-01 20:19:08,486 - scraper - INFO - Selected products filter: All
+2025-12-01 20:19:11,604 - scraper - INFO - Selected date filter: Last 90 Days
+2025-12-01 20:19:13,608 - scraper - INFO - Processing Student Usage report
+2025-12-01 20:19:15,658 - scraper - INFO - Successfully switched to tab: Student Usage
+2025-12-01 20:19:16,802 - scraper - INFO - Downloaded CSV report: 1A Josefa Andrea_Student Usage_All_2025-09-03_2025-12-01.csv
+2025-12-01 20:19:16,841 - utils - INFO - Successfully converted to XLSX: 1A Josefa Andrea_Student Usage_All_2025-09-03_2025-12-01.xlsx
+2025-12-01 20:19:16,841 - scraper - INFO - Successfully downloaded Student Usage report
+2025-12-01 20:19:16,841 - scraper - INFO - Skipping Skill report (not selected)
+2025-12-01 20:19:16,841 - scraper - INFO - Skipping Assignment report (not selected)
+2025-12-01 20:19:16,841 - scraper - INFO - Skipping Assessment report (not selected)
+2025-12-01 20:19:16,841 - scraper - INFO - Skipping Level Up Progress report (not selected)
+2025-12-01 20:19:16,841 - scraper - INFO - Completed report download for PDV1A: 1/1 successful
+2025-12-01 20:19:16,904 - scraper - INFO - Successfully processed user: PDV1A
+2025-12-01 20:19:16,904 - scraper - INFO - Processing user 2/2: PDV3A
+2025-12-01 20:19:16,904 - scraper - INFO - Starting report download process for user: PDV3A
+2025-12-01 20:19:17,593 - scraper - INFO - Attempting login for user: PDV3A
+2025-12-01 20:19:36,752 - scraper - INFO - Login successful for user: PDV3A
+2025-12-01 20:19:39,228 - scraper - INFO - Extracted classroom name: 3A Josefa!
+2025-12-01 20:19:39,228 - scraper - INFO - Using classroom name '3A Josefa' for PDV3A
+2025-12-01 20:19:50,514 - scraper - INFO - Successfully navigated to reports: https://www.kidsa-z.com/main/reports#!/student-usage
+2025-12-01 20:19:53,517 - config - INFO - Configuration loaded successfully
+2025-12-01 20:19:53,517 - scraper - INFO - Using date filter: Last 90 Days
+2025-12-01 20:19:53,518 - scraper - INFO - Using products filter: All
+2025-12-01 20:19:54,816 - scraper - INFO - Selected products filter: All
+2025-12-01 20:19:57,936 - scraper - INFO - Selected date filter: Last 90 Days
+2025-12-01 20:19:59,941 - scraper - INFO - Processing Student Usage report
+2025-12-01 20:20:01,996 - scraper - INFO - Successfully switched to tab: Student Usage
+2025-12-01 20:20:03,163 - scraper - INFO - Downloaded CSV report: 3A Josefa_Student Usage_All_2025-09-03_2025-12-01.csv
+2025-12-01 20:20:03,185 - utils - INFO - Successfully converted to XLSX: 3A Josefa_Student Usage_All_2025-09-03_2025-12-01.xlsx
+2025-12-01 20:20:03,185 - scraper - INFO - Successfully downloaded Student Usage report
+2025-12-01 20:20:03,185 - scraper - INFO - Skipping Skill report (not selected)
+2025-12-01 20:20:03,186 - scraper - INFO - Skipping Assignment report (not selected)
+2025-12-01 20:20:03,186 - scraper - INFO - Skipping Assessment report (not selected)
+2025-12-01 20:20:03,186 - scraper - INFO - Skipping Level Up Progress report (not selected)
+2025-12-01 20:20:03,186 - scraper - INFO - Completed report download for PDV3A: 1/1 successful
+2025-12-01 20:20:03,241 - scraper - INFO - Successfully processed user: PDV3A
+2025-12-01 20:20:03,241 - scraper - INFO - Scraper completed: 2/2 users processed successfully
+2025-12-01 20:20:03,241 - scraper - INFO - Attempting to combine all reports by type...
+2025-12-01 20:20:03,242 - utils - INFO - Found 2 Student Usage reports
+2025-12-01 20:20:03,316 - utils - INFO - Successfully created combined report: Combined_All_Reports_20251201_202003.xlsx
+2025-12-01 20:20:03,316 - utils - INFO - Combined 1 report type sheets into single file
+2025-12-01 20:20:03,316 - scraper - INFO - Successfully created combined reports: /Users/david.gonzalez01/Personal/reports-scrapper/reports/Combined_All_Reports_20251201_202003.xlsx
+2025-12-01 20:20:03,316 - __main__ - INFO - Scraper completed successfully
+2025-12-01 20:20:03,316 - __main__ - INFO - Added notification: success - All 2 users processed successfully
+2025-12-01 20:20:03,316 - __main__ - INFO - Added notification: warning - Combined reports saved to: Combined_All_Reports_20251201_202003.xlsx
+2025-12-01 20:20:03,316 - __main__ - INFO - Scraper process finished
+2025-12-01 20:20:05,036 - config - INFO - Configuration loaded successfully
+2025-12-01 20:20:05,036 - __main__ - INFO - Loaded 2 users successfully
+2025-12-01 20:20:07,004 - config - INFO - Configuration loaded successfully
+2025-12-01 20:20:07,005 - utils - INFO - Found 2 Student Usage reports
+2025-12-01 20:20:07,039 - utils - INFO - Found 2 Student Usage reports for classroom summaries
+2025-12-01 20:20:07,072 - utils - INFO - No Skill reports found
+2025-12-01 20:20:07,072 - utils - INFO - No Skill reports found
+2025-12-01 20:20:07,073 - utils - INFO - No reading skills data found for summary
+2025-12-01 20:20:07,073 - utils - INFO - No Level Up Progress reports found
+2025-12-01 20:20:07,074 - utils - INFO - Found 2 Student Usage reports for top readers
+2025-12-01 20:20:07,107 - utils - INFO - Found 2 Student Usage reports for classroom summaries
+2025-12-03 19:41:38,915 - __main__ - INFO - Starting scraper execution
+2025-12-03 19:41:38,916 - __main__ - INFO - Loaded 2 users from users.json
+2025-12-03 19:41:38,916 - __main__ - INFO - Found 2 users to process
+2025-12-03 19:41:38,916 - __main__ - INFO - Processing user 1/2: PDV1A
+2025-12-03 19:41:38,916 - __main__ - INFO - Starting report download process for user: PDV1A
+2025-12-03 19:41:40,892 - __main__ - INFO - Attempting login for user: PDV1A
+2025-12-03 19:41:54,540 - __main__ - INFO - Login successful for user: PDV1A
+2025-12-03 19:41:57,437 - __main__ - INFO - Extracted classroom name: 1A Josefa Andrea!
+2025-12-03 19:41:57,438 - __main__ - INFO - Using classroom name '1A Josefa Andrea' for PDV1A
+2025-12-03 19:42:05,879 - __main__ - INFO - Successfully navigated to reports: https://www.kidsa-z.com/main/reports#!/student-usage
+2025-12-03 19:42:08,881 - config - INFO - Configuration loaded successfully
+2025-12-03 19:42:08,881 - __main__ - INFO - Using date filter: Last 90 Days
+2025-12-03 19:42:08,881 - __main__ - INFO - Using products filter: All
+2025-12-03 19:42:10,125 - __main__ - INFO - Selected products filter: All
+2025-12-03 19:42:13,239 - __main__ - INFO - Selected date filter: Last 90 Days
+2025-12-03 19:42:15,244 - __main__ - INFO - Processing Student Usage report
+2025-12-03 19:42:17,270 - __main__ - INFO - Successfully switched to tab: Student Usage
+2025-12-03 19:42:18,468 - __main__ - INFO - Downloaded CSV report: 1A Josefa Andrea_Student Usage_All_2025-09-05_2025-12-03.csv
+2025-12-03 19:42:18,518 - utils - INFO - Successfully converted to XLSX: 1A Josefa Andrea_Student Usage_All_2025-09-05_2025-12-03.xlsx
+2025-12-03 19:42:18,519 - __main__ - INFO - Successfully downloaded Student Usage report
+2025-12-03 19:42:18,519 - __main__ - INFO - Processing Skill report
+2025-12-03 19:42:20,552 - __main__ - INFO - Successfully switched to tab: Skill
+2025-12-03 19:42:21,640 - __main__ - INFO - Selected skill filter: All
+2025-12-03 19:42:24,763 - __main__ - INFO - Downloaded CSV report: 1A Josefa Andrea_Skill_All_2025-09-05_2025-12-03.csv
+2025-12-03 19:42:24,777 - utils - INFO - Successfully converted to XLSX: 1A Josefa Andrea_Skill_All_2025-09-05_2025-12-03.xlsx
+2025-12-03 19:42:24,777 - __main__ - INFO - Successfully downloaded Skill report
+2025-12-03 19:42:24,777 - __main__ - INFO - Skipping Assignment report (not selected)
+2025-12-03 19:42:24,777 - __main__ - INFO - Skipping Assessment report (not selected)
+2025-12-03 19:42:24,777 - __main__ - INFO - Skipping Level Up Progress report (not selected)
+2025-12-03 19:42:24,777 - __main__ - INFO - Completed report download for PDV1A: 2/2 successful
+2025-12-03 19:42:24,838 - __main__ - INFO - Successfully processed user: PDV1A
+2025-12-03 19:42:24,838 - __main__ - INFO - Processing user 2/2: PDV3A
+2025-12-03 19:42:24,838 - __main__ - INFO - Starting report download process for user: PDV3A
+2025-12-03 19:42:25,477 - __main__ - INFO - Attempting login for user: PDV3A
+2025-12-03 19:42:37,173 - __main__ - INFO - Scraper interrupted by user
+2025-12-03 19:42:37,199 - asyncio - ERROR - Future exception was never retrieved
+future: <Future finished exception=TargetClosedError('Target page, context or browser has been closed')>
+playwright._impl._errors.TargetClosedError: Target page, context or browser has been closed
+2025-12-03 19:42:42,228 - __main__ - INFO - Starting scraper execution
+2025-12-03 19:42:42,229 - __main__ - INFO - Loaded 2 users from users.json
+2025-12-03 19:42:42,229 - __main__ - INFO - Found 2 users to process
+2025-12-03 19:42:42,229 - __main__ - INFO - Processing user 1/2: PDV1A
+2025-12-03 19:42:42,229 - __main__ - INFO - Starting report download process for user: PDV1A
+2025-12-03 19:42:42,872 - __main__ - INFO - Attempting login for user: PDV1A
+2025-12-03 19:42:50,190 - __main__ - INFO - Login successful for user: PDV1A
+2025-12-03 19:42:52,383 - __main__ - INFO - Extracted classroom name: 1A Josefa Andrea!
+2025-12-03 19:42:52,383 - __main__ - INFO - Using classroom name '1A Josefa Andrea' for PDV1A
+2025-12-03 19:42:59,191 - __main__ - INFO - Successfully navigated to reports: https://www.kidsa-z.com/main/reports#!/student-usage
+2025-12-03 19:43:02,193 - config - INFO - Configuration loaded successfully
+2025-12-03 19:43:02,193 - __main__ - INFO - Using date filter: Last 90 Days
+2025-12-03 19:43:02,193 - __main__ - INFO - Using products filter: All
+2025-12-03 19:43:03,452 - __main__ - INFO - Selected products filter: All
+2025-12-03 19:43:06,569 - __main__ - INFO - Selected date filter: Last 90 Days
+2025-12-03 19:43:08,573 - __main__ - INFO - Processing Student Usage report
+2025-12-03 19:43:10,602 - __main__ - INFO - Successfully switched to tab: Student Usage
+2025-12-03 19:43:11,783 - __main__ - INFO - Downloaded CSV report: 1A Josefa Andrea_Student Usage_All_2025-09-05_2025-12-03.csv
+2025-12-03 19:43:11,808 - utils - INFO - Successfully converted to XLSX: 1A Josefa Andrea_Student Usage_All_2025-09-05_2025-12-03.xlsx
+2025-12-03 19:43:11,809 - __main__ - INFO - Successfully downloaded Student Usage report
+2025-12-03 19:43:11,809 - __main__ - INFO - Processing Skill report
+2025-12-03 19:43:13,855 - __main__ - INFO - Successfully switched to tab: Skill
+2025-12-03 19:43:14,939 - __main__ - INFO - Selected skill filter: All
+2025-12-03 19:43:18,060 - __main__ - INFO - Downloaded CSV report: 1A Josefa Andrea_Skill_All_2025-09-05_2025-12-03.csv
+2025-12-03 19:43:18,074 - utils - INFO - Successfully converted to XLSX: 1A Josefa Andrea_Skill_All_2025-09-05_2025-12-03.xlsx
+2025-12-03 19:43:18,074 - __main__ - INFO - Successfully downloaded Skill report
+2025-12-03 19:43:18,074 - __main__ - INFO - Skipping Assignment report (not selected)
+2025-12-03 19:43:18,074 - __main__ - INFO - Skipping Assessment report (not selected)
+2025-12-03 19:43:18,074 - __main__ - INFO - Skipping Level Up Progress report (not selected)
+2025-12-03 19:43:18,075 - __main__ - INFO - Completed report download for PDV1A: 2/2 successful
+2025-12-03 19:43:18,134 - __main__ - INFO - Successfully processed user: PDV1A
+2025-12-03 19:43:18,134 - __main__ - INFO - Processing user 2/2: PDV3A
+2025-12-03 19:43:18,135 - __main__ - INFO - Starting report download process for user: PDV3A
+2025-12-03 19:43:18,760 - __main__ - INFO - Attempting login for user: PDV3A
+2025-12-03 19:43:25,779 - __main__ - INFO - Login successful for user: PDV3A
+2025-12-03 19:43:27,850 - __main__ - INFO - Extracted classroom name: 3A Josefa!
+2025-12-03 19:43:27,850 - __main__ - INFO - Using classroom name '3A Josefa' for PDV3A
+2025-12-03 19:43:35,062 - __main__ - INFO - Successfully navigated to reports: https://www.kidsa-z.com/main/reports#!/student-usage
+2025-12-03 19:43:38,069 - config - INFO - Configuration loaded successfully
+2025-12-03 19:43:38,069 - __main__ - INFO - Using date filter: Last 90 Days
+2025-12-03 19:43:38,069 - __main__ - INFO - Using products filter: All
+2025-12-03 19:43:39,380 - __main__ - INFO - Selected products filter: All
+2025-12-03 19:43:42,499 - __main__ - INFO - Selected date filter: Last 90 Days
+2025-12-03 19:43:44,503 - __main__ - INFO - Processing Student Usage report
+2025-12-03 19:43:46,558 - __main__ - INFO - Successfully switched to tab: Student Usage
+2025-12-03 19:43:47,728 - __main__ - INFO - Downloaded CSV report: 3A Josefa_Student Usage_All_2025-09-05_2025-12-03.csv
+2025-12-03 19:43:47,749 - utils - INFO - Successfully converted to XLSX: 3A Josefa_Student Usage_All_2025-09-05_2025-12-03.xlsx
+2025-12-03 19:43:47,749 - __main__ - INFO - Successfully downloaded Student Usage report
+2025-12-03 19:43:47,749 - __main__ - INFO - Processing Skill report
+2025-12-03 19:43:49,799 - __main__ - INFO - Successfully switched to tab: Skill
+2025-12-03 19:43:50,888 - __main__ - INFO - Selected skill filter: All
+2025-12-03 19:43:54,005 - __main__ - INFO - Downloaded CSV report: 3A Josefa_Skill_All_2025-09-05_2025-12-03.csv
+2025-12-03 19:43:54,019 - utils - INFO - Successfully converted to XLSX: 3A Josefa_Skill_All_2025-09-05_2025-12-03.xlsx
+2025-12-03 19:43:54,019 - __main__ - INFO - Successfully downloaded Skill report
+2025-12-03 19:43:54,019 - __main__ - INFO - Skipping Assignment report (not selected)
+2025-12-03 19:43:54,019 - __main__ - INFO - Skipping Assessment report (not selected)
+2025-12-03 19:43:54,019 - __main__ - INFO - Skipping Level Up Progress report (not selected)
+2025-12-03 19:43:54,019 - __main__ - INFO - Completed report download for PDV3A: 2/2 successful
+2025-12-03 19:43:54,076 - __main__ - INFO - Successfully processed user: PDV3A
+2025-12-03 19:43:54,076 - __main__ - INFO - Scraper completed: 2/2 users processed successfully
+2025-12-03 19:43:54,076 - __main__ - INFO - Attempting to combine all reports by type...
+2025-12-03 19:43:54,077 - utils - INFO - Found 2 Student Usage reports
+2025-12-03 19:43:54,078 - utils - INFO - Found 2 Skill reports
+2025-12-03 19:43:54,173 - utils - INFO - Successfully created combined report: Combined_All_Reports_20251203_194354.xlsx
+2025-12-03 19:43:54,173 - utils - INFO - Combined 2 report type sheets into single file
+2025-12-03 19:43:54,173 - __main__ - INFO - Successfully created combined reports: /Users/david.gonzalez01/Personal/reports-scrapper/reports/Combined_All_Reports_20251203_194354.xlsx
+2025-12-05 09:32:13,230 - __main__ - INFO - Starting scraper execution
+2025-12-05 09:32:13,231 - __main__ - INFO - Loaded 2 users from users.json
+2025-12-05 09:32:13,231 - __main__ - INFO - Found 2 users to process
+2025-12-05 09:32:13,231 - __main__ - INFO - Processing user 1/2: PDV1A
+2025-12-05 09:32:13,231 - __main__ - INFO - Starting report download process for user: PDV1A
+2025-12-05 09:32:16,558 - __main__ - INFO - Attempting login for user: PDV1A
+2025-12-05 09:32:22,888 - __main__ - INFO - Login successful for user: PDV1A
+2025-12-05 09:32:25,076 - __main__ - INFO - Extracted classroom name: 1A Josefa Andrea!
+2025-12-05 09:32:25,076 - __main__ - INFO - Using classroom name '1A Josefa Andrea' for PDV1A
+2025-12-05 09:32:31,888 - __main__ - INFO - Successfully navigated to reports: https://www.kidsa-z.com/main/reports#!/student-usage
+2025-12-05 09:32:34,891 - config - INFO - Configuration loaded successfully
+2025-12-05 09:32:34,891 - __main__ - INFO - Using date filter: Last 90 Days
+2025-12-05 09:32:34,891 - __main__ - INFO - Using products filter: All
+2025-12-05 09:32:36,165 - __main__ - INFO - Selected products filter: All
+2025-12-05 09:32:39,280 - __main__ - INFO - Selected date filter: Last 90 Days
+2025-12-05 09:32:41,283 - __main__ - INFO - Processing Student Usage report
+2025-12-05 09:32:43,319 - __main__ - INFO - Successfully switched to tab: Student Usage
+2025-12-05 09:32:44,535 - __main__ - INFO - Downloaded CSV report: 1A Josefa Andrea_Student Usage_All_2025-09-07_2025-12-05.csv
+2025-12-05 09:32:44,617 - utils - INFO - Successfully converted to XLSX: 1A Josefa Andrea_Student Usage_All_2025-09-07_2025-12-05.xlsx
+2025-12-05 09:32:44,617 - __main__ - INFO - Successfully downloaded Student Usage report
+2025-12-05 09:32:44,617 - __main__ - INFO - Processing Skill report
+2025-12-05 09:32:46,648 - __main__ - INFO - Successfully switched to tab: Skill
+2025-12-05 09:32:47,730 - __main__ - INFO - Selected skill filter: All
+2025-12-05 09:32:50,879 - __main__ - INFO - Downloaded CSV report: 1A Josefa Andrea_Skill_All_2025-09-07_2025-12-05.csv
+2025-12-05 09:32:50,912 - utils - INFO - Successfully converted to XLSX: 1A Josefa Andrea_Skill_All_2025-09-07_2025-12-05.xlsx
+2025-12-05 09:32:50,913 - __main__ - INFO - Successfully downloaded Skill report
+2025-12-05 09:32:50,913 - __main__ - INFO - Skipping Assignment report (not selected)
+2025-12-05 09:32:50,913 - __main__ - INFO - Skipping Assessment report (not selected)
+2025-12-05 09:32:50,913 - __main__ - INFO - Skipping Level Up Progress report (not selected)
+2025-12-05 09:32:50,913 - __main__ - INFO - Completed report download for PDV1A: 2/2 successful
+2025-12-05 09:32:50,974 - __main__ - INFO - Successfully processed user: PDV1A
+2025-12-05 09:32:50,975 - __main__ - INFO - Processing user 2/2: PDV3A
+2025-12-05 09:32:50,975 - __main__ - INFO - Starting report download process for user: PDV3A
+2025-12-05 09:32:51,977 - __main__ - INFO - Attempting login for user: PDV3A
+2025-12-05 09:32:57,288 - __main__ - INFO - Login successful for user: PDV3A
+2025-12-05 09:32:59,463 - __main__ - INFO - Extracted classroom name: 3A Josefa!
+2025-12-05 09:32:59,463 - __main__ - INFO - Using classroom name '3A Josefa' for PDV3A
+2025-12-05 09:33:05,516 - __main__ - INFO - Successfully navigated to reports: https://www.kidsa-z.com/main/reports#!/student-usage
+2025-12-05 09:33:08,522 - config - INFO - Configuration loaded successfully
+2025-12-05 09:33:08,522 - __main__ - INFO - Using date filter: Last 90 Days
+2025-12-05 09:33:08,522 - __main__ - INFO - Using products filter: All
+2025-12-05 09:33:09,838 - __main__ - INFO - Selected products filter: All
+2025-12-05 09:33:12,967 - __main__ - INFO - Selected date filter: Last 90 Days
+2025-12-05 09:33:14,971 - __main__ - INFO - Processing Student Usage report
+2025-12-05 09:33:17,021 - __main__ - INFO - Successfully switched to tab: Student Usage
+2025-12-05 09:33:18,208 - __main__ - INFO - Downloaded CSV report: 3A Josefa_Student Usage_All_2025-09-07_2025-12-05.csv
+2025-12-05 09:33:18,232 - utils - INFO - Successfully converted to XLSX: 3A Josefa_Student Usage_All_2025-09-07_2025-12-05.xlsx
+2025-12-05 09:33:18,233 - __main__ - INFO - Successfully downloaded Student Usage report
+2025-12-05 09:33:18,233 - __main__ - INFO - Processing Skill report
+2025-12-05 09:33:20,261 - __main__ - INFO - Successfully switched to tab: Skill
+2025-12-05 09:33:21,349 - __main__ - INFO - Selected skill filter: All
+2025-12-05 09:33:24,487 - __main__ - INFO - Downloaded CSV report: 3A Josefa_Skill_All_2025-09-07_2025-12-05.csv
+2025-12-05 09:33:24,521 - utils - INFO - Successfully converted to XLSX: 3A Josefa_Skill_All_2025-09-07_2025-12-05.xlsx
+2025-12-05 09:33:24,521 - __main__ - INFO - Successfully downloaded Skill report
+2025-12-05 09:33:24,521 - __main__ - INFO - Skipping Assignment report (not selected)
+2025-12-05 09:33:24,521 - __main__ - INFO - Skipping Assessment report (not selected)
+2025-12-05 09:33:24,521 - __main__ - INFO - Skipping Level Up Progress report (not selected)
+2025-12-05 09:33:24,521 - __main__ - INFO - Completed report download for PDV3A: 2/2 successful
+2025-12-05 09:33:24,582 - __main__ - INFO - Successfully processed user: PDV3A
+2025-12-05 09:33:24,582 - __main__ - INFO - Scraper completed: 2/2 users processed successfully
+2025-12-05 09:33:24,582 - __main__ - INFO - Attempting to combine all reports by type...
+2025-12-05 09:33:24,583 - utils - INFO - Found 2 Student Usage reports
+2025-12-05 09:33:24,583 - utils - INFO - Found 2 Skill reports
+2025-12-05 09:33:24,675 - utils - INFO - Successfully created combined report: Combined_All_Reports_20251205_093324.xlsx
+2025-12-05 09:33:24,675 - utils - INFO - Combined 2 report type sheets into single file
+2025-12-05 09:33:24,675 - __main__ - INFO - Successfully created combined reports: /Users/david.gonzalez01/Personal/reports-scrapper/reports/Combined_All_Reports_20251205_093324.xlsx
