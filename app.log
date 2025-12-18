@@ -1,18 +1,15 @@
-2025-12-05 09:42:04,853 - root - INFO - Cleared log file: app.log
-2025-12-05 09:42:04,853 - __main__ - INFO - Cleared app.log file
-2025-12-05 09:42:04,853 - __main__ - INFO - Starting Flask application
-2025-12-05 09:42:04,853 - __main__ - INFO - Server will be available at http://localhost:5000
-2025-12-05 09:42:04,854 - __main__ - INFO - Browser will open automatically in 1.5 seconds...
-2025-12-05 09:42:04,857 - waitress - INFO - Serving on http://0.0.0.0:5000
-2025-12-05 09:42:06,357 - __main__ - INFO - Opening browser to http://localhost:5000
-2025-12-05 09:42:06,613 - config - INFO - Configuration loaded successfully
-2025-12-05 09:42:06,615 - __main__ - INFO - Loaded 2 users successfully
-2025-12-05 09:42:10,082 - config - INFO - Configuration loaded successfully
-2025-12-05 09:42:10,083 - utils - INFO - Found 2 Student Usage reports
-2025-12-05 09:42:10,122 - utils - INFO - Found 2 Student Usage reports for classroom summaries
-2025-12-05 09:42:10,155 - utils - INFO - Found 2 Skill reports
-2025-12-05 09:42:10,186 - utils - INFO - Found 2 Skill reports
-2025-12-05 09:42:10,211 - utils - INFO - Found 2 Skill reports
-2025-12-05 09:42:10,238 - utils - INFO - No Level Up Progress reports found
-2025-12-05 09:42:10,238 - utils - INFO - Found 2 Student Usage reports for top readers
-2025-12-05 09:42:10,269 - utils - INFO - Found 2 Student Usage reports for classroom summaries
+2025-12-18 15:35:05,272 - root - INFO - Cleared log file: app.log
+2025-12-18 15:35:05,272 - __main__ - INFO - Cleared app.log file
+2025-12-18 15:35:05,272 - __main__ - INFO - Starting Flask application
+2025-12-18 15:35:05,272 - __main__ - INFO - Server will be available at http://localhost:5000
+2025-12-18 15:35:05,273 - __main__ - INFO - Browser will open automatically in 1.5 seconds...
+2025-12-18 15:35:05,276 - waitress - INFO - Serving on http://0.0.0.0:5000
+2025-12-18 15:35:06,776 - __main__ - INFO - Opening browser to http://localhost:5000
+2025-12-18 15:35:07,028 - config - INFO - Configuration loaded successfully
+2025-12-18 15:35:07,030 - __main__ - INFO - Loaded 1 users successfully
+2025-12-18 15:35:11,076 - __main__ - INFO - Starting new scrape job
+2025-12-18 15:35:11,076 - __main__ - INFO - Cleared all notifications
+2025-12-18 15:35:11,076 - __main__ - INFO - Starting scraper process
+2025-12-18 15:35:11,078 - __main__ - INFO - Loaded 1 users successfully
+2025-12-18 15:35:11,088 - path_helpers - INFO - Using Playwright browsers path: /Users/david.gonzalez01/Personal/reports-scrapper/playwright-browsers
+2025-12-18 15:35:11,088 - path_helpers - INFO - Set PLAYWRIGHT_BROWSERS_PATH to: /Users/david.gonzalez01/Personal/reports-scrapper/playwright-browsers

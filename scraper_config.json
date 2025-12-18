@@ -5,11 +5,12 @@
   "products_filter": "All",
   "skill_filter": "All",
   "tabs": {
-    "Student Usage": true,
-    "Skill": true,
-    "Assignment": false,
-    "Assessment": false,
-    "Level Up Progress": false
+    "Usage Dashboard": true,
+    "Teacher Usage": false,
+    "Student Usage": false,
+    "Student Skills": false,
+    "Assignment Report": false,
+    "Assessment Report": false
   },
   "institution_name": "Colegio Patagonia"
 }

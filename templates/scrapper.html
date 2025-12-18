@@ -338,7 +338,7 @@
 			<form id="filter-form" method="post" action="/set-filter">
 				<!-- Main Configuration Grid -->
 				<div class="bg-blue-50 rounded-xl p-6 mb-6 border border-blue-100">
-					<div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+					<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 						<!-- Date Filter Section -->
 						<div class="space-y-3">
 							<div class="flex items-center gap-2 mb-3">
@@ -377,15 +377,6 @@
 								{% endfor %}
 							</select>
 							<p class="text-xs text-gray-600">Choose the product for data collection</p>
-							<div id="products-filter-warning" class="hidden p-3 bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-300 rounded-lg text-xs text-yellow-800">
-								<div class="flex items-start gap-2">
-									<i class="fas fa-exclamation-triangle text-yellow-600 mt-0.5"></i>
-									<div>
-										<p class="font-medium">Product Availability Notice</p>
-										<p class="mt-1">Not all users have access to all products. If this product is unavailable during scraping, you'll see a notification after the process completes.</p>
-									</div>
-								</div>
-							</div>
 						</div>
 
 						<!-- Skill Filter Section -->
@@ -399,13 +390,70 @@
 								</label>
 							</div>
 							<select id="skill_filter" name="skill_filter"
-								class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 font-medium focus:outline-none focus:ring-4 focus:ring-purple-300 focus:border-purple-500 transition-all duration-200 shadow-sm hover:shadow-md">
+								class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 font-medium focus:outline-none focus:ring-4 focus:ring-blue-300 focus:border-blue-500 transition-all duration-200 shadow-sm hover:shadow-md">
 								{% for option in skill_filters %}
 								<option value="{{ option }}" {% if option==selected_skill_filter %}selected{% endif %}>{{
 									option }}</option>
 								{% endfor %}
 							</select>
-							<p class="text-xs text-gray-600">Filter skills for the Skill report tab</p>
+							<p class="text-xs text-gray-600">Filter skills for the Student Skills report tab</p>
+						</div>
+
+						<!-- Language Filter Section -->
+						<div class="space-y-3">
+							<div class="flex items-center gap-2 mb-3">
+								<div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+									<i class="fas fa-language text-white text-sm"></i>
+								</div>
+								<label for="language_filter" class="text-sm font-semibold text-gray-900">
+									Language Filter
+								</label>
+							</div>
+							<select id="language_filter" name="language_filter"
+								class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 font-medium focus:outline-none focus:ring-4 focus:ring-blue-300 focus:border-blue-500 transition-all duration-200 shadow-sm hover:shadow-md">
+								{% for option in language_filters %}
+								<option value="{{ option }}" {% if option==selected_language_filter %}selected{% endif %}>{{
+									option }}</option>
+								{% endfor %}
+							</select>
+							<p class="text-xs text-gray-600">Filter language for the Teacher Usage report tab</p>
+						</div>
+
+						<!-- Status Filter Section -->
+						<div class="space-y-3">
+							<div class="flex items-center gap-2 mb-3">
+								<div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+									<i class="fas fa-user-check text-white text-sm"></i>
+								</div>
+								<label for="status_filter" class="text-sm font-semibold text-gray-900">
+									Status Filter
+								</label>
+							</div>
+							<select id="status_filter" name="status_filter"
+								class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 font-medium focus:outline-none focus:ring-4 focus:ring-blue-300 focus:border-blue-500 transition-all duration-200 shadow-sm hover:shadow-md">
+								{% for option in status_filters %}
+								<option value="{{ option }}" {% if option==selected_status_filter %}selected{% endif %}>{{
+									option }}</option>
+								{% endfor %}
+							</select>
+							<p class="text-xs text-gray-600">Filter teacher status for the Teacher Usage report tab</p>
+						</div>
+
+						<!-- Institution Name Section -->
+						<div class="space-y-3">
+							<div class="flex items-center gap-2 mb-3">
+								<div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+									<i class="fas fa-school text-white text-sm"></i>
+								</div>
+								<label for="institution_name" class="text-sm font-semibold text-gray-900">
+									Institution Name
+								</label>
+							</div>
+							<input type="text" id="institution_name" name="institution_name"
+								value="{{ selected_institution_name }}"
+								class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 font-medium focus:outline-none focus:ring-4 focus:ring-blue-300 focus:border-blue-500 transition-all duration-200 shadow-sm hover:shadow-md"
+								placeholder="Enter institution name">
+							<p class="text-xs text-gray-600">Name of the educational institution for reports</p>
 						</div>
 
 						<!-- Quick Selection Section -->
@@ -433,23 +481,6 @@
 								</label>
 							</div>
 							<p class="text-xs text-gray-600">Toggle all report types at once</p>
-						</div>
-
-						<!-- Institution Name Section -->
-						<div class="space-y-3">
-							<div class="flex items-center gap-2 mb-3">
-								<div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-									<i class="fas fa-school text-white text-sm"></i>
-								</div>
-								<label for="institution_name" class="text-sm font-semibold text-gray-900">
-									Institution Name
-								</label>
-							</div>
-							<input type="text" id="institution_name" name="institution_name"
-								value="{{ selected_institution_name }}"
-								class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 font-medium focus:outline-none focus:ring-4 focus:ring-blue-300 focus:border-blue-500 transition-all duration-200 shadow-sm hover:shadow-md"
-								placeholder="Enter institution name">
-							<p class="text-xs text-gray-600">Name of the educational institution for reports</p>
 						</div>
 					</div>
 
@@ -596,6 +627,14 @@
 									<div class="flex items-center gap-2">
 										<i class="fas fa-graduation-cap w-3"></i>
 										<span>Skill filter: {{ selected_skill_filter }}</span>
+									</div>
+									<div class="flex items-center gap-2">
+										<i class="fas fa-language w-3"></i>
+										<span>Language filter: {{ selected_language_filter }}</span>
+									</div>
+									<div class="flex items-center gap-2">
+										<i class="fas fa-user-check w-3"></i>
+										<span>Status filter: {{ selected_status_filter }}</span>
 									</div>
 									<div class="flex items-center gap-2">
 										<i class="fas fa-th-large w-3"></i>

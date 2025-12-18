@@ -21,7 +21,7 @@ SCRAPER_LOG_FILE: str = "scraper.log"
 # URLs
 # ============================================================================
 
-LOGIN_URL: str = "https://accounts.learninga-z.com/ng/member/login?siteAbbr=rp"
+LOGIN_URL: str = "https://accounts.learninga-z.com/ng/member/login?siteAbbr=accounts"
 RAZ_PLUS_URL: str = "https://www.raz-plus.com/"
 
 
@@ -46,14 +46,15 @@ SELECTOR_LOGIN_BUTTON: str = "button#memberLoginSubmitButton"
 SELECTOR_LOGIN_BUTTON_ENABLED: str = "button#memberLoginSubmitButton:not([disabled])"
 
 # Navigation selectors
-SELECTOR_MENU_BUTTON: str = "span.buttonText"
-SELECTOR_CLASSROOM_REPORTS: str = 'a:has-text("Classroom Reports")'
+SELECTOR_ADMIN_REPORTS: str = 'a:has-text("Reports")'
 SELECTOR_CLASSROOM_GREETING: str = "h2.homepageGreeting.frazHomepageGreeting"
 
 # Filter selectors
 SELECTOR_DATE_FILTER: str = "#mat-select-0"
 SELECTOR_PRODUCTS_FILTER: str = "#mat-select-2"
 SELECTOR_SKILL_FILTER: str = "#mat-select-6"
+SELECTOR_LANGUAGE_FILTER: str = "#mat-select-8"
+SELECTOR_STATUS_FILTER: str = "#mat-select-10"
 SELECTOR_FILTER_OPTION: str = "mat-option"
 
 # Date input selectors
@@ -61,9 +62,9 @@ SELECTOR_START_DATE_INPUT: str = 'input[aria-label="Start date"]'
 SELECTOR_END_DATE_INPUT: str = 'input[aria-label="End date"]'
 
 # Report selectors
-SELECTOR_REPORT_TAB: str = 'button[role="tab"]'
+SELECTOR_REPORT_TAB: str = 'a[ui-sref*="adminReports"]'
 SELECTOR_ELLIPSIS_BUTTON: str = 'button[tid="class-reports-ellipsis-tooltip"]'
-SELECTOR_CSV_DOWNLOAD: str = "#report-menu-options-0-csv-report-download-btn"
+SELECTOR_CSV_DOWNLOAD: str = 'button[role="option"]:has-text("Download All Filtered Data")'
 SELECTOR_NO_RESULTS: str = 'text="No results for filter criteria"'
 
 
@@ -80,11 +81,12 @@ REPORT_TYPES: List[str] = [
 ]
 
 TABS: List[Dict[str, Any]] = [
+    {"name": "Usage Dashboard", "default": True},
+    {"name": "Teacher Usage", "default": True},
     {"name": "Student Usage", "default": True},
-    {"name": "Skill", "default": True},
-    {"name": "Assignment", "default": True},
-    {"name": "Assessment", "default": True},
-    {"name": "Level Up Progress", "default": True},
+    {"name": "Student Skills", "default": True},
+    {"name": "Assignment Report", "default": True},
+    {"name": "Assessment Report", "default": True},
 ]
 
 
@@ -114,10 +116,24 @@ PRODUCTS_FILTERS: List[str] = [
 SKILL_FILTERS: List[str] = [
     "All",
     "Common Core",
-    "Comprehension",
-    "Foundational Skills",
-    "Grammar & Mechanics",
-    "Vocabulary & Word Work"
+    "Comprehension"
+]
+
+LANGUAGE_FILTERS: List[str] = [
+    "All",
+    "English",
+    "Spanish",
+    "French",
+    "British-English",
+    "Polish",
+    "Ukrainian",
+    "Vietnamese"
+]
+
+STATUS_FILTERS: List[str] = [
+    "All",
+    "Active Teachers",
+    "Inactive Teachers"
 ]
 
 # ============================================================================

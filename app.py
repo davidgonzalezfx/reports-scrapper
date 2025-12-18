@@ -21,6 +21,7 @@ from waitress import serve
 # Import new helper modules
 from constants import (
     USERS_FILE, REPORTS_DIR, DATE_FILTERS, PRODUCTS_FILTERS, SKILL_FILTERS,
+    LANGUAGE_FILTERS, STATUS_FILTERS,
     TABS, FLASK_MAX_CONTENT_LENGTH, LEGACY_REPORT_PREFIXES,
     COMBINED_REPORT_PREFIX
 )
@@ -720,6 +721,10 @@ def index():
             selected_products_filter=config.products_filter,
             skill_filters=SKILL_FILTERS,
             selected_skill_filter=config.skill_filter,
+            language_filters=LANGUAGE_FILTERS,
+            selected_language_filter=config.language_filter,
+            status_filters=STATUS_FILTERS,
+            selected_status_filter=config.status_filter,
             tabs=TABS,
             selected_tabs=config.tabs.to_dict(),
             selected_institution_name=config.institution_name,
@@ -804,6 +809,30 @@ def set_filter():
             skill_filter = SKILL_FILTERS[0]
         config.skill_filter = skill_filter
 
+        # Update language filter
+        language_filter = request.form.get(
+            "language_filter",
+            LANGUAGE_FILTERS[0]
+        )
+        if language_filter not in LANGUAGE_FILTERS:
+            logger.warning(
+                f"Invalid language filter received: {language_filter}"
+            )
+            language_filter = LANGUAGE_FILTERS[0]
+        config.language_filter = language_filter
+
+        # Update status filter
+        status_filter = request.form.get(
+            "status_filter",
+            STATUS_FILTERS[0]
+        )
+        if status_filter not in STATUS_FILTERS:
+            logger.warning(
+                f"Invalid status filter received: {status_filter}"
+            )
+            status_filter = STATUS_FILTERS[0]
+        config.status_filter = status_filter
+
         # Update tabs selection
         selected_tabs = request.form.getlist("tabs")
         tabs_dict = {
@@ -825,6 +854,7 @@ def set_filter():
         logger.info(
             f"Filter configuration updated: date={date_filter}, "
             f"products={products_filter}, skill={skill_filter}, "
+            f"language={language_filter}, status={status_filter}, "
             f"tabs={selected_tabs}, institution={institution_name}"
         )
 

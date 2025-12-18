@@ -14,6 +14,8 @@ from constants import (
     DATE_FILTERS,
     PRODUCTS_FILTERS,
     SKILL_FILTERS,
+    LANGUAGE_FILTERS,
+    STATUS_FILTERS,
     TABS,
     DEFAULT_INSTITUTION_NAME,
     DATE_RANGE_MAX_CUSTOM
@@ -26,11 +28,12 @@ logger = logging.getLogger(__name__)
 class TabsConfig:
     """Configuration for which report tabs are enabled."""
 
+    usage_dashboard: bool = True
+    teacher_usage: bool = True
     student_usage: bool = True
-    skill: bool = True
-    assignment: bool = True
-    assessment: bool = True
-    level_up_progress: bool = True
+    student_skills: bool = True
+    assignment_report: bool = True
+    assessment_report: bool = True
 
     @classmethod
     def from_dict(cls, data: Dict[str, bool]) -> "TabsConfig":
@@ -43,11 +46,12 @@ class TabsConfig:
             TabsConfig instance
         """
         return cls(
+            usage_dashboard=data.get("Usage Dashboard", True),
+            teacher_usage=data.get("Teacher Usage", True),
             student_usage=data.get("Student Usage", True),
-            skill=data.get("Skill", True),
-            assignment=data.get("Assignment", True),
-            assessment=data.get("Assessment", True),
-            level_up_progress=data.get("Level Up Progress", True)
+            student_skills=data.get("Student Skills", True),
+            assignment_report=data.get("Assignment Report", True),
+            assessment_report=data.get("Assessment Report", True)
         )
 
     def to_dict(self) -> Dict[str, bool]:
@@ -57,11 +61,12 @@ class TabsConfig:
             Dictionary mapping tab names to enabled status
         """
         return {
+            "Usage Dashboard": self.usage_dashboard,
+            "Teacher Usage": self.teacher_usage,
             "Student Usage": self.student_usage,
-            "Skill": self.skill,
-            "Assignment": self.assessment,
-            "Assessment": self.assessment,
-            "Level Up Progress": self.level_up_progress
+            "Student Skills": self.student_skills,
+            "Assignment Report": self.assignment_report,
+            "Assessment Report": self.assessment_report
         }
 
 
@@ -74,6 +79,8 @@ class ScraperConfig:
     custom_end_date: str = ""
     products_filter: str = "All"
     skill_filter: str = "All"
+    language_filter: str = "All"
+    status_filter: str = "All"
     tabs: TabsConfig = field(default_factory=TabsConfig)
     institution_name: str = DEFAULT_INSTITUTION_NAME
 
@@ -110,6 +117,22 @@ class ScraperConfig:
                 f"using default 'All'"
             )
             self.skill_filter = "All"
+
+        # Validate language filter
+        if self.language_filter not in LANGUAGE_FILTERS:
+            logger.warning(
+                f"Invalid language filter '{self.language_filter}', "
+                f"using default 'All'"
+            )
+            self.language_filter = "All"
+
+        # Validate status filter
+        if self.status_filter not in STATUS_FILTERS:
+            logger.warning(
+                f"Invalid status filter '{self.status_filter}', "
+                f"using default 'All'"
+            )
+            self.status_filter = "All"
 
         # Validate custom dates if Custom filter is selected
         if self.date_filter == "Custom":

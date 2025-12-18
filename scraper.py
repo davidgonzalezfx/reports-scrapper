@@ -9,6 +9,7 @@ import logging
 import os
 import sys
 import time
+import zipfile
 from typing import List, Dict, Optional
 
 import pandas as pd
@@ -36,10 +37,10 @@ from constants import (
     DEFAULT_TIMEOUT, LOGIN_TIMEOUT, DOWNLOAD_TIMEOUT, PAGE_LOAD_WAIT,
     SELECTOR_USERNAME_INPUT, SELECTOR_PASSWORD_INPUT,
     SELECTOR_LOGIN_BUTTON_ENABLED, SELECTOR_LOGIN_BUTTON,
-    SELECTOR_MENU_BUTTON, SELECTOR_CLASSROOM_REPORTS,
+    SELECTOR_ADMIN_REPORTS,
     SELECTOR_CLASSROOM_GREETING,
     SELECTOR_DATE_FILTER, SELECTOR_PRODUCTS_FILTER, SELECTOR_SKILL_FILTER,
-    SELECTOR_FILTER_OPTION,
+    SELECTOR_LANGUAGE_FILTER, SELECTOR_STATUS_FILTER, SELECTOR_FILTER_OPTION,
     SELECTOR_START_DATE_INPUT, SELECTOR_END_DATE_INPUT,
     SELECTOR_REPORT_TAB, SELECTOR_ELLIPSIS_BUTTON, SELECTOR_CSV_DOWNLOAD,
     SELECTOR_NO_RESULTS, TABS, BROWSER_ARGS, BROWSER_USER_AGENT,
@@ -137,7 +138,7 @@ def login(page: Page, username: str, password: str) -> bool:
 
 
 def navigate_to_reports(page: Page) -> bool:
-    """Navigate to the reports section of the platform.
+    """Navigate to the admin reports section of the platform.
 
     Args:
         page: Playwright page object
@@ -149,44 +150,24 @@ def navigate_to_reports(page: Page) -> bool:
         NavigationError: If navigation fails
     """
     try:
-        logger.debug("Looking for Menu button")
-        page.wait_for_selector(SELECTOR_MENU_BUTTON, timeout=DEFAULT_TIMEOUT)
-
-        menu_buttons = page.locator(SELECTOR_MENU_BUTTON)
-        menu_found = False
-
-        for i in range(menu_buttons.count()):
-            if menu_buttons.nth(i).inner_text().strip() == "Menu":
-                logger.debug("Clicking Menu button")
-                menu_buttons.nth(i).click()
-                menu_found = True
-                break
-
-        if not menu_found:
-            logger.error("Menu button not found")
-            return False
-
-        # Wait for menu to open
-        time.sleep(2)
-
-        logger.debug("Looking for Classroom Reports link")
+        logger.debug("Looking for Reports link")
         page.wait_for_selector(
-            SELECTOR_CLASSROOM_REPORTS,
+            SELECTOR_ADMIN_REPORTS,
             timeout=DEFAULT_TIMEOUT
         )
-        page.click(SELECTOR_CLASSROOM_REPORTS)
+        page.click(SELECTOR_ADMIN_REPORTS)
         page.wait_for_load_state("networkidle")
 
         current_url = page.url
-        logger.info(f"Successfully navigated to reports: {current_url}")
+        logger.info(f"Successfully navigated to admin reports: {current_url}")
         time.sleep(PAGE_LOAD_WAIT)
         return True
 
     except PlaywrightTimeoutError as e:
-        logger.error(f"Timeout while navigating to reports: {e}")
+        logger.error(f"Timeout while navigating to admin reports: {e}")
         return False
     except Exception as e:
-        logger.error(f"Error navigating to reports: {e}")
+        logger.error(f"Error navigating to admin reports: {e}")
         return False
 
 
@@ -424,8 +405,145 @@ def select_skill_filter(page: Page, label: str) -> bool:
         return False
 
 
+def select_language_filter(page: Page, label: str) -> bool:
+    """Select a language filter option from the dropdown.
+
+    Args:
+        page: Playwright page object
+        label: Language filter label to select
+
+    Returns:
+        True if selection successful, False otherwise
+    """
+    try:
+        logger.debug(f"Selecting language filter: {label}")
+
+        # Click on the language filter dropdown
+        page.wait_for_selector(SELECTOR_LANGUAGE_FILTER, timeout=DEFAULT_TIMEOUT)
+        page.click(SELECTOR_LANGUAGE_FILTER)
+        time.sleep(1)
+
+        # Wait for options and select
+        page.wait_for_selector(SELECTOR_FILTER_OPTION, timeout=DEFAULT_TIMEOUT)
+        options = page.locator(SELECTOR_FILTER_OPTION)
+
+        for i in range(options.count()):
+            option_text = options.nth(i).inner_text().strip()
+            if option_text == label:
+                options.nth(i).click()
+                logger.info(f"Selected language filter: {label}")
+                time.sleep(2)  # Allow filter to apply
+                return True
+
+        logger.warning(f"Language filter option '{label}' not found")
+        return False
+
+    except PlaywrightTimeoutError as e:
+        logger.error(f"Timeout selecting language filter '{label}': {e}")
+        return False
+    except Exception as e:
+        logger.error(f"Error selecting language filter '{label}': {e}")
+        return False
+
+
+def select_status_filter(page: Page, label: str) -> bool:
+    """Select a status filter option from the dropdown.
+
+    Args:
+        page: Playwright page object
+        label: Status filter label to select
+
+    Returns:
+        True if selection successful, False otherwise
+    """
+    try:
+        logger.debug(f"Selecting status filter: {label}")
+
+        # Click on the status filter dropdown
+        page.wait_for_selector(SELECTOR_STATUS_FILTER, timeout=DEFAULT_TIMEOUT)
+        page.click(SELECTOR_STATUS_FILTER)
+        time.sleep(1)
+
+        # Wait for options and select
+        page.wait_for_selector(SELECTOR_FILTER_OPTION, timeout=DEFAULT_TIMEOUT)
+        options = page.locator(SELECTOR_FILTER_OPTION)
+
+        for i in range(options.count()):
+            option_text = options.nth(i).inner_text().strip()
+            if option_text == label:
+                options.nth(i).click()
+                logger.info(f"Selected status filter: {label}")
+                time.sleep(2)  # Allow filter to apply
+                return True
+
+        logger.warning(f"Status filter option '{label}' not found")
+        return False
+
+    except PlaywrightTimeoutError as e:
+        logger.error(f"Timeout selecting status filter '{label}': {e}")
+        return False
+    except Exception as e:
+        logger.error(f"Error selecting status filter '{label}': {e}")
+        return False
+
+
+def extract_csv_from_zip(zip_path: str, reports_dir: str, classroom_name: str) -> List[str]:
+    """Extract CSV files from ZIP and return paths to all extracted CSVs.
+
+    Args:
+        zip_path: Path to the downloaded ZIP file
+        reports_dir: Directory where reports are stored
+        classroom_name: Classroom name for filename
+
+    Returns:
+        List of paths to extracted CSV files, or empty list if extraction failed
+    """
+    try:
+        logger.debug(f"Extracting CSV from ZIP: {zip_path}")
+
+        # Create extraction directory
+        extract_dir = os.path.join(reports_dir, f"{classroom_name}_extracted")
+        os.makedirs(extract_dir, exist_ok=True)
+
+        extracted_csv_files = []
+
+        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+            # Extract all files
+            zip_ref.extractall(extract_dir)
+
+            # Find CSV files in the extracted content
+            for root, dirs, files in os.walk(extract_dir):
+                for file in files:
+                    if file.lower().endswith('.csv'):
+                        extracted_csv_path = os.path.join(root, file)
+                        # Rename to include classroom name
+                        new_csv_name = f"{classroom_name}_{file}"
+                        new_csv_path = os.path.join(reports_dir, new_csv_name)
+                        os.rename(extracted_csv_path, new_csv_path)
+                        extracted_csv_files.append(new_csv_path)
+                        logger.info(f"Extracted CSV: {new_csv_name}")
+
+        # Clean up extraction directory if empty
+        try:
+            if os.listdir(extract_dir):
+                os.rmdir(extract_dir)
+        except OSError:
+            pass  # Directory not empty, leave it
+
+        # Remove the original ZIP file
+        os.remove(zip_path)
+        logger.debug(f"Removed original ZIP file: {zip_path}")
+
+        # Return all extracted CSV files
+        return extracted_csv_files if extracted_csv_files else []
+
+    except Exception as e:
+        logger.error(f"Error extracting CSV from ZIP: {e}")
+        return None
+
+
 def download_report(page: Page, username: str, classroom_name: str) -> bool:
-    """Download the current report as CSV and convert to XLSX.
+    """Download the current report as CSV/ZIP and convert to XLSX.
 
     Args:
         page: Playwright page object
@@ -444,6 +562,9 @@ def download_report(page: Page, username: str, classroom_name: str) -> bool:
 
         logger.debug("Attempting to download report")
 
+        # wait tab to load its data
+        page.wait_for_load_state("networkidle")
+
         # Click the options (ellipsis) button
         page.wait_for_selector(
             SELECTOR_ELLIPSIS_BUTTON,
@@ -452,8 +573,9 @@ def download_report(page: Page, username: str, classroom_name: str) -> bool:
         page.click(SELECTOR_ELLIPSIS_BUTTON)
         time.sleep(1)
 
-        # Download CSV
-        logger.debug("Initiating CSV download")
+        # Download file
+        logger.debug("Initiating download")
+
         with page.expect_download(timeout=DOWNLOAD_TIMEOUT) as download_info:
             page.click(SELECTOR_CSV_DOWNLOAD)
 
@@ -464,16 +586,36 @@ def download_report(page: Page, username: str, classroom_name: str) -> bool:
         classroom_filename = f"{classroom_name}_{original_filename}"
 
         reports_dir = get_reports_directory(REPORTS_DIR)
-        csv_path = reports_dir / classroom_filename
+        file_path = reports_dir / classroom_filename
 
-        download.save_as(str(csv_path))
-        logger.info(f"Downloaded CSV report: {classroom_filename}")
+        download.save_as(str(file_path))
 
-        # Convert CSV to XLSX
-        if convert_csv_to_xlsx(str(csv_path)):
-            return True
+        # Determine file type from extension
+        file_extension = original_filename.lower().split('.')[-1] if '.' in original_filename else original_filename[-3:]
+        file_type = file_extension.upper()
+        logger.info(f"Downloaded {file_type} report: {classroom_filename}")
+
+        # Handle ZIP extraction
+        if file_extension == 'zip':
+            extracted_files = extract_csv_from_zip(str(file_path), str(reports_dir), classroom_name)
+            if not extracted_files or len(extracted_files) == 0:
+                logger.error("Failed to extract CSV from ZIP file")
+                return False
+
+            # Convert all extracted CSV files to XLSX
+            successful_conversions = 0
+            for csv_path in extracted_files:
+                if convert_csv_to_xlsx(csv_path):
+                    successful_conversions += 1
+                    logger.debug(f"Successfully converted {os.path.basename(csv_path)} to XLSX")
+                else:
+                    logger.warning(f"Failed to convert {os.path.basename(csv_path)} to XLSX")
+
+            logger.info(f"Converted {successful_conversions}/{len(extracted_files)} CSV files to XLSX")
+            return successful_conversions > 0
         else:
-            return False
+            # Convert CSV to XLSX
+            return convert_csv_to_xlsx(str(file_path))
 
     except PlaywrightTimeoutError as e:
         logger.error(f"Timeout during report download: {e}")
@@ -581,21 +723,27 @@ def process_user_reports(
 
         try:
             if switch_tab(page, tab_name):
-                # Apply skill filter for Skill tab
-                if tab_name == "Skill":
+                # Apply skill filter for Student Skills tab
+                if tab_name == "Student Skills":
                     skill_filter = config.get("skill_filter", "All")
                     if not select_skill_filter(page, skill_filter):
                         logger.warning(
                             f"Failed to apply skill filter '{skill_filter}'"
                         )
 
-                # Special handling for Level Up Progress
-                if tab_name == "Level Up Progress":
-                    products_filter = config.get("products_filter", "All")
-                    if products_filter == "All":
-                        select_products_filter(page, "Raz-Plus")
-                    else:
-                        select_products_filter(page, products_filter)
+                # Apply language and status filters for Teacher Usage tab
+                if tab_name == "Teacher Usage":
+                    language_filter = config.get("language_filter", "All")
+                    if not select_language_filter(page, language_filter):
+                        logger.warning(
+                            f"Failed to apply language filter '{language_filter}'"
+                        )
+
+                    status_filter = config.get("status_filter", "All")
+                    if not select_status_filter(page, status_filter):
+                        logger.warning(
+                            f"Failed to apply status filter '{status_filter}'"
+                        )
 
                 if download_report(page, username, classroom_name):
                     successful_downloads += 1
@@ -630,7 +778,7 @@ def login_and_download_reports_for_user(
         with sync_playwright() as p:
             # Launch browser
             browser = p.chromium.launch(
-                headless=True,
+                headless=False,
                 args=BROWSER_ARGS
             )
 
@@ -647,11 +795,6 @@ def login_and_download_reports_for_user(
                         error="Failed to login - please check credentials",
                         error_type="login"
                     )
-
-                # Navigate back to Raz-Plus
-                logger.debug("Navigating back to Raz-Plus main page")
-                page.goto(RAZ_PLUS_URL)
-                page.wait_for_load_state("networkidle")
 
                 # Extract classroom name from homepage
                 classroom_name = extract_classroom_name(page)

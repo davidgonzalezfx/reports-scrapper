@@ -857,3 +857,439 @@ playwright._impl._errors.TargetClosedError: Target page, context or browser has 
 2025-12-05 09:33:24,675 - utils - INFO - Successfully created combined report: Combined_All_Reports_20251205_093324.xlsx
 2025-12-05 09:33:24,675 - utils - INFO - Combined 2 report type sheets into single file
 2025-12-05 09:33:24,675 - __main__ - INFO - Successfully created combined reports: /Users/david.gonzalez01/Personal/reports-scrapper/reports/Combined_All_Reports_20251205_093324.xlsx
+2025-12-18 15:01:06,144 - config - WARNING - Invalid language filter 'Invalid Language', using default 'All'
+2025-12-18 15:01:06,147 - config - WARNING - Invalid status filter 'Invalid Status', using default 'All'
+2025-12-18 15:33:25,223 - scraper - INFO - Starting scraper execution
+2025-12-18 15:33:25,224 - scraper - INFO - Loaded 1 users from users.json
+2025-12-18 15:33:25,224 - scraper - INFO - Found 1 users to process
+2025-12-18 15:33:25,224 - scraper - INFO - Processing user 1/1: AnaCDemo2
+2025-12-18 15:33:25,224 - scraper - INFO - Starting report download process for user: AnaCDemo2
+2025-12-18 15:33:29,562 - scraper - ERROR - Unexpected error during report download for AnaCDemo2: BrowserType.launch: Executable doesn't exist at /Users/david.gonzalez01/Personal/reports-scrapper/playwright-browsers/chromium-1200/chrome-mac-x64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or updated.       ║
+║ Please run the following command to download new browsers: ║
+║                                                            ║
+║     playwright install                                     ║
+║                                                            ║
+║ <3 Playwright Team                                         ║
+╚════════════════════════════════════════════════════════════╝
+2025-12-18 15:33:29,563 - scraper - ERROR - Failed to process user: AnaCDemo2 - Unexpected error: BrowserType.launch: Executable doesn't exist at /Users/david.gonzalez01/Personal/reports-scrapper/playwright-browsers/chromium-1200/chrome-mac-x64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or updated.       ║
+║ Please run the following command to download new browsers: ║
+║                                                            ║
+║     playwright install                                     ║
+║                                                            ║
+║ <3 Playwright Team                                         ║
+╚════════════════════════════════════════════════════════════╝
+2025-12-18 15:33:29,563 - scraper - INFO - Scraper completed: 0/1 users processed successfully
+2025-12-18 15:33:29,563 - scraper - INFO - Error summary: Unexpected error for: AnaCDemo2
+2025-12-18 15:33:29,563 - __main__ - ERROR - Scraper failed - no users processed successfully
+2025-12-18 15:33:29,563 - __main__ - INFO - Added notification: error - Unexpected error for: AnaCDemo2
+2025-12-18 15:33:29,563 - __main__ - INFO - Scraper process finished
+2025-12-18 15:33:31,150 - config - INFO - Configuration loaded successfully
+2025-12-18 15:33:31,151 - __main__ - INFO - Loaded 1 users successfully
+2025-12-18 15:35:11,204 - scraper - INFO - Starting scraper execution
+2025-12-18 15:35:11,205 - scraper - INFO - Loaded 1 users from users.json
+2025-12-18 15:35:11,205 - scraper - INFO - Found 1 users to process
+2025-12-18 15:35:11,205 - scraper - INFO - Processing user 1/1: AnaCDemo2
+2025-12-18 15:35:11,205 - scraper - INFO - Starting report download process for user: AnaCDemo2
+2025-12-18 15:35:17,355 - scraper - INFO - Attempting login for user: AnaCDemo2
+2025-12-18 15:35:26,430 - scraper - INFO - Login successful for user: AnaCDemo2
+2025-12-18 15:35:32,468 - scraper - WARNING - Could not find classroom greeting element
+2025-12-18 15:35:32,468 - scraper - WARNING - Could not extract classroom name for AnaCDemo2, using username instead
+2025-12-18 15:37:47,378 - __main__ - INFO - Starting scraper execution
+2025-12-18 15:37:47,379 - __main__ - INFO - Loaded 1 users from users.json
+2025-12-18 15:37:47,379 - __main__ - INFO - Found 1 users to process
+2025-12-18 15:37:47,379 - __main__ - INFO - Processing user 1/1: AnaCDemo2
+2025-12-18 15:37:47,379 - __main__ - INFO - Starting report download process for user: AnaCDemo2
+2025-12-18 15:37:49,607 - __main__ - INFO - Attempting login for user: AnaCDemo2
+2025-12-18 15:37:57,440 - __main__ - INFO - Login successful for user: AnaCDemo2
+2025-12-18 15:37:57,457 - __main__ - WARNING - Could not find classroom greeting element
+2025-12-18 15:37:57,457 - __main__ - WARNING - Could not extract classroom name for AnaCDemo2, using username instead
+2025-12-18 15:38:02,948 - __main__ - INFO - Successfully navigated to admin reports: https://accounts.learninga-z.com/accountsweb/account/reports.do#!/usage?subject=reading
+2025-12-18 15:38:05,953 - config - INFO - Configuration loaded successfully
+2025-12-18 15:38:05,953 - __main__ - INFO - Using date filter: Last 90 Days
+2025-12-18 15:38:05,953 - __main__ - INFO - Using products filter: All
+2025-12-18 15:38:07,107 - __main__ - INFO - Selected products filter: All
+2025-12-18 15:38:10,372 - __main__ - INFO - Selected date filter: Last 90 Days
+2025-12-18 15:38:12,377 - __main__ - INFO - Processing Usage Dashboard report
+2025-12-18 15:38:12,383 - __main__ - ERROR - Tab 'Usage Dashboard' not found. Available tabs: []
+2025-12-18 15:38:12,383 - __main__ - WARNING - Failed to switch to Usage Dashboard tab
+2025-12-18 15:38:12,383 - __main__ - INFO - Skipping Teacher Usage report (not selected)
+2025-12-18 15:38:12,383 - __main__ - INFO - Skipping Student Usage report (not selected)
+2025-12-18 15:38:12,383 - __main__ - INFO - Skipping Student Skills report (not selected)
+2025-12-18 15:38:12,383 - __main__ - INFO - Skipping Assignment Report report (not selected)
+2025-12-18 15:38:12,384 - __main__ - INFO - Skipping Assessment Report report (not selected)
+2025-12-18 15:38:12,384 - __main__ - INFO - Completed report download for AnaCDemo2: 0/1 successful
+2025-12-18 15:38:12,588 - __main__ - ERROR - Failed to process user: AnaCDemo2 - No reports could be downloaded (0/1 successful)
+2025-12-18 15:38:12,589 - __main__ - INFO - Scraper completed: 0/1 users processed successfully
+2025-12-18 15:38:12,589 - __main__ - INFO - Error summary: Download error for: AnaCDemo2
+2025-12-18 15:39:40,804 - __main__ - INFO - Starting scraper execution
+2025-12-18 15:39:40,805 - __main__ - INFO - Loaded 1 users from users.json
+2025-12-18 15:39:40,805 - __main__ - INFO - Found 1 users to process
+2025-12-18 15:39:40,805 - __main__ - INFO - Processing user 1/1: AnaCDemo2
+2025-12-18 15:39:40,805 - __main__ - INFO - Starting report download process for user: AnaCDemo2
+2025-12-18 15:39:43,215 - __main__ - INFO - Attempting login for user: AnaCDemo2
+2025-12-18 15:39:50,642 - __main__ - INFO - Login successful for user: AnaCDemo2
+2025-12-18 15:39:50,659 - __main__ - WARNING - Could not find classroom greeting element
+2025-12-18 15:39:50,659 - __main__ - WARNING - Could not extract classroom name for AnaCDemo2, using username instead
+2025-12-18 15:39:55,914 - __main__ - INFO - Successfully navigated to admin reports: https://accounts.learninga-z.com/accountsweb/account/reports.do#!/usage?subject=reading
+2025-12-18 15:39:58,920 - config - INFO - Configuration loaded successfully
+2025-12-18 15:39:58,921 - __main__ - INFO - Using date filter: Last 90 Days
+2025-12-18 15:39:58,921 - __main__ - INFO - Using products filter: All
+2025-12-18 15:40:00,077 - __main__ - INFO - Selected products filter: All
+2025-12-18 15:40:03,341 - __main__ - INFO - Selected date filter: Last 90 Days
+2025-12-18 15:40:05,346 - __main__ - INFO - Processing Usage Dashboard report
+2025-12-18 15:40:06,843 - __main__ - ERROR - Tab 'Usage Dashboard' not found. Available tabs: []
+2025-12-18 15:40:06,843 - __main__ - WARNING - Failed to switch to Usage Dashboard tab
+2025-12-18 15:40:06,843 - __main__ - INFO - Skipping Teacher Usage report (not selected)
+2025-12-18 15:40:06,844 - __main__ - INFO - Skipping Student Usage report (not selected)
+2025-12-18 15:40:06,844 - __main__ - INFO - Skipping Student Skills report (not selected)
+2025-12-18 15:40:06,844 - __main__ - INFO - Skipping Assignment Report report (not selected)
+2025-12-18 15:40:06,844 - __main__ - INFO - Skipping Assessment Report report (not selected)
+2025-12-18 15:40:06,844 - __main__ - INFO - Completed report download for AnaCDemo2: 0/1 successful
+2025-12-18 15:40:07,041 - __main__ - ERROR - Failed to process user: AnaCDemo2 - No reports could be downloaded (0/1 successful)
+2025-12-18 15:40:07,041 - __main__ - INFO - Scraper completed: 0/1 users processed successfully
+2025-12-18 15:40:07,041 - __main__ - INFO - Error summary: Download error for: AnaCDemo2
+2025-12-18 15:41:20,588 - __main__ - INFO - Starting scraper execution
+2025-12-18 15:41:20,589 - __main__ - INFO - Loaded 1 users from users.json
+2025-12-18 15:41:20,589 - __main__ - INFO - Found 1 users to process
+2025-12-18 15:41:20,590 - __main__ - INFO - Processing user 1/1: AnaCDemo2
+2025-12-18 15:41:20,590 - __main__ - INFO - Starting report download process for user: AnaCDemo2
+2025-12-18 15:41:24,388 - __main__ - INFO - Attempting login for user: AnaCDemo2
+2025-12-18 15:41:35,244 - __main__ - INFO - Login successful for user: AnaCDemo2
+2025-12-18 15:41:35,261 - __main__ - WARNING - Could not find classroom greeting element
+2025-12-18 15:41:35,262 - __main__ - WARNING - Could not extract classroom name for AnaCDemo2, using username instead
+2025-12-18 15:41:41,312 - __main__ - INFO - Successfully navigated to admin reports: https://accounts.learninga-z.com/accountsweb/account/reports.do#!/usage?subject=reading
+2025-12-18 15:41:44,320 - config - INFO - Configuration loaded successfully
+2025-12-18 15:41:44,320 - __main__ - INFO - Using date filter: Last 90 Days
+2025-12-18 15:41:44,320 - __main__ - INFO - Using products filter: All
+2025-12-18 15:41:45,457 - __main__ - INFO - Selected products filter: All
+2025-12-18 15:41:48,725 - __main__ - INFO - Selected date filter: Last 90 Days
+2025-12-18 15:41:50,726 - __main__ - INFO - Processing Usage Dashboard report
+2025-12-18 15:44:11,528 - __main__ - ERROR - Tab 'Usage Dashboard' not found. Available tabs: []
+2025-12-18 15:44:11,528 - __main__ - WARNING - Failed to switch to Usage Dashboard tab
+2025-12-18 15:44:11,528 - __main__ - INFO - Skipping Teacher Usage report (not selected)
+2025-12-18 15:44:11,528 - __main__ - INFO - Skipping Student Usage report (not selected)
+2025-12-18 15:44:11,528 - __main__ - INFO - Skipping Student Skills report (not selected)
+2025-12-18 15:44:11,529 - __main__ - INFO - Skipping Assignment Report report (not selected)
+2025-12-18 15:44:11,529 - __main__ - INFO - Skipping Assessment Report report (not selected)
+2025-12-18 15:44:11,529 - __main__ - INFO - Completed report download for AnaCDemo2: 0/1 successful
+2025-12-18 15:44:11,839 - __main__ - ERROR - Failed to process user: AnaCDemo2 - No reports could be downloaded (0/1 successful)
+2025-12-18 15:44:11,839 - __main__ - INFO - Scraper completed: 0/1 users processed successfully
+2025-12-18 15:44:11,839 - __main__ - INFO - Error summary: Download error for: AnaCDemo2
+2025-12-18 15:47:27,495 - __main__ - INFO - Starting scraper execution
+2025-12-18 15:47:27,495 - __main__ - INFO - Loaded 1 users from users.json
+2025-12-18 15:47:27,495 - __main__ - INFO - Found 1 users to process
+2025-12-18 15:47:27,496 - __main__ - INFO - Processing user 1/1: AnaCDemo2
+2025-12-18 15:47:27,496 - __main__ - INFO - Starting report download process for user: AnaCDemo2
+2025-12-18 15:47:30,733 - __main__ - INFO - Attempting login for user: AnaCDemo2
+2025-12-18 15:47:40,750 - __main__ - INFO - Login successful for user: AnaCDemo2
+2025-12-18 15:47:40,767 - __main__ - WARNING - Could not find classroom greeting element
+2025-12-18 15:47:40,767 - __main__ - WARNING - Could not extract classroom name for AnaCDemo2, using username instead
+2025-12-18 15:47:46,371 - __main__ - INFO - Successfully navigated to admin reports: https://accounts.learninga-z.com/accountsweb/account/reports.do#!/usage?subject=reading
+2025-12-18 15:47:49,379 - config - INFO - Configuration loaded successfully
+2025-12-18 15:47:49,379 - __main__ - INFO - Using date filter: Last 90 Days
+2025-12-18 15:47:49,379 - __main__ - INFO - Using products filter: All
+2025-12-18 15:47:50,519 - __main__ - INFO - Selected products filter: All
+2025-12-18 15:47:53,801 - __main__ - INFO - Selected date filter: Last 90 Days
+2025-12-18 15:47:55,802 - __main__ - INFO - Processing Usage Dashboard report
+2025-12-18 15:47:55,809 - __main__ - ERROR - Tab 'Usage Dashboard' not found. Available tabs: []
+2025-12-18 15:47:55,809 - __main__ - WARNING - Failed to switch to Usage Dashboard tab
+2025-12-18 15:47:55,809 - __main__ - INFO - Skipping Teacher Usage report (not selected)
+2025-12-18 15:47:55,809 - __main__ - INFO - Skipping Student Usage report (not selected)
+2025-12-18 15:47:55,809 - __main__ - INFO - Skipping Student Skills report (not selected)
+2025-12-18 15:47:55,809 - __main__ - INFO - Skipping Assignment Report report (not selected)
+2025-12-18 15:47:55,809 - __main__ - INFO - Skipping Assessment Report report (not selected)
+2025-12-18 15:47:55,810 - __main__ - INFO - Completed report download for AnaCDemo2: 0/1 successful
+2025-12-18 15:47:56,130 - __main__ - ERROR - Failed to process user: AnaCDemo2 - No reports could be downloaded (0/1 successful)
+2025-12-18 15:47:56,130 - __main__ - INFO - Scraper completed: 0/1 users processed successfully
+2025-12-18 15:47:56,130 - __main__ - INFO - Error summary: Download error for: AnaCDemo2
+2025-12-18 15:48:15,991 - __main__ - INFO - Starting scraper execution
+2025-12-18 15:48:15,991 - __main__ - INFO - Loaded 1 users from users.json
+2025-12-18 15:48:15,992 - __main__ - INFO - Found 1 users to process
+2025-12-18 15:48:15,992 - __main__ - INFO - Processing user 1/1: AnaCDemo2
+2025-12-18 15:48:15,992 - __main__ - INFO - Starting report download process for user: AnaCDemo2
+2025-12-18 15:48:19,085 - __main__ - INFO - Attempting login for user: AnaCDemo2
+2025-12-18 15:48:27,809 - __main__ - INFO - Login successful for user: AnaCDemo2
+2025-12-18 15:48:27,825 - __main__ - WARNING - Could not find classroom greeting element
+2025-12-18 15:48:27,825 - __main__ - WARNING - Could not extract classroom name for AnaCDemo2, using username instead
+2025-12-18 15:48:33,323 - __main__ - INFO - Successfully navigated to admin reports: https://accounts.learninga-z.com/accountsweb/account/reports.do#!/usage?subject=reading
+2025-12-18 15:48:36,329 - config - INFO - Configuration loaded successfully
+2025-12-18 15:48:36,330 - __main__ - INFO - Using date filter: Last 90 Days
+2025-12-18 15:48:36,330 - __main__ - INFO - Using products filter: All
+2025-12-18 15:48:37,468 - __main__ - INFO - Selected products filter: All
+2025-12-18 15:48:40,735 - __main__ - INFO - Selected date filter: Last 90 Days
+2025-12-18 15:48:42,737 - __main__ - INFO - Processing Usage Dashboard report
+2025-12-18 15:52:20,882 - __main__ - INFO - Scraper interrupted by user
+2025-12-18 15:52:20,908 - asyncio - ERROR - Future exception was never retrieved
+future: <Future finished exception=TargetClosedError('Target page, context or browser has been closed')>
+playwright._impl._errors.TargetClosedError: Target page, context or browser has been closed
+2025-12-18 15:52:20,909 - asyncio - ERROR - Future exception was never retrieved
+future: <Future finished exception=TargetClosedError('Target page, context or browser has been closed')>
+playwright._impl._errors.TargetClosedError: Target page, context or browser has been closed
+2025-12-18 15:52:42,864 - __main__ - INFO - Starting scraper execution
+2025-12-18 15:52:42,865 - __main__ - INFO - Loaded 1 users from users.json
+2025-12-18 15:52:42,865 - __main__ - INFO - Found 1 users to process
+2025-12-18 15:52:42,865 - __main__ - INFO - Processing user 1/1: AnaCDemo2
+2025-12-18 15:52:42,865 - __main__ - INFO - Starting report download process for user: AnaCDemo2
+2025-12-18 15:52:46,310 - __main__ - INFO - Attempting login for user: AnaCDemo2
+2025-12-18 15:52:56,331 - __main__ - INFO - Login successful for user: AnaCDemo2
+2025-12-18 15:52:56,348 - __main__ - WARNING - Could not find classroom greeting element
+2025-12-18 15:52:56,349 - __main__ - WARNING - Could not extract classroom name for AnaCDemo2, using username instead
+2025-12-18 15:53:01,605 - __main__ - INFO - Successfully navigated to admin reports: https://accounts.learninga-z.com/accountsweb/account/reports.do#!/usage?subject=reading
+2025-12-18 15:53:04,614 - config - INFO - Configuration loaded successfully
+2025-12-18 15:53:04,614 - __main__ - INFO - Using date filter: Last 90 Days
+2025-12-18 15:53:04,614 - __main__ - INFO - Using products filter: All
+2025-12-18 15:53:05,759 - __main__ - INFO - Selected products filter: All
+2025-12-18 15:53:09,045 - __main__ - INFO - Selected date filter: Last 90 Days
+2025-12-18 15:53:11,049 - __main__ - INFO - Processing Usage Dashboard report
+2025-12-18 15:57:21,636 - __main__ - ERROR - Error switching to tab 'Usage Dashboard': Locator.click: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator("a[ui-sref*=\"adminReports\"]").first
+    - locator resolved to <a ui-sref-active="active" class="ng-binding active" ui-sref="adminReports.usage" href="#!/usage?subject=reading&date=%7B%22keyword%22%3A%22last90%22%7D">Usage Dashboard</a>
+  - attempting click action
+    - waiting for element to be visible, enabled and stable
+    - element is visible, enabled and stable
+    - scrolling into view if needed
+    - done scrolling
+    - performing click action
+
+2025-12-18 15:57:21,638 - __main__ - WARNING - Failed to switch to Usage Dashboard tab
+2025-12-18 15:57:21,638 - __main__ - INFO - Skipping Teacher Usage report (not selected)
+2025-12-18 15:57:21,638 - __main__ - INFO - Skipping Student Usage report (not selected)
+2025-12-18 15:57:21,638 - __main__ - INFO - Skipping Student Skills report (not selected)
+2025-12-18 15:57:21,638 - __main__ - INFO - Skipping Assignment Report report (not selected)
+2025-12-18 15:57:21,659 - __main__ - INFO - Skipping Assessment Report report (not selected)
+2025-12-18 15:57:21,659 - __main__ - INFO - Completed report download for AnaCDemo2: 0/1 successful
+2025-12-18 15:57:22,194 - __main__ - ERROR - Failed to process user: AnaCDemo2 - No reports could be downloaded (0/1 successful)
+2025-12-18 15:57:22,194 - __main__ - INFO - Scraper completed: 0/1 users processed successfully
+2025-12-18 15:57:22,194 - __main__ - INFO - Error summary: Download error for: AnaCDemo2
+2025-12-18 15:57:56,295 - __main__ - INFO - Starting scraper execution
+2025-12-18 15:57:56,296 - __main__ - INFO - Loaded 1 users from users.json
+2025-12-18 15:57:56,296 - __main__ - INFO - Found 1 users to process
+2025-12-18 15:57:56,296 - __main__ - INFO - Processing user 1/1: AnaCDemo2
+2025-12-18 15:57:56,296 - __main__ - INFO - Starting report download process for user: AnaCDemo2
+2025-12-18 15:57:59,779 - __main__ - INFO - Attempting login for user: AnaCDemo2
+2025-12-18 15:58:09,870 - __main__ - INFO - Login successful for user: AnaCDemo2
+2025-12-18 15:58:09,888 - __main__ - WARNING - Could not find classroom greeting element
+2025-12-18 15:58:09,888 - __main__ - WARNING - Could not extract classroom name for AnaCDemo2, using username instead
+2025-12-18 15:58:15,153 - __main__ - INFO - Successfully navigated to admin reports: https://accounts.learninga-z.com/accountsweb/account/reports.do#!/usage?subject=reading
+2025-12-18 15:58:18,158 - config - INFO - Configuration loaded successfully
+2025-12-18 15:58:18,159 - __main__ - INFO - Using date filter: Last 90 Days
+2025-12-18 15:58:18,159 - __main__ - INFO - Using products filter: All
+2025-12-18 15:58:19,303 - __main__ - INFO - Selected products filter: All
+2025-12-18 15:58:22,564 - __main__ - INFO - Selected date filter: Last 90 Days
+2025-12-18 15:58:24,566 - __main__ - INFO - Processing Usage Dashboard report
+2025-12-18 16:00:18,636 - __main__ - INFO - Successfully switched to tab: Usage Dashboard
+2025-12-18 16:01:18,868 - __main__ - ERROR - Timeout during report download: Page.click: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator("#report-menu-options-0-csv-report-download-btn")
+
+2025-12-18 16:01:18,868 - __main__ - WARNING - Failed to download Usage Dashboard report
+2025-12-18 16:01:18,868 - __main__ - INFO - Skipping Teacher Usage report (not selected)
+2025-12-18 16:01:18,868 - __main__ - INFO - Skipping Student Usage report (not selected)
+2025-12-18 16:01:18,868 - __main__ - INFO - Skipping Student Skills report (not selected)
+2025-12-18 16:01:18,868 - __main__ - INFO - Skipping Assignment Report report (not selected)
+2025-12-18 16:01:18,868 - __main__ - INFO - Skipping Assessment Report report (not selected)
+2025-12-18 16:01:18,868 - __main__ - INFO - Completed report download for AnaCDemo2: 0/1 successful
+2025-12-18 16:01:19,153 - __main__ - ERROR - Failed to process user: AnaCDemo2 - No reports could be downloaded (0/1 successful)
+2025-12-18 16:01:19,153 - __main__ - INFO - Scraper completed: 0/1 users processed successfully
+2025-12-18 16:01:19,153 - __main__ - INFO - Error summary: Download error for: AnaCDemo2
+2025-12-18 16:01:55,346 - __main__ - INFO - Starting scraper execution
+2025-12-18 16:01:55,347 - __main__ - INFO - Loaded 1 users from users.json
+2025-12-18 16:01:55,347 - __main__ - INFO - Found 1 users to process
+2025-12-18 16:01:55,347 - __main__ - INFO - Processing user 1/1: AnaCDemo2
+2025-12-18 16:01:55,347 - __main__ - INFO - Starting report download process for user: AnaCDemo2
+2025-12-18 16:01:58,742 - __main__ - INFO - Attempting login for user: AnaCDemo2
+2025-12-18 16:02:18,859 - __main__ - INFO - Login successful for user: AnaCDemo2
+2025-12-18 16:02:18,876 - __main__ - WARNING - Could not find classroom greeting element
+2025-12-18 16:02:18,876 - __main__ - WARNING - Could not extract classroom name for AnaCDemo2, using username instead
+2025-12-18 16:02:24,279 - __main__ - INFO - Successfully navigated to admin reports: https://accounts.learninga-z.com/accountsweb/account/reports.do#!/usage?subject=reading
+2025-12-18 16:02:27,285 - config - INFO - Configuration loaded successfully
+2025-12-18 16:02:27,285 - __main__ - INFO - Using date filter: Last 90 Days
+2025-12-18 16:02:27,285 - __main__ - INFO - Using products filter: All
+2025-12-18 16:02:28,431 - __main__ - INFO - Selected products filter: All
+2025-12-18 16:02:31,700 - __main__ - INFO - Selected date filter: Last 90 Days
+2025-12-18 16:02:33,701 - __main__ - INFO - Processing Usage Dashboard report
+2025-12-18 16:02:37,770 - __main__ - INFO - Successfully switched to tab: Usage Dashboard
+2025-12-18 16:04:40,311 - __main__ - INFO - Scraper interrupted by user
+2025-12-18 16:04:40,354 - asyncio - ERROR - Future exception was never retrieved
+future: <Future finished exception=TargetClosedError('Target page, context or browser has been closed')>
+playwright._impl._errors.TargetClosedError: Target page, context or browser has been closed
+2025-12-18 16:04:40,355 - asyncio - ERROR - Future exception was never retrieved
+future: <Future finished exception=TargetClosedError('Target page, context or browser has been closed')>
+playwright._impl._errors.TargetClosedError: Target page, context or browser has been closed
+2025-12-18 16:05:55,317 - __main__ - INFO - Starting scraper execution
+2025-12-18 16:05:55,318 - __main__ - INFO - Loaded 1 users from users.json
+2025-12-18 16:05:55,318 - __main__ - INFO - Found 1 users to process
+2025-12-18 16:05:55,318 - __main__ - INFO - Processing user 1/1: AnaCDemo2
+2025-12-18 16:05:55,318 - __main__ - INFO - Starting report download process for user: AnaCDemo2
+2025-12-18 16:05:57,513 - __main__ - INFO - Attempting login for user: AnaCDemo2
+2025-12-18 16:06:05,911 - __main__ - INFO - Login successful for user: AnaCDemo2
+2025-12-18 16:06:05,928 - __main__ - WARNING - Could not find classroom greeting element
+2025-12-18 16:06:05,928 - __main__ - WARNING - Could not extract classroom name for AnaCDemo2, using username instead
+2025-12-18 16:06:11,282 - __main__ - INFO - Successfully navigated to admin reports: https://accounts.learninga-z.com/accountsweb/account/reports.do#!/usage?subject=reading
+2025-12-18 16:06:14,290 - config - INFO - Configuration loaded successfully
+2025-12-18 16:06:14,290 - __main__ - INFO - Using date filter: Last 90 Days
+2025-12-18 16:06:14,291 - __main__ - INFO - Using products filter: All
+2025-12-18 16:06:15,442 - __main__ - INFO - Selected products filter: All
+2025-12-18 16:06:18,704 - __main__ - INFO - Selected date filter: Last 90 Days
+2025-12-18 16:06:20,709 - __main__ - INFO - Processing Usage Dashboard report
+2025-12-18 16:06:24,642 - __main__ - INFO - Successfully switched to tab: Usage Dashboard
+2025-12-18 16:06:26,922 - __main__ - INFO - Downloaded CSV report: AnaCDemo2_Usage Dashboard_All_All_2025-09-19_2025-12-17.zip
+2025-12-18 16:06:26,932 - utils - ERROR - Failed to convert reports/AnaCDemo2_Usage Dashboard_All_All_2025-09-19_2025-12-17.zip to XLSX: Multiple files found in ZIP file. Only one file per ZIP: ['Teacher Status_All_All_2025-09-19_2025-12-17.csv', 'Teacher Usage_All_All_2025-09-19_2025-12-17.csv', 'Student Status_All_All_2025-09-19_2025-12-17.csv', 'Student Usage_All_All_2025-09-19_2025-12-17.csv']
+2025-12-18 16:06:26,932 - __main__ - WARNING - Failed to download Usage Dashboard report
+2025-12-18 16:06:26,932 - __main__ - INFO - Skipping Teacher Usage report (not selected)
+2025-12-18 16:06:26,932 - __main__ - INFO - Skipping Student Usage report (not selected)
+2025-12-18 16:06:26,933 - __main__ - INFO - Skipping Student Skills report (not selected)
+2025-12-18 16:06:26,933 - __main__ - INFO - Skipping Assignment Report report (not selected)
+2025-12-18 16:06:26,933 - __main__ - INFO - Skipping Assessment Report report (not selected)
+2025-12-18 16:06:26,933 - __main__ - INFO - Completed report download for AnaCDemo2: 0/1 successful
+2025-12-18 16:06:27,140 - __main__ - ERROR - Failed to process user: AnaCDemo2 - No reports could be downloaded (0/1 successful)
+2025-12-18 16:06:27,140 - __main__ - INFO - Scraper completed: 0/1 users processed successfully
+2025-12-18 16:06:27,140 - __main__ - INFO - Error summary: Download error for: AnaCDemo2
+2025-12-18 16:19:25,732 - __main__ - INFO - Starting scraper execution
+2025-12-18 16:19:25,734 - __main__ - INFO - Loaded 1 users from users.json
+2025-12-18 16:19:25,734 - __main__ - INFO - Found 1 users to process
+2025-12-18 16:19:25,734 - __main__ - INFO - Processing user 1/1: AnaCDemo2
+2025-12-18 16:19:25,734 - __main__ - INFO - Starting report download process for user: AnaCDemo2
+2025-12-18 16:19:28,710 - __main__ - INFO - Attempting login for user: AnaCDemo2
+2025-12-18 16:19:36,946 - __main__ - INFO - Login successful for user: AnaCDemo2
+2025-12-18 16:19:36,964 - __main__ - WARNING - Could not find classroom greeting element
+2025-12-18 16:19:36,964 - __main__ - WARNING - Could not extract classroom name for AnaCDemo2, using username instead
+2025-12-18 16:19:42,334 - __main__ - INFO - Successfully navigated to admin reports: https://accounts.learninga-z.com/accountsweb/account/reports.do#!/usage?subject=reading
+2025-12-18 16:19:45,337 - config - INFO - Configuration loaded successfully
+2025-12-18 16:19:45,337 - __main__ - INFO - Using date filter: Last 90 Days
+2025-12-18 16:19:45,337 - __main__ - INFO - Using products filter: All
+2025-12-18 16:19:46,482 - __main__ - INFO - Selected products filter: All
+2025-12-18 16:19:49,803 - __main__ - INFO - Selected date filter: Last 90 Days
+2025-12-18 16:19:51,807 - __main__ - INFO - Processing Usage Dashboard report
+2025-12-18 16:19:55,926 - __main__ - INFO - Successfully switched to tab: Usage Dashboard
+2025-12-18 16:19:58,174 - __main__ - INFO - Downloaded ZIP report: AnaCDemo2_Usage Dashboard_All_All_2025-09-19_2025-12-17.zip
+2025-12-18 16:19:58,184 - __main__ - INFO - Extracted CSV: AnaCDemo2_Student Usage_All_All_2025-09-19_2025-12-17.csv
+2025-12-18 16:19:58,184 - __main__ - INFO - Extracted CSV: AnaCDemo2_Student Status_All_All_2025-09-19_2025-12-17.csv
+2025-12-18 16:19:58,185 - __main__ - INFO - Extracted CSV: AnaCDemo2_Teacher Usage_All_All_2025-09-19_2025-12-17.csv
+2025-12-18 16:19:58,185 - __main__ - INFO - Extracted CSV: AnaCDemo2_Teacher Status_All_All_2025-09-19_2025-12-17.csv
+2025-12-18 16:19:58,248 - utils - INFO - Successfully converted to XLSX: AnaCDemo2_Student Usage_All_All_2025-09-19_2025-12-17.xlsx
+2025-12-18 16:19:58,248 - __main__ - INFO - Successfully downloaded Usage Dashboard report
+2025-12-18 16:19:58,248 - __main__ - INFO - Skipping Teacher Usage report (not selected)
+2025-12-18 16:19:58,248 - __main__ - INFO - Skipping Student Usage report (not selected)
+2025-12-18 16:19:58,248 - __main__ - INFO - Skipping Student Skills report (not selected)
+2025-12-18 16:19:58,248 - __main__ - INFO - Skipping Assignment Report report (not selected)
+2025-12-18 16:19:58,248 - __main__ - INFO - Skipping Assessment Report report (not selected)
+2025-12-18 16:19:58,248 - __main__ - INFO - Completed report download for AnaCDemo2: 1/1 successful
+2025-12-18 16:19:58,474 - __main__ - INFO - Successfully processed user: AnaCDemo2
+2025-12-18 16:19:58,475 - __main__ - INFO - Scraper completed: 1/1 users processed successfully
+2025-12-18 16:19:58,475 - __main__ - INFO - Attempting to combine all reports by type...
+2025-12-18 16:19:58,475 - utils - INFO - Found 1 Student Usage reports
+2025-12-18 16:19:58,519 - utils - INFO - Successfully created combined report: Combined_All_Reports_20251218_161958.xlsx
+2025-12-18 16:19:58,519 - utils - INFO - Combined 1 report type sheets into single file
+2025-12-18 16:19:58,519 - __main__ - INFO - Successfully created combined reports: /Users/david.gonzalez01/Personal/reports-scrapper/reports/Combined_All_Reports_20251218_161958.xlsx
+2025-12-18 16:20:58,418 - __main__ - INFO - Starting scraper execution
+2025-12-18 16:20:58,419 - __main__ - INFO - Loaded 1 users from users.json
+2025-12-18 16:20:58,419 - __main__ - INFO - Found 1 users to process
+2025-12-18 16:20:58,419 - __main__ - INFO - Processing user 1/1: AnaCDemo2
+2025-12-18 16:20:58,419 - __main__ - INFO - Starting report download process for user: AnaCDemo2
+2025-12-18 16:21:00,558 - __main__ - INFO - Attempting login for user: AnaCDemo2
+2025-12-18 16:21:08,150 - __main__ - INFO - Login successful for user: AnaCDemo2
+2025-12-18 16:21:08,167 - __main__ - WARNING - Could not find classroom greeting element
+2025-12-18 16:21:08,167 - __main__ - WARNING - Could not extract classroom name for AnaCDemo2, using username instead
+2025-12-18 16:21:13,274 - __main__ - INFO - Successfully navigated to admin reports: https://accounts.learninga-z.com/accountsweb/account/reports.do#!/usage?subject=reading
+2025-12-18 16:21:16,278 - config - INFO - Configuration loaded successfully
+2025-12-18 16:21:16,278 - __main__ - INFO - Using date filter: Last 90 Days
+2025-12-18 16:21:16,278 - __main__ - INFO - Using products filter: All
+2025-12-18 16:21:17,402 - __main__ - INFO - Selected products filter: All
+2025-12-18 16:21:20,667 - __main__ - INFO - Selected date filter: Last 90 Days
+2025-12-18 16:21:22,672 - __main__ - INFO - Processing Usage Dashboard report
+2025-12-18 16:21:26,786 - __main__ - INFO - Successfully switched to tab: Usage Dashboard
+2025-12-18 16:21:29,021 - __main__ - ERROR - Failed to download report: name 'file_type' is not defined
+2025-12-18 16:21:29,021 - __main__ - WARNING - Failed to download Usage Dashboard report
+2025-12-18 16:21:29,021 - __main__ - INFO - Skipping Teacher Usage report (not selected)
+2025-12-18 16:21:29,021 - __main__ - INFO - Skipping Student Usage report (not selected)
+2025-12-18 16:21:29,021 - __main__ - INFO - Skipping Student Skills report (not selected)
+2025-12-18 16:21:29,022 - __main__ - INFO - Skipping Assignment Report report (not selected)
+2025-12-18 16:21:29,022 - __main__ - INFO - Skipping Assessment Report report (not selected)
+2025-12-18 16:21:29,022 - __main__ - INFO - Completed report download for AnaCDemo2: 0/1 successful
+2025-12-18 16:21:29,264 - __main__ - ERROR - Failed to process user: AnaCDemo2 - No reports could be downloaded (0/1 successful)
+2025-12-18 16:21:29,264 - __main__ - INFO - Scraper completed: 0/1 users processed successfully
+2025-12-18 16:21:29,264 - __main__ - INFO - Error summary: Download error for: AnaCDemo2
+2025-12-18 16:25:43,366 - __main__ - INFO - Starting scraper execution
+2025-12-18 16:25:43,367 - __main__ - INFO - Loaded 1 users from users.json
+2025-12-18 16:25:43,367 - __main__ - INFO - Found 1 users to process
+2025-12-18 16:25:43,367 - __main__ - INFO - Processing user 1/1: AnaCDemo2
+2025-12-18 16:25:43,367 - __main__ - INFO - Starting report download process for user: AnaCDemo2
+2025-12-18 16:25:45,500 - __main__ - INFO - Attempting login for user: AnaCDemo2
+2025-12-18 16:25:53,114 - __main__ - INFO - Login successful for user: AnaCDemo2
+2025-12-18 16:25:53,131 - __main__ - WARNING - Could not find classroom greeting element
+2025-12-18 16:25:53,131 - __main__ - WARNING - Could not extract classroom name for AnaCDemo2, using username instead
+2025-12-18 16:25:59,110 - __main__ - INFO - Successfully navigated to admin reports: https://accounts.learninga-z.com/accountsweb/account/reports.do#!/usage?subject=reading
+2025-12-18 16:26:02,114 - config - INFO - Configuration loaded successfully
+2025-12-18 16:26:02,114 - __main__ - INFO - Using date filter: Last 90 Days
+2025-12-18 16:26:02,115 - __main__ - INFO - Using products filter: All
+2025-12-18 16:26:03,259 - __main__ - INFO - Selected products filter: All
+2025-12-18 16:26:06,524 - __main__ - INFO - Selected date filter: Last 90 Days
+2025-12-18 16:26:08,527 - __main__ - INFO - Processing Usage Dashboard report
+2025-12-18 16:26:12,772 - __main__ - INFO - Successfully switched to tab: Usage Dashboard
+2025-12-18 16:26:15,020 - __main__ - INFO - Downloaded ZIP report: AnaCDemo2_Usage Dashboard_All_All_2025-09-19_2025-12-17.zip
+2025-12-18 16:26:15,028 - __main__ - INFO - Extracted CSV: AnaCDemo2_Student Usage_All_All_2025-09-19_2025-12-17.csv
+2025-12-18 16:26:15,028 - __main__ - INFO - Extracted CSV: AnaCDemo2_Student Status_All_All_2025-09-19_2025-12-17.csv
+2025-12-18 16:26:15,028 - __main__ - INFO - Extracted CSV: AnaCDemo2_Teacher Usage_All_All_2025-09-19_2025-12-17.csv
+2025-12-18 16:26:15,029 - __main__ - INFO - Extracted CSV: AnaCDemo2_Teacher Status_All_All_2025-09-19_2025-12-17.csv
+2025-12-18 16:26:15,059 - utils - INFO - Successfully converted to XLSX: AnaCDemo2_Student Usage_All_All_2025-09-19_2025-12-17.xlsx
+2025-12-18 16:26:15,059 - __main__ - INFO - Successfully downloaded Usage Dashboard report
+2025-12-18 16:26:15,059 - __main__ - INFO - Skipping Teacher Usage report (not selected)
+2025-12-18 16:26:15,059 - __main__ - INFO - Skipping Student Usage report (not selected)
+2025-12-18 16:26:15,059 - __main__ - INFO - Skipping Student Skills report (not selected)
+2025-12-18 16:26:15,059 - __main__ - INFO - Skipping Assignment Report report (not selected)
+2025-12-18 16:26:15,059 - __main__ - INFO - Skipping Assessment Report report (not selected)
+2025-12-18 16:26:15,059 - __main__ - INFO - Completed report download for AnaCDemo2: 1/1 successful
+2025-12-18 16:26:15,290 - __main__ - INFO - Successfully processed user: AnaCDemo2
+2025-12-18 16:26:15,291 - __main__ - INFO - Scraper completed: 1/1 users processed successfully
+2025-12-18 16:26:15,291 - __main__ - INFO - Attempting to combine all reports by type...
+2025-12-18 16:26:15,292 - utils - INFO - Found 1 Student Usage reports
+2025-12-18 16:26:15,317 - utils - INFO - Successfully created combined report: Combined_All_Reports_20251218_162615.xlsx
+2025-12-18 16:26:15,317 - utils - INFO - Combined 1 report type sheets into single file
+2025-12-18 16:26:15,317 - __main__ - INFO - Successfully created combined reports: /Users/david.gonzalez01/Personal/reports-scrapper/reports/Combined_All_Reports_20251218_162615.xlsx
+2025-12-18 16:30:30,813 - __main__ - INFO - Starting scraper execution
+2025-12-18 16:30:30,813 - __main__ - INFO - Loaded 1 users from users.json
+2025-12-18 16:30:30,813 - __main__ - INFO - Found 1 users to process
+2025-12-18 16:30:30,813 - __main__ - INFO - Processing user 1/1: AnaCDemo2
+2025-12-18 16:30:30,813 - __main__ - INFO - Starting report download process for user: AnaCDemo2
+2025-12-18 16:30:33,012 - __main__ - INFO - Attempting login for user: AnaCDemo2
+2025-12-18 16:30:40,686 - __main__ - INFO - Login successful for user: AnaCDemo2
+2025-12-18 16:30:40,702 - __main__ - WARNING - Could not find classroom greeting element
+2025-12-18 16:30:40,702 - __main__ - WARNING - Could not extract classroom name for AnaCDemo2, using username instead
+2025-12-18 16:30:46,003 - __main__ - INFO - Successfully navigated to admin reports: https://accounts.learninga-z.com/accountsweb/account/reports.do#!/usage?subject=reading
+2025-12-18 16:30:49,010 - config - INFO - Configuration loaded successfully
+2025-12-18 16:30:49,010 - __main__ - INFO - Using date filter: Last 90 Days
+2025-12-18 16:30:49,011 - __main__ - INFO - Using products filter: All
+2025-12-18 16:30:50,137 - __main__ - INFO - Selected products filter: All
+2025-12-18 16:30:53,390 - __main__ - INFO - Selected date filter: Last 90 Days
+2025-12-18 16:30:55,392 - __main__ - INFO - Processing Usage Dashboard report
+2025-12-18 16:30:59,492 - __main__ - INFO - Successfully switched to tab: Usage Dashboard
+2025-12-18 16:31:01,715 - __main__ - INFO - Downloaded ZIP report: AnaCDemo2_Usage Dashboard_All_All_2025-09-19_2025-12-17.zip
+2025-12-18 16:31:01,723 - __main__ - INFO - Extracted CSV: AnaCDemo2_Student Usage_All_All_2025-09-19_2025-12-17.csv
+2025-12-18 16:31:01,723 - __main__ - INFO - Extracted CSV: AnaCDemo2_Student Status_All_All_2025-09-19_2025-12-17.csv
+2025-12-18 16:31:01,724 - __main__ - INFO - Extracted CSV: AnaCDemo2_Teacher Usage_All_All_2025-09-19_2025-12-17.csv
+2025-12-18 16:31:01,724 - __main__ - INFO - Extracted CSV: AnaCDemo2_Teacher Status_All_All_2025-09-19_2025-12-17.csv
+2025-12-18 16:31:01,766 - utils - INFO - Successfully converted to XLSX: AnaCDemo2_Student Usage_All_All_2025-09-19_2025-12-17.xlsx
+2025-12-18 16:31:01,782 - utils - INFO - Successfully converted to XLSX: AnaCDemo2_Student Status_All_All_2025-09-19_2025-12-17.xlsx
+2025-12-18 16:31:01,793 - utils - INFO - Successfully converted to XLSX: AnaCDemo2_Teacher Usage_All_All_2025-09-19_2025-12-17.xlsx
+2025-12-18 16:31:01,815 - utils - INFO - Successfully converted to XLSX: AnaCDemo2_Teacher Status_All_All_2025-09-19_2025-12-17.xlsx
+2025-12-18 16:31:01,815 - __main__ - INFO - Converted 4/4 CSV files to XLSX
+2025-12-18 16:31:01,815 - __main__ - INFO - Successfully downloaded Usage Dashboard report
+2025-12-18 16:31:01,815 - __main__ - INFO - Skipping Teacher Usage report (not selected)
+2025-12-18 16:31:01,815 - __main__ - INFO - Skipping Student Usage report (not selected)
+2025-12-18 16:31:01,815 - __main__ - INFO - Skipping Student Skills report (not selected)
+2025-12-18 16:31:01,815 - __main__ - INFO - Skipping Assignment Report report (not selected)
+2025-12-18 16:31:01,815 - __main__ - INFO - Skipping Assessment Report report (not selected)
+2025-12-18 16:31:01,815 - __main__ - INFO - Completed report download for AnaCDemo2: 1/1 successful
+2025-12-18 16:31:02,114 - __main__ - INFO - Successfully processed user: AnaCDemo2
+2025-12-18 16:31:02,114 - __main__ - INFO - Scraper completed: 1/1 users processed successfully
+2025-12-18 16:31:02,114 - __main__ - INFO - Attempting to combine all reports by type...
+2025-12-18 16:31:02,115 - utils - INFO - Found 1 Student Usage reports
+2025-12-18 16:31:02,138 - utils - INFO - Successfully created combined report: Combined_All_Reports_20251218_163102.xlsx
+2025-12-18 16:31:02,138 - utils - INFO - Combined 1 report type sheets into single file
+2025-12-18 16:31:02,138 - __main__ - INFO - Successfully created combined reports: /Users/david.gonzalez01/Personal/reports-scrapper/reports/Combined_All_Reports_20251218_163102.xlsx
