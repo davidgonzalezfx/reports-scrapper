@@ -1303,6 +1303,94 @@
         </div>
       </div>
     </div>
+
+    <!-- Assignment Reports Slides (Dynamic - one per classroom) -->
+    {% for classroom_data in assignment_reports %}
+    <div class="slide slide-5">
+      <div class="slide-content">
+        <div class="header">
+          <div class="title">REPORTE DE ASIGNACIONES</div>
+          <div class="subtitle">Reporte de asignaciones</div>
+          <img src="templates/images/logo-b1-tech-white.png" alt="B1 Tech Logo" class="header-logo">
+        </div>
+        <div class="content">
+          <div class="classroom-info">
+            <i class="material-icons classroom-icon">assignment</i>
+            <div class="classroom-name">{{ classroom_data.classroom }}</div>
+          </div>
+
+          <div class="skills-table-container">
+            <table class="skills-table">
+              <thead>
+                <tr>
+                  <th>Organization Name</th>
+                  <th>Total Assignments</th>
+                  <th>Completed Assignments</th>
+                  <th>Overall Progress</th>
+                  <th>Overall Score</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for assignment in classroom_data.assignments %}
+                <tr>
+                  <td>{{ assignment.organization_name }}</td>
+                  <td class="correct-answers">{{ assignment.total_assignments }}</td>
+                  <td class="correct-answers">{{ assignment.completed_assignments }}</td>
+                  <td>{{ assignment.overall_progress }}</td>
+                  <td class="total-questions">{{ assignment.overall_score }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+
+    <!-- Assessment Reports Slides (Dynamic - one per classroom) -->
+    {% for classroom_data in assessment_reports %}
+    <div class="slide slide-5">
+      <div class="slide-content">
+        <div class="header">
+          <div class="title">REPORTE DE EVALUACIONES</div>
+          <div class="subtitle">Reporte de evaluaciones</div>
+          <img src="templates/images/logo-b1-tech-white.png" alt="B1 Tech Logo" class="header-logo">
+        </div>
+        <div class="content">
+          <div class="classroom-info">
+            <i class="material-icons classroom-icon">assignment</i>
+            <div class="classroom-name">{{ classroom_data.classroom }}</div>
+          </div>
+
+          <div class="skills-table-container">
+            <table class="skills-table">
+              <thead>
+                <tr>
+                  <th>Organization Name</th>
+                  <th>Number of Students</th>
+                  <th>Assigned</th>
+                  <th>Completed</th>
+                  <th>Reviewed</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for assessment in classroom_data.assessments %}
+                <tr>
+                  <td>{{ assessment.organization_name }}</td>
+                  <td class="correct-answers">{{ assessment.number_of_students }}</td>
+                  <td class="correct-answers">{{ assessment.assigned }}</td>
+                  <td>{{ assessment.completed }}</td>
+                  <td class="total-questions">{{ assessment.reviewed }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
   </div>
 
   <script>

@@ -42,7 +42,7 @@ from utils import (
     get_report_files, get_school_summary, get_teacher_summaries,
     get_reading_skills_data, get_skills_summary, get_overall_skills_table,
     get_top_readers_per_classroom, get_level_up_progress_data,
-    get_teacher_comparison_data
+    get_teacher_comparison_data, get_assignment_data, get_assessment_data
 )
 
 # Setup logging
@@ -386,6 +386,8 @@ def get_report_data() -> Dict[str, Any]:
     level_up_progress = get_level_up_progress_data(REPORTS_DIR)
     top_readers = get_top_readers_per_classroom(REPORTS_DIR)
     classroom_comparison = get_teacher_comparison_data(REPORTS_DIR)
+    assignment_reports = get_assignment_data(REPORTS_DIR)
+    assessment_reports = get_assessment_data(REPORTS_DIR)
 
     return {
         # Slide 1: Title
@@ -428,7 +430,13 @@ def get_report_data() -> Dict[str, Any]:
         "classroom_comparison": (
             classroom_comparison if classroom_comparison
             else {"labels": [], "listen": [], "read": [], "quiz": []}
-        )
+        ),
+
+        # Assignment Reports
+        "assignment_reports": assignment_reports if assignment_reports else [],
+
+        # Assessment Reports
+        "assessment_reports": assessment_reports if assessment_reports else []
     }
 
 

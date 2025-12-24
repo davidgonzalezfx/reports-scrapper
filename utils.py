@@ -1724,3 +1724,305 @@ def get_teacher_comparison_data(
         "read": read_data,
         "quiz": quiz_data
     }
+
+
+def get_assignment_data(
+    directory: Union[str, Path]
+) -> Optional[List[Dict[str, Any]]]:
+    """Get assignment report data from Assignment reports.
+
+    Reads Assignment report XLSX files and returns structured data
+    for display in the presentation.
+
+    Expected columns:
+    - Organization Name
+    - Total Assignments
+    - Completed Assignments
+    - Overall Progress
+    - Overall Score
+
+    Args:
+        directory: Path to the reports directory
+
+    Returns:
+        List of classroom assignment dictionaries or None if no data found
+    """
+    try:
+        reports_directory = _resolve_reports_directory(directory)
+        if not reports_directory:
+            return None
+
+        # Find Assignment files
+        pattern = "*_Assignment_*.xlsx"
+        files = list(reports_directory.glob(pattern))
+
+        if not files:
+            logger.info("No Assignment reports found")
+            return None
+
+        logger.info(f"Found {len(files)} Assignment reports")
+
+        # Dictionary to accumulate data per classroom
+        classroom_data = {}
+
+        # Expected column names (case-insensitive matching)
+        expected_columns = {
+            "organization_name": ["Organization Name", "Organization", "School", "Classroom"],
+            "total_assignments": ["Total Assignments", "Total", "Assignments"],
+            "completed_assignments": ["Completed Assignments", "Completed"],
+            "overall_progress": ["Overall Progress", "Progress"],
+            "overall_score": ["Overall Score", "Score"]
+        }
+
+        for file_path in sorted(files):
+            try:
+                if not file_path.exists() or file_path.stat().st_size == 0:
+                    logger.warning(
+                        f"File {file_path} is empty or doesn't exist, skipping"
+                    )
+                    continue
+
+                # Extract classroom name from filename
+                filename = file_path.name
+                if "_Assignment_" in filename:
+                    classroom_name = filename.split("_Assignment_")[0]
+                else:
+                    logger.warning(
+                        f"Could not extract classroom name from {filename}, "
+                        f"skipping"
+                    )
+                    continue
+
+                df = pd.read_excel(file_path, engine="openpyxl")
+
+                if df.empty:
+                    logger.warning(
+                        f"Excel file {file_path} contains no data, skipping"
+                    )
+                    continue
+
+                # Create column name to index mapping (case-insensitive)
+                col_mapping = {}
+                for idx, col in enumerate(df.columns):
+                    col_lower = str(col).strip().lower()
+                    for key, possible_names in expected_columns.items():
+                        if key not in col_mapping:
+                            for possible_name in possible_names:
+                                if possible_name.lower() in col_lower:
+                                    col_mapping[key] = idx
+                                    break
+
+                # Initialize classroom data if not exists
+                if classroom_name not in classroom_data:
+                    classroom_data[classroom_name] = {
+                        "classroom": classroom_name,
+                        "assignments": []
+                    }
+
+                # Process each row in the file
+                for _, row in df.iterrows():
+                    cleaned_row = clean_row_data(list(row))
+
+                    # Extract organization name
+                    org_name = "N/A"
+                    if "organization_name" in col_mapping:
+                        org_name = str(cleaned_row[col_mapping["organization_name"]]).strip()
+
+                    # Build assignment entry
+                    assignment_entry = {
+                        "organization_name": org_name,
+                        "total_assignments": (
+                            cleaned_row[col_mapping["total_assignments"]]
+                            if "total_assignments" in col_mapping and len(cleaned_row) > col_mapping["total_assignments"]
+                            else "N/A"
+                        ),
+                        "completed_assignments": (
+                            cleaned_row[col_mapping["completed_assignments"]]
+                            if "completed_assignments" in col_mapping and len(cleaned_row) > col_mapping["completed_assignments"]
+                            else "N/A"
+                        ),
+                        "overall_progress": (
+                            cleaned_row[col_mapping["overall_progress"]]
+                            if "overall_progress" in col_mapping and len(cleaned_row) > col_mapping["overall_progress"]
+                            else "N/A"
+                        ),
+                        "overall_score": (
+                            cleaned_row[col_mapping["overall_score"]]
+                            if "overall_score" in col_mapping and len(cleaned_row) > col_mapping["overall_score"]
+                            else "N/A"
+                        )
+                    }
+
+                    classroom_data[classroom_name]["assignments"].append(assignment_entry)
+
+            except Exception as e:
+                logger.error(f"Error processing file {file_path}: {e}")
+                continue
+
+        if not classroom_data:
+            logger.info("No classroom data found in Assignment reports")
+            return None
+
+        # Convert to list and sort by classroom name
+        assignment_data = list(classroom_data.values())
+        assignment_data.sort(key=lambda x: x["classroom"])
+
+        logger.debug(
+            f"Calculated assignment data for {len(assignment_data)} classrooms"
+        )
+        return assignment_data
+
+    except Exception as e:
+        logger.error(f"Error getting assignment data: {e}")
+        return None
+
+
+def get_assessment_data(
+    directory: Union[str, Path]
+) -> Optional[List[Dict[str, Any]]]:
+    """Get assessment report data from Assessment reports.
+
+    Reads Assessment report XLSX files and returns structured data
+    for display in the presentation.
+
+    Expected columns:
+    - Organization Name
+    - Number of Students
+    - Assigned
+    - Completed
+    - Reviewed
+
+    Args:
+        directory: Path to the reports directory
+
+    Returns:
+        List of classroom assessment dictionaries or None if no data found
+    """
+    try:
+        reports_directory = _resolve_reports_directory(directory)
+        if not reports_directory:
+            return None
+
+        # Find Assessment files
+        pattern = "*_Assessment*.xlsx"
+        files = list(reports_directory.glob(pattern))
+
+        if not files:
+            logger.info("No Assessment reports found")
+            return None
+
+        logger.info(f"Found {len(files)} Assessment reports")
+
+        # Dictionary to accumulate data per classroom
+        classroom_data = {}
+
+        # Expected column names (case-insensitive matching)
+        expected_columns = {
+            "organization_name": ["Organization Name", "Organization", "School", "Classroom"],
+            "number_of_students": ["Number of Students", "Students", "Student Count"],
+            "assigned": ["Assigned"],
+            "completed": ["Completed"],
+            "reviewed": ["Reviewed"]
+        }
+
+        for file_path in sorted(files):
+            try:
+                if not file_path.exists() or file_path.stat().st_size == 0:
+                    logger.warning(
+                        f"File {file_path} is empty or doesn't exist, skipping"
+                    )
+                    continue
+
+                # Extract classroom name from filename
+                filename = file_path.name
+                if "_Assessment" in filename:
+                    classroom_name = filename.split("_Assessment")[0]
+                else:
+                    logger.warning(
+                        f"Could not extract classroom name from {filename}, "
+                        f"skipping"
+                    )
+                    continue
+
+                df = pd.read_excel(file_path, engine="openpyxl")
+
+                if df.empty:
+                    logger.warning(
+                        f"Excel file {file_path} contains no data, skipping"
+                    )
+                    continue
+
+                # Create column name to index mapping (case-insensitive)
+                col_mapping = {}
+                for idx, col in enumerate(df.columns):
+                    col_lower = str(col).strip().lower()
+                    for key, possible_names in expected_columns.items():
+                        if key not in col_mapping:
+                            for possible_name in possible_names:
+                                if possible_name.lower() in col_lower:
+                                    col_mapping[key] = idx
+                                    break
+
+                # Initialize classroom data if not exists
+                if classroom_name not in classroom_data:
+                    classroom_data[classroom_name] = {
+                        "classroom": classroom_name,
+                        "assessments": []
+                    }
+
+                # Process each row in the file
+                for _, row in df.iterrows():
+                    cleaned_row = clean_row_data(list(row))
+
+                    # Extract organization name
+                    org_name = "N/A"
+                    if "organization_name" in col_mapping:
+                        org_name = str(cleaned_row[col_mapping["organization_name"]]).strip()
+
+                    # Build assessment entry
+                    assessment_entry = {
+                        "organization_name": org_name,
+                        "number_of_students": (
+                            cleaned_row[col_mapping["number_of_students"]]
+                            if "number_of_students" in col_mapping and len(cleaned_row) > col_mapping["number_of_students"]
+                            else "N/A"
+                        ),
+                        "assigned": (
+                            cleaned_row[col_mapping["assigned"]]
+                            if "assigned" in col_mapping and len(cleaned_row) > col_mapping["assigned"]
+                            else "N/A"
+                        ),
+                        "completed": (
+                            cleaned_row[col_mapping["completed"]]
+                            if "completed" in col_mapping and len(cleaned_row) > col_mapping["completed"]
+                            else "N/A"
+                        ),
+                        "reviewed": (
+                            cleaned_row[col_mapping["reviewed"]]
+                            if "reviewed" in col_mapping and len(cleaned_row) > col_mapping["reviewed"]
+                            else "N/A"
+                        )
+                    }
+
+                    classroom_data[classroom_name]["assessments"].append(assessment_entry)
+
+            except Exception as e:
+                logger.error(f"Error processing file {file_path}: {e}")
+                continue
+
+        if not classroom_data:
+            logger.info("No classroom data found in Assessment reports")
+            return None
+
+        # Convert to list and sort by classroom name
+        assessment_data = list(classroom_data.values())
+        assessment_data.sort(key=lambda x: x["classroom"])
+
+        logger.debug(
+            f"Calculated assessment data for {len(assessment_data)} classrooms"
+        )
+        return assessment_data
+
+    except Exception as e:
+        logger.error(f"Error getting assessment data: {e}")
+        return None
