@@ -50,8 +50,8 @@ SELECTOR_ADMIN_REPORTS: str = 'a:has-text("Reports")'
 SELECTOR_CLASSROOM_GREETING: str = "h2.homepageGreeting.frazHomepageGreeting"
 
 # Filter selectors
-SELECTOR_DATE_FILTER: str = "#mat-select-0"
-SELECTOR_PRODUCTS_FILTER: str = "#mat-select-2"
+SELECTOR_DATE_FILTER: str = "#mat-select-8"
+SELECTOR_PRODUCTS_FILTER: str = "#mat-select-6"
 SELECTOR_SKILL_FILTER: str = "#mat-select-38"
 SELECTOR_LANGUAGE_FILTER: str = "#mat-select-26"
 SELECTOR_STATUS_FILTER: str = "#mat-select-28"
@@ -73,7 +73,10 @@ SELECTOR_NO_RESULTS: str = 'text="No results for filter criteria"'
 # ============================================================================
 
 REPORT_TYPES: List[str] = [
+    "Teacher Status",
+    "Teacher Usage",
     "Student Usage",
+    "Student Status",
     "Skill",
     "Assignment",
     "Assessment",
@@ -161,6 +164,11 @@ SKILL_COL_DATA_BAR: int = 3  # Column D (0-indexed as 3) for data bars
 LEVEL_UP_COL_STUDENT: int = 5
 LEVEL_UP_COL_LEVEL: int = 6
 LEVEL_UP_COL_PROGRESS: int = 7
+
+# Status Report Columns (B2 = Active count, B3 = Inactive count)
+STATUS_COL_ACTIVE: int = 1  # Column B (0-indexed as 1)
+STATUS_ROW_ACTIVE: int = 0  # Row 2 (0-indexed as 1)
+STATUS_ROW_INACTIVE: int = 1  # Row 3 (0-indexed as 2)
 
 
 # ============================================================================

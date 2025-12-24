@@ -466,11 +466,11 @@ def _build_school_overview(
         "subtitle": subtitle,
         "stats": [
             {
-                "number": str(summary.get("all_teachers", 0) if summary else 0),
+                "number": str(summary.get("active_teachers", 0) if summary else 0),
                 "label": "Docentes"
             },
             {
-                "number": str(summary.get("all_students", 0) if summary else 0),
+                "number": str(summary.get("active_students", 0) if summary else 0),
                 "label": "Estudiantes"
             }
         ],
@@ -1308,7 +1308,7 @@ def cleanup_on_startup() -> None:
     # Clean up users
     try:
         logger.info("Clearing all configured users on startup")
-        save_users([])
+        # save_users([])
         logger.info("Successfully cleared all users")
     except FileOperationError as e:
         logger.error(f"Failed to clear users during startup: {e}")

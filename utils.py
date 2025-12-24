@@ -23,7 +23,8 @@ from constants import (
     LEVEL_UP_COL_LEVEL, LEVEL_UP_COL_PROGRESS, SUMMARY_LABEL_TEACHERS,
     SUMMARY_LABEL_STUDENTS, SUMMARY_LABEL_LISTENS, SUMMARY_LABEL_READS,
     SUMMARY_LABEL_QUIZZES, SUMMARY_LABEL_TOTAL, TIMESTAMP_FORMAT,
-    DANGEROUS_FILENAME_PATTERNS
+    DANGEROUS_FILENAME_PATTERNS, STATUS_COL_ACTIVE, STATUS_ROW_ACTIVE,
+    STATUS_ROW_INACTIVE
 )
 from path_helpers import (
     get_base_path, is_frozen, get_executable_dir,
@@ -667,6 +668,98 @@ def combine_all_reports(directory: Union[str, Path]) -> Optional[str]:
         return None
 
 
+def _get_active_students_count(directory: Union[str, Path]) -> int:
+    """Get count of active students from Student Status reports.
+
+    Args:
+        directory: Path to the reports directory
+
+    Returns:
+        Total count of active students across all classrooms
+    """
+    try:
+        reports_directory = _resolve_reports_directory(directory)
+        if not reports_directory:
+            return 0
+
+        # Find Student Status files
+        pattern = "*_Student Status_*.xlsx"
+        files = list(reports_directory.glob(pattern))
+
+        if not files:
+            logger.info("No Student Status reports found")
+            return 0
+
+        total_active = 0
+        for file_path in files:
+            try:
+                df = pd.read_excel(file_path, engine="openpyxl")
+                # B2 cell (row 1, col 1 in 0-indexed) contains active count
+                if not df.empty and len(df.columns) > STATUS_COL_ACTIVE:
+                    active_value = df.iloc[STATUS_ROW_ACTIVE, STATUS_COL_ACTIVE]
+                    if pd.notna(active_value):
+                        try:
+                            total_active += int(active_value)
+                        except (ValueError, TypeError):
+                            logger.debug(f"Invalid active count in {file_path.name}")
+            except Exception as e:
+                logger.debug(f"Error reading {file_path.name}: {e}")
+                continue
+
+        logger.debug(f"Total active students: {total_active}")
+        return total_active
+
+    except Exception as e:
+        logger.error(f"Error getting active students count: {e}")
+        return 0
+
+
+def _get_active_teachers_count(directory: Union[str, Path]) -> int:
+    """Get count of active teachers from Teacher Status reports.
+
+    Args:
+        directory: Path to the reports directory
+
+    Returns:
+        Total count of active teachers
+    """
+    try:
+        reports_directory = _resolve_reports_directory(directory)
+        if not reports_directory:
+            return 0
+
+        # Find Teacher Status files
+        pattern = "*_Teacher Status_*.xlsx"
+        files = list(reports_directory.glob(pattern))
+
+        if not files:
+            logger.info("No Teacher Status reports found")
+            return 0
+
+        total_active = 0
+        for file_path in files:
+            try:
+                df = pd.read_excel(file_path, engine="openpyxl")
+                # B2 cell (row 1, col 1 in 0-indexed) contains active count
+                if not df.empty and len(df.columns) > STATUS_COL_ACTIVE:
+                    active_value = df.iloc[STATUS_ROW_ACTIVE, STATUS_COL_ACTIVE]
+                    if pd.notna(active_value):
+                        try:
+                            total_active += int(active_value)
+                        except (ValueError, TypeError):
+                            logger.debug(f"Invalid active count in {file_path.name}")
+            except Exception as e:
+                logger.debug(f"Error reading {file_path.name}: {e}")
+                continue
+
+        logger.debug(f"Total active teachers: {total_active}")
+        return total_active
+
+    except Exception as e:
+        logger.error(f"Error getting active teachers count: {e}")
+        return 0
+
+
 def get_school_summary(
     directory: Union[str, Path]
 ) -> Optional[Dict[str, Any]]:
@@ -724,9 +817,7 @@ def get_school_summary(
             logger.info("No data found in Student Usage reports")
             return None
 
-        # Calculate totals
-        total_students = len(all_data)
-        total_teachers = len(files)
+        # Calculate activity totals
         total_listens = 0
         total_reads = 0
         total_quizzes = 0
@@ -756,8 +847,8 @@ def get_school_summary(
         total_activities = total_listens + total_reads + total_quizzes
 
         summary_data = {
-            "all_teachers": total_teachers,
-            "all_students": total_students,
+            "active_teachers": _get_active_teachers_count(directory),
+            "active_students": _get_active_students_count(directory),
             "total_listen": int(total_listens),
             "total_read": int(total_reads),
             "total_quizzes": int(total_quizzes),
