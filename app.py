@@ -461,16 +461,24 @@ def _build_school_overview(
     else:
         listen_pct, read_pct, quiz_pct = 28.8, 34.6, 36.5
 
+    active_teachers = summary.get('active_teachers', 0) if summary else 0
+    inactive_teachers = summary.get('inactive_teachers', 0) if summary else 0
+    total_teachers = active_teachers + inactive_teachers
+
+    active_students = summary.get('active_students', 0) if summary else 0
+    inactive_students = summary.get('inactive_students', 0) if summary else 0
+    total_students = active_students + inactive_students
+
     return {
         "title": "RESUMEN DE USO",
         "subtitle": subtitle,
         "stats": [
             {
-                "number": str(summary.get("active_teachers", 0) if summary else 0),
+                "number": f"{active_teachers}/{total_teachers}",
                 "label": "Docentes"
             },
             {
-                "number": str(summary.get("active_students", 0) if summary else 0),
+                "number": f"{active_students}/{total_students}",
                 "label": "Estudiantes"
             }
         ],

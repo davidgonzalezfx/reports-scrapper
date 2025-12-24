@@ -760,6 +760,94 @@ def _get_active_teachers_count(directory: Union[str, Path]) -> int:
         return 0
 
 
+def _get_inactive_students_count(directory: Union[str, Path]) -> int:
+    """Get count of inactive students from Student Status reports.
+
+    Args:
+        directory: Path to the reports directory
+
+    Returns:
+        Total count of inactive students across all classrooms
+    """
+    try:
+        reports_directory = _resolve_reports_directory(directory)
+        if not reports_directory:
+            return 0
+
+        pattern = "*_Student Status_*.xlsx"
+        files = list(reports_directory.glob(pattern))
+
+        if not files:
+            return 0
+
+        total_inactive = 0
+        for file_path in files:
+            try:
+                df = pd.read_excel(file_path, engine="openpyxl")
+                # B3 cell (row 1, col 1 in 0-indexed) contains inactive count
+                if not df.empty and len(df.columns) > STATUS_COL_ACTIVE:
+                    inactive_value = df.iloc[STATUS_ROW_INACTIVE, STATUS_COL_ACTIVE]
+                    if pd.notna(inactive_value):
+                        try:
+                            total_inactive += int(inactive_value)
+                        except (ValueError, TypeError):
+                            logger.debug(f"Invalid inactive count in {file_path.name}")
+            except Exception as e:
+                logger.debug(f"Error reading {file_path.name}: {e}")
+                continue
+
+        logger.debug(f"Total inactive students: {total_inactive}")
+        return total_inactive
+
+    except Exception as e:
+        logger.error(f"Error getting inactive students count: {e}")
+        return 0
+
+
+def _get_inactive_teachers_count(directory: Union[str, Path]) -> int:
+    """Get count of inactive teachers from Teacher Status reports.
+
+    Args:
+        directory: Path to the reports directory
+
+    Returns:
+        Total count of inactive teachers
+    """
+    try:
+        reports_directory = _resolve_reports_directory(directory)
+        if not reports_directory:
+            return 0
+
+        pattern = "*_Teacher Status_*.xlsx"
+        files = list(reports_directory.glob(pattern))
+
+        if not files:
+            return 0
+
+        total_inactive = 0
+        for file_path in files:
+            try:
+                df = pd.read_excel(file_path, engine="openpyxl")
+                # B3 cell (row 1, col 1 in 0-indexed) contains inactive count
+                if not df.empty and len(df.columns) > STATUS_COL_ACTIVE:
+                    inactive_value = df.iloc[STATUS_ROW_INACTIVE, STATUS_COL_ACTIVE]
+                    if pd.notna(inactive_value):
+                        try:
+                            total_inactive += int(inactive_value)
+                        except (ValueError, TypeError):
+                            logger.debug(f"Invalid inactive count in {file_path.name}")
+            except Exception as e:
+                logger.debug(f"Error reading {file_path.name}: {e}")
+                continue
+
+        logger.debug(f"Total inactive teachers: {total_inactive}")
+        return total_inactive
+
+    except Exception as e:
+        logger.error(f"Error getting inactive teachers count: {e}")
+        return 0
+
+
 def get_school_summary(
     directory: Union[str, Path]
 ) -> Optional[Dict[str, Any]]:
@@ -848,7 +936,9 @@ def get_school_summary(
 
         summary_data = {
             "active_teachers": _get_active_teachers_count(directory),
+            "inactive_teachers": _get_inactive_teachers_count(directory),
             "active_students": _get_active_students_count(directory),
+            "inactive_students": _get_inactive_students_count(directory),
             "total_listen": int(total_listens),
             "total_read": int(total_reads),
             "total_quizzes": int(total_quizzes),
