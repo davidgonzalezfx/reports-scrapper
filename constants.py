@@ -50,11 +50,11 @@ SELECTOR_ADMIN_REPORTS: str = 'a:has-text("Reports")'
 SELECTOR_CLASSROOM_GREETING: str = "h2.homepageGreeting.frazHomepageGreeting"
 
 # Filter selectors
-SELECTOR_DATE_FILTER: str = "#mat-select-0"
-SELECTOR_PRODUCTS_FILTER: str = "#mat-select-6"
-SELECTOR_SKILL_FILTER: str = "#mat-select-34"
-SELECTOR_LANGUAGE_FILTER: str = "#mat-select-26"
-SELECTOR_STATUS_FILTER: str = "#mat-select-28"
+SELECTOR_DATE_FILTER: str = "mat-select.js-return-focus-date-filter"
+SELECTOR_PRODUCTS_FILTER: str = "mat-select.admin-reports-subject-filter-mat-select"
+SELECTOR_SKILL_FILTER: str = "mat-select.admin-reports-skill-standard-filter-mat-select"
+SELECTOR_LANGUAGE_FILTER: str = "mat-select.admin-reports-language-filter-mat-select"
+SELECTOR_STATUS_FILTER: str = "mat-select.admin-reports-status-filter-mat-select"
 SELECTOR_FILTER_OPTION: str = "mat-option"
 
 # Aggregate Skill By selectors
