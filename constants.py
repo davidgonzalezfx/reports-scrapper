@@ -106,9 +106,7 @@ DATE_FILTERS: List[str] = [
 PRODUCTS_FILTERS: List[str] = [
     "All",
     "Raz-Plus",
-    "Español",
     "Science A-Z",
-    "Writing A-Z",
     "Vocabulary A-Z",
     "Foundations A-Z"
 ]
