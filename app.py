@@ -530,7 +530,7 @@ def _build_detailed_activities(
     """
     if not teacher_summaries:
         return {
-            "title": "Resumen de uso de Estudiantes",
+            "title": "Detalle Total Actividades",
             "subtitle": subtitle,
             "activity_summary": [
                 {"icon": "headphones", "number": "0", "name": "Listen"},
@@ -561,7 +561,7 @@ def _build_detailed_activities(
         avg_usage = 0
 
     return {
-        "title": "Resumen de uso de Estudiantes",
+        "title": "Detalle Total Actividades",
         "subtitle": subtitle,
         "activity_summary": [
             {"icon": "headphones", "number": str(total_listen), "name": "Listen"},
