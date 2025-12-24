@@ -41,6 +41,8 @@ from constants import (
     SELECTOR_CLASSROOM_GREETING,
     SELECTOR_DATE_FILTER, SELECTOR_PRODUCTS_FILTER, SELECTOR_SKILL_FILTER,
     SELECTOR_LANGUAGE_FILTER, SELECTOR_STATUS_FILTER, SELECTOR_FILTER_OPTION,
+    SELECTOR_AGGREGATE_SKILL_SKILL, SELECTOR_AGGREGATE_SKILL_SCHOOL,
+    SELECTOR_AGGREGATE_SKILL_TEACHER, SELECTOR_AGGREGATE_SKILL_SELECTED,
     SELECTOR_START_DATE_INPUT, SELECTOR_END_DATE_INPUT,
     SELECTOR_REPORT_TAB, SELECTOR_ELLIPSIS_BUTTON, SELECTOR_CSV_DOWNLOAD,
     SELECTOR_NO_RESULTS, TABS, BROWSER_ARGS, BROWSER_USER_AGENT,
@@ -405,6 +407,58 @@ def select_skill_filter(page: Page, label: str) -> bool:
         return False
 
 
+def select_aggregate_skill_by_filter(page: Page, aggregate_by: str) -> bool:
+    """Select the aggregate by option for skills report.
+
+    Args:
+        page: Playwright page object
+        aggregate_by: One of 'skill', 'school', 'teacher'
+
+    Returns:
+        True if selection successful, False otherwise
+    """
+    try:
+        # Map filter value to CSS selector
+        selector_map = {
+            "skill": SELECTOR_AGGREGATE_SKILL_SKILL,
+            "school": SELECTOR_AGGREGATE_SKILL_SCHOOL,
+            "teacher": SELECTOR_AGGREGATE_SKILL_TEACHER
+        }
+
+        if aggregate_by not in selector_map:
+            logger.error(f"Invalid aggregate_by value: {aggregate_by}")
+            return False
+
+        selector = selector_map[aggregate_by]
+        logger.debug(f"Selecting aggregate by: {aggregate_by}")
+
+        # Check if already selected
+        try:
+            selected_button = page.locator(SELECTOR_AGGREGATE_SKILL_SELECTED)
+            if selected_button.count() > 0:
+                current_text = selected_button.inner_text().strip().lower()
+                if current_text == aggregate_by:
+                    logger.info(f"Aggregate by '{aggregate_by}' already selected")
+                    return True
+        except Exception:
+            pass  # Continue to click
+
+        # Wait for and click the appropriate button
+        page.wait_for_selector(selector, timeout=DEFAULT_TIMEOUT)
+        page.click(selector)
+        time.sleep(2)  # Allow filter to apply
+
+        logger.info(f"Selected aggregate by: {aggregate_by}")
+        return True
+
+    except PlaywrightTimeoutError as e:
+        logger.error(f"Timeout selecting aggregate by '{aggregate_by}': {e}")
+        return False
+    except Exception as e:
+        logger.error(f"Error selecting aggregate by '{aggregate_by}': {e}")
+        return False
+
+
 def select_language_filter(page: Page, label: str) -> bool:
     """Select a language filter option from the dropdown.
 
@@ -734,6 +788,13 @@ def process_user_reports(
                     if not select_skill_filter(page, skill_filter):
                         logger.warning(
                             f"Failed to apply skill filter '{skill_filter}'"
+                        )
+
+                    # Apply aggregate by filter
+                    aggregate_by = config.get("aggregate_skill_by_filter", "skill")
+                    if not select_aggregate_skill_by_filter(page, aggregate_by):
+                        logger.warning(
+                            f"Failed to apply aggregate by filter '{aggregate_by}'"
                         )
 
                 # Apply language and status filters for Teacher Usage tab

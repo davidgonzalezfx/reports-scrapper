@@ -14,6 +14,7 @@ from constants import (
     DATE_FILTERS,
     PRODUCTS_FILTERS,
     SKILL_FILTERS,
+    AGGREGATE_SKILL_BY_FILTERS,
     LANGUAGE_FILTERS,
     STATUS_FILTERS,
     TABS,
@@ -79,6 +80,7 @@ class ScraperConfig:
     custom_end_date: str = ""
     products_filter: str = "All"
     skill_filter: str = "All"
+    aggregate_skill_by_filter: str = "skill"
     language_filter: str = "All"
     status_filter: str = "All"
     tabs: TabsConfig = field(default_factory=TabsConfig)
@@ -117,6 +119,14 @@ class ScraperConfig:
                 f"using default 'All'"
             )
             self.skill_filter = "All"
+
+        # Validate aggregate skill by filter
+        if self.aggregate_skill_by_filter not in AGGREGATE_SKILL_BY_FILTERS:
+            logger.warning(
+                f"Invalid aggregate skill by filter '{self.aggregate_skill_by_filter}', "
+                f"using default 'skill'"
+            )
+            self.aggregate_skill_by_filter = "skill"
 
         # Validate language filter
         if self.language_filter not in LANGUAGE_FILTERS:
@@ -162,6 +172,7 @@ class ScraperConfig:
             custom_end_date=data.get("custom_end_date", ""),
             products_filter=data.get("products_filter", "All"),
             skill_filter=data.get("skill_filter", "All"),
+            aggregate_skill_by_filter=data.get("aggregate_skill_by_filter", "skill"),
             tabs=tabs_config,
             institution_name=data.get(
                 "institution_name", DEFAULT_INSTITUTION_NAME
@@ -180,6 +191,7 @@ class ScraperConfig:
             "custom_end_date": self.custom_end_date,
             "products_filter": self.products_filter,
             "skill_filter": self.skill_filter,
+            "aggregate_skill_by_filter": self.aggregate_skill_by_filter,
             "tabs": self.tabs.to_dict(),
             "institution_name": self.institution_name
         }
@@ -198,6 +210,7 @@ def get_default_config() -> ScraperConfig:
         custom_end_date="",
         products_filter=PRODUCTS_FILTERS[0],
         skill_filter=SKILL_FILTERS[0],
+        aggregate_skill_by_filter=AGGREGATE_SKILL_BY_FILTERS[0],
         tabs=TabsConfig.from_dict(tabs_dict),
         institution_name=DEFAULT_INSTITUTION_NAME
     )

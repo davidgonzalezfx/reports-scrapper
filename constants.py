@@ -52,10 +52,16 @@ SELECTOR_CLASSROOM_GREETING: str = "h2.homepageGreeting.frazHomepageGreeting"
 # Filter selectors
 SELECTOR_DATE_FILTER: str = "#mat-select-0"
 SELECTOR_PRODUCTS_FILTER: str = "#mat-select-6"
-SELECTOR_SKILL_FILTER: str = "#mat-select-38"
+SELECTOR_SKILL_FILTER: str = "#mat-select-24"
 SELECTOR_LANGUAGE_FILTER: str = "#mat-select-26"
 SELECTOR_STATUS_FILTER: str = "#mat-select-28"
 SELECTOR_FILTER_OPTION: str = "mat-option"
+
+# Aggregate Skill By selectors
+SELECTOR_AGGREGATE_SKILL_SKILL: str = "button.js-return-focus-aggregate-skill"
+SELECTOR_AGGREGATE_SKILL_SCHOOL: str = "button.js-return-focus-aggregate-school"
+SELECTOR_AGGREGATE_SKILL_TEACHER: str = "button.js-return-focus-aggregate-teacher"
+SELECTOR_AGGREGATE_SKILL_SELECTED: str = "button.is-selected[role='option']"
 
 # Date input selectors
 SELECTOR_START_DATE_INPUT: str = 'input[aria-label="Start date"]'
@@ -118,6 +124,12 @@ SKILL_FILTERS: List[str] = [
     "All",
     "Common Core",
     "Comprehension"
+]
+
+AGGREGATE_SKILL_BY_FILTERS: List[str] = [
+    "skill",
+    "school",
+    "teacher"
 ]
 
 LANGUAGE_FILTERS: List[str] = [

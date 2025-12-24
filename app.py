@@ -21,7 +21,7 @@ from waitress import serve
 # Import new helper modules
 from constants import (
     USERS_FILE, REPORTS_DIR, DATE_FILTERS, PRODUCTS_FILTERS, SKILL_FILTERS,
-    LANGUAGE_FILTERS, STATUS_FILTERS,
+    AGGREGATE_SKILL_BY_FILTERS, LANGUAGE_FILTERS, STATUS_FILTERS,
     TABS, FLASK_MAX_CONTENT_LENGTH, LEGACY_REPORT_PREFIXES,
     COMBINED_REPORT_PREFIX
 )
@@ -729,6 +729,8 @@ def index():
             selected_products_filter=config.products_filter,
             skill_filters=SKILL_FILTERS,
             selected_skill_filter=config.skill_filter,
+            aggregate_skill_by_filters=AGGREGATE_SKILL_BY_FILTERS,
+            selected_aggregate_skill_by_filter=config.aggregate_skill_by_filter,
             language_filters=LANGUAGE_FILTERS,
             selected_language_filter=config.language_filter,
             status_filters=STATUS_FILTERS,
@@ -817,6 +819,18 @@ def set_filter():
             skill_filter = SKILL_FILTERS[0]
         config.skill_filter = skill_filter
 
+        # Update aggregate skill by filter
+        aggregate_skill_by_filter = request.form.get(
+            "aggregate_skill_by_filter",
+            AGGREGATE_SKILL_BY_FILTERS[0]
+        )
+        if aggregate_skill_by_filter not in AGGREGATE_SKILL_BY_FILTERS:
+            logger.warning(
+                f"Invalid aggregate skill by filter received: {aggregate_skill_by_filter}"
+            )
+            aggregate_skill_by_filter = AGGREGATE_SKILL_BY_FILTERS[0]
+        config.aggregate_skill_by_filter = aggregate_skill_by_filter
+
         # Update language filter
         language_filter = request.form.get(
             "language_filter",
@@ -862,6 +876,7 @@ def set_filter():
         logger.info(
             f"Filter configuration updated: date={date_filter}, "
             f"products={products_filter}, skill={skill_filter}, "
+            f"aggregate_by={aggregate_skill_by_filter}, "
             f"language={language_filter}, status={status_filter}, "
             f"tabs={selected_tabs}, institution={institution_name}"
         )
