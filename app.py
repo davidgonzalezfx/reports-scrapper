@@ -39,10 +39,10 @@ from logging_config import setup_app_logging, clear_log_file, get_logger
 from exceptions import ConfigurationError, ValidationError, FileOperationError
 from utils import (
     load_json, save_json, validate_filename, validate_user_data,
-    get_report_files, get_school_summary, get_classroom_summaries,
+    get_report_files, get_school_summary, get_school_summaries,
     get_reading_skills_data, get_skills_summary, get_overall_skills_table,
     get_top_readers_per_classroom, get_level_up_progress_data,
-    get_classroom_comparison_data
+    get_school_comparison_data
 )
 
 # Setup logging
@@ -379,13 +379,13 @@ def get_report_data() -> Dict[str, Any]:
 
     # Get summary data from reports
     summary = get_school_summary(REPORTS_DIR)
-    classroom_summaries = get_classroom_summaries(REPORTS_DIR)
+    school_summaries = get_school_summaries(REPORTS_DIR)
     reading_skills = get_reading_skills_data(REPORTS_DIR)
     skills_summary = get_skills_summary(REPORTS_DIR)
     overall_skills_table = get_overall_skills_table(REPORTS_DIR)
     level_up_progress = get_level_up_progress_data(REPORTS_DIR)
     top_readers = get_top_readers_per_classroom(REPORTS_DIR)
-    classroom_comparison = get_classroom_comparison_data(REPORTS_DIR)
+    school_comparison = get_school_comparison_data(REPORTS_DIR)
 
     return {
         # Slide 1: Title
@@ -399,7 +399,7 @@ def get_report_data() -> Dict[str, Any]:
 
         # Slide 3: Detailed Activities
         "detailed_activities": _build_detailed_activities(
-            classroom_summaries,
+            school_summaries,
             subtitle
         ),
 
@@ -424,9 +424,9 @@ def get_report_data() -> Dict[str, Any]:
             "classrooms": top_readers if top_readers else []
         },
 
-        # Slide 7: Classroom Comparison
+        # Slide 7: School Comparison
         "classroom_comparison": (
-            classroom_comparison if classroom_comparison
+            school_comparison if school_comparison
             else {"labels": [], "listen": [], "read": [], "quiz": []}
         )
     }
@@ -516,19 +516,19 @@ def _build_school_overview(
 
 
 def _build_detailed_activities(
-    classroom_summaries: Optional[List[Dict[str, Any]]],
+    school_summaries: Optional[List[Dict[str, Any]]],
     subtitle: str
 ) -> Dict[str, Any]:
     """Build detailed activities data for presentation.
 
     Args:
-        classroom_summaries: List of classroom summary dictionaries
+        school_summaries: List of school summary dictionaries
         subtitle: Date subtitle string
 
     Returns:
         Dictionary with formatted detailed activities data
     """
-    if not classroom_summaries:
+    if not school_summaries:
         return {
             "title": "Resumen de uso de Estudiantes",
             "subtitle": subtitle,
@@ -537,7 +537,7 @@ def _build_detailed_activities(
                 {"icon": "menu_book", "number": "0", "name": "Read"},
                 {"icon": "quiz", "number": "0", "name": "Quiz"}
             ],
-            "classrooms": [],
+            "schools": [],
             "total": {
                 "students": 0, "students_used": 0, "usage": 0,
                 "listen": 0, "read": 0, "quiz": 0,
@@ -545,15 +545,15 @@ def _build_detailed_activities(
             }
         }
 
-    total_listen = int(sum(c["listen"] for c in classroom_summaries))
-    total_read = int(sum(c["read"] for c in classroom_summaries))
-    total_quiz = int(sum(c["quiz"] for c in classroom_summaries))
-    total_students = sum(c["students"] for c in classroom_summaries)
+    total_listen = int(sum(s["listen"] for s in school_summaries))
+    total_read = int(sum(s["read"] for s in school_summaries))
+    total_quiz = int(sum(s["quiz"] for s in school_summaries))
+    total_students = sum(s["students"] for s in school_summaries)
 
     # Calculate average usage
     if total_students > 0:
         avg_usage = round(
-            sum(c["usage"] * c["students"] for c in classroom_summaries)
+            sum(s["usage"] * s["students"] for s in school_summaries)
             / total_students,
             1
         )
@@ -568,34 +568,34 @@ def _build_detailed_activities(
             {"icon": "menu_book", "number": str(total_read), "name": "Read"},
             {"icon": "quiz", "number": str(total_quiz), "name": "Quiz"}
         ],
-        "classrooms": [
+        "schools": [
             {
-                "name": c["name"],
-                "students": c["students"],
-                "students_used": c.get("students_used", 0),
-                "usage": c["usage"],
-                "listen": int(c["listen"]),
-                "read": int(c["read"]),
-                "quiz": int(c["quiz"]),
-                "interactivity": int(c["interactivity"]),
-                "practice_recording": int(c["practice_recording"])
+                "name": s["name"],
+                "students": s["students"],
+                "students_used": s.get("students_used", 0),
+                "usage": s["usage"],
+                "listen": int(s["listen"]),
+                "read": int(s["read"]),
+                "quiz": int(s["quiz"]),
+                "interactivity": int(s["interactivity"]),
+                "practice_recording": int(s["practice_recording"])
             }
-            for c in classroom_summaries
+            for s in school_summaries
         ],
         "total": {
             "students": total_students,
             "students_used": sum(
-                c.get("students_used", 0) for c in classroom_summaries
+                s.get("students_used", 0) for s in school_summaries
             ),
             "usage": avg_usage,
             "listen": total_listen,
             "read": total_read,
             "quiz": total_quiz,
             "interactivity": int(
-                sum(c["interactivity"] for c in classroom_summaries)
+                sum(s["interactivity"] for s in school_summaries)
             ),
             "practice_recording": int(
-                sum(c["practice_recording"] for c in classroom_summaries)
+                sum(s["practice_recording"] for s in school_summaries)
             )
         }
     }

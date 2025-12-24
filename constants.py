@@ -142,11 +142,11 @@ STATUS_FILTERS: List[str] = [
 # ============================================================================
 
 # Student Usage Report Columns
-STUDENT_USAGE_COL_STUDENT_NAME: int = 0       # To do - Fix: Column A: Schools (in raw data, used as separator identifier)
-STUDENT_USAGE_COL_CLASSROOM: int = 1          # To do - Fix: Column B: District School Id
-STUDENT_USAGE_COL_DISTRICT_ID: int = 2        # To do - Fix: Column C: Screen Name
-STUDENT_USAGE_COL_GRADE: int = 3              # To do - Fix: Column D: First Name
-STUDENT_USAGE_COL_TEACHER: int = 4            # To do - Fix: Column E: Last Name
+STUDENT_USAGE_COL_SCHOOL: int = 0             # Column A: School name
+STUDENT_USAGE_COL_CLASSROOM: int = 1          # Column B: District School Id
+STUDENT_USAGE_COL_SCREEN_NAME: int = 2        # Column C: Screen Name
+STUDENT_USAGE_COL_FIRST_NAME: int = 3         # Column D: First Name
+STUDENT_USAGE_COL_LAST_NAME: int = 4          # Column E: Last Name
 # Note: In combined Excel, Teachers=Column F (index 5), Students=Column G (index 6)
 STUDENT_USAGE_COL_LISTEN: int = 7             # Column H: Listen
 STUDENT_USAGE_COL_READ: int = 8               # Column I: Read

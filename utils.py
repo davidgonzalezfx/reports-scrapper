@@ -16,7 +16,8 @@ from openpyxl import Workbook
 from constants import (
     REPORTS_DIR, REPORT_TYPES, STUDENT_USAGE_COL_LISTEN,
     STUDENT_USAGE_COL_READ, STUDENT_USAGE_COL_QUIZ,
-    STUDENT_USAGE_COL_STUDENT_NAME, STUDENT_USAGE_COL_CLASSROOM,
+    STUDENT_USAGE_COL_SCHOOL, STUDENT_USAGE_COL_CLASSROOM,
+    STUDENT_USAGE_COL_SCREEN_NAME,
     STUDENT_USAGE_COL_INTERACTIVITY, STUDENT_USAGE_COL_PRACTICE_RECORDING,
     SKILL_COL_SKILL_NAME, SKILL_COL_CORRECT, SKILL_COL_TOTAL,
     SKILL_COL_ACCURACY, SKILL_COL_DATA_BAR, LEVEL_UP_COL_STUDENT,
@@ -953,16 +954,19 @@ def get_school_summary(
         return None
 
 
-def get_classroom_summaries(
+def get_school_summaries(
     directory: Union[str, Path]
 ) -> Optional[List[Dict[str, Any]]]:
-    """Get per-classroom summary data from all Student Usage reports.
+    """Get per-school summary data from all Student Usage reports.
+
+    Groups data by school name (column A) and only counts students with
+    valid screen names (column C).
 
     Args:
         directory: Path to the reports directory
 
     Returns:
-        List of classroom summary dictionaries or None if no data found
+        List of school summary dictionaries or None if no data found
     """
     try:
         reports_directory = _resolve_reports_directory(directory)
@@ -978,11 +982,11 @@ def get_classroom_summaries(
             return None
 
         logger.info(
-            f"Found {len(files)} Student Usage reports for classroom summaries"
+            f"Found {len(files)} Student Usage reports for school summaries"
         )
 
-        # Dictionary to accumulate data per classroom
-        classroom_data = {}
+        # Dictionary to accumulate data per school
+        school_data = {}
 
         for file_path in sorted(files):
             try:
@@ -991,17 +995,6 @@ def get_classroom_summaries(
                         f"File {file_path} is empty or doesn't exist, skipping"
                     )
                     continue
-
-                # Extract classroom name from filename
-                filename = file_path.name
-                if "_Student Usage_" in filename:
-                    classroom_name = filename.split("_Student Usage_")[0]
-                else:
-                    logger.warning(
-                        f"Could not extract classroom name from {filename}, "
-                        f"using 'Unknown'"
-                    )
-                    classroom_name = "Unknown"
 
                 df = pd.read_excel(file_path, engine="openpyxl")
 
@@ -1015,10 +1008,21 @@ def get_classroom_summaries(
                 for _, row in df.iterrows():
                     cleaned_row = clean_row_data(list(row))
 
-                    # Initialize classroom data if not exists
-                    if classroom_name not in classroom_data:
-                        classroom_data[classroom_name] = {
-                            "name": classroom_name,
+                    # Validate screen name - only count rows with screen names
+                    screen_name = cleaned_row[STUDENT_USAGE_COL_SCREEN_NAME]
+                    if not screen_name or str(screen_name).strip() == "":
+                        continue  # Skip this row entirely
+
+                    # Extract school name from column A
+                    school_name = cleaned_row[STUDENT_USAGE_COL_SCHOOL]
+                    if not school_name or str(school_name).strip() == "":
+                        logger.warning("Row has empty school name, skipping")
+                        continue
+
+                    # Initialize school data if not exists
+                    if school_name not in school_data:
+                        school_data[school_name] = {
+                            "name": school_name,
                             "students": 0,
                             "students_used": 0,
                             "listen": 0,
@@ -1030,7 +1034,7 @@ def get_classroom_summaries(
                         }
 
                     # Increment student count
-                    classroom_data[classroom_name]["students"] += 1
+                    school_data[school_name]["students"] += 1
 
                     # Check if student used the tool
                     student_used = False
@@ -1042,7 +1046,7 @@ def get_classroom_summaries(
                             listen_val = float(
                                 cleaned_row[STUDENT_USAGE_COL_LISTEN]
                             )
-                            classroom_data[classroom_name]["listen"] += listen_val
+                            school_data[school_name]["listen"] += listen_val
                             if listen_val > 0:
                                 student_used = True
                         except (ValueError, TypeError):
@@ -1053,7 +1057,7 @@ def get_classroom_summaries(
                             pd.notna(cleaned_row[STUDENT_USAGE_COL_READ])):
                         try:
                             read_val = float(cleaned_row[STUDENT_USAGE_COL_READ])
-                            classroom_data[classroom_name]["read"] += read_val
+                            school_data[school_name]["read"] += read_val
                             if read_val > 0:
                                 student_used = True
                         except (ValueError, TypeError):
@@ -1064,7 +1068,7 @@ def get_classroom_summaries(
                             pd.notna(cleaned_row[STUDENT_USAGE_COL_QUIZ])):
                         try:
                             quiz_val = float(cleaned_row[STUDENT_USAGE_COL_QUIZ])
-                            classroom_data[classroom_name]["quiz"] += quiz_val
+                            school_data[school_name]["quiz"] += quiz_val
                             if quiz_val > 0:
                                 student_used = True
                         except (ValueError, TypeError):
@@ -1072,13 +1076,13 @@ def get_classroom_summaries(
 
                     # Count student as used if they have activity
                     if student_used:
-                        classroom_data[classroom_name]["students_used"] += 1
+                        school_data[school_name]["students_used"] += 1
 
                     # Sum interactivity
                     if (len(cleaned_row) > STUDENT_USAGE_COL_INTERACTIVITY and
                             pd.notna(cleaned_row[STUDENT_USAGE_COL_INTERACTIVITY])):
                         try:
-                            classroom_data[classroom_name]["interactivity"] += float(
+                            school_data[school_name]["interactivity"] += float(
                                 cleaned_row[STUDENT_USAGE_COL_INTERACTIVITY]
                             )
                         except (ValueError, TypeError):
@@ -1088,7 +1092,7 @@ def get_classroom_summaries(
                     if (len(cleaned_row) > STUDENT_USAGE_COL_PRACTICE_RECORDING and
                             pd.notna(cleaned_row[STUDENT_USAGE_COL_PRACTICE_RECORDING])):
                         try:
-                            classroom_data[classroom_name]["practice_recording"] += float(
+                            school_data[school_name]["practice_recording"] += float(
                                 cleaned_row[STUDENT_USAGE_COL_PRACTICE_RECORDING]
                             )
                         except (ValueError, TypeError):
@@ -1098,32 +1102,32 @@ def get_classroom_summaries(
                 logger.error(f"Error processing file {file_path}: {e}")
                 continue
 
-        if not classroom_data:
-            logger.info("No classroom data found in Student Usage reports")
+        if not school_data:
+            logger.info("No school data found in Student Usage reports")
             return None
 
-        # Calculate usage percentage for each classroom
-        for classroom in classroom_data.values():
-            total_students = classroom["students"]
-            students_used = classroom["students_used"]
+        # Calculate usage percentage for each school
+        for school in school_data.values():
+            total_students = school["students"]
+            students_used = school["students_used"]
             if total_students > 0:
-                classroom["usage"] = round(
+                school["usage"] = round(
                     (students_used / total_students) * 100, 1
                 )
             else:
-                classroom["usage"] = 0
+                school["usage"] = 0
 
-        # Convert to list and sort by classroom name
-        classroom_summaries = list(classroom_data.values())
-        classroom_summaries.sort(key=lambda x: x["name"])
+        # Convert to list and sort by school name
+        school_summaries = list(school_data.values())
+        school_summaries.sort(key=lambda x: x["name"])
 
         logger.debug(
-            f"Calculated summaries for {len(classroom_summaries)} classrooms"
+            f"Calculated summaries for {len(school_summaries)} schools"
         )
-        return classroom_summaries
+        return school_summaries
 
     except Exception as e:
-        logger.error(f"Error getting classroom summaries: {e}")
+        logger.error(f"Error getting school summaries: {e}")
         return None
 
 
@@ -1691,10 +1695,10 @@ def get_level_up_progress_data(
         return None
 
 
-def get_classroom_comparison_data(
+def get_school_comparison_data(
     directory: Union[str, Path]
 ) -> Optional[Dict[str, Any]]:
-    """Get classroom comparison data for bar charts.
+    """Get school comparison data for bar charts.
 
     Args:
         directory: Path to the reports directory
@@ -1702,15 +1706,15 @@ def get_classroom_comparison_data(
     Returns:
         Dict with labels and data for listen, read, quiz charts or None
     """
-    summaries = get_classroom_summaries(directory)
+    summaries = get_school_summaries(directory)
 
     if not summaries:
         return None
 
-    labels = [c["name"] for c in summaries]
-    listen_data = [c["listen"] for c in summaries]
-    read_data = [c["read"] for c in summaries]
-    quiz_data = [c["quiz"] for c in summaries]
+    labels = [s["name"] for s in summaries]
+    listen_data = [s["listen"] for s in summaries]
+    read_data = [s["read"] for s in summaries]
+    quiz_data = [s["quiz"] for s in summaries]
 
     return {
         "labels": labels,
