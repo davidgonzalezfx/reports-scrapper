@@ -515,6 +515,11 @@ def extract_csv_from_zip(zip_path: str, reports_dir: str, classroom_name: str) -
             for root, dirs, files in os.walk(extract_dir):
                 for file in files:
                     if file.lower().endswith('.csv'):
+                        # Skip Student Usage and Teacher Usage files
+                        if 'student usage' in file.lower() or 'teacher usage' in file.lower():
+                            logger.info(f"Skipping {file} (filtered out)")
+                            continue
+
                         extracted_csv_path = os.path.join(root, file)
                         # Rename to include classroom name
                         new_csv_name = f"{classroom_name}_{file}"
@@ -778,7 +783,7 @@ def login_and_download_reports_for_user(
         with sync_playwright() as p:
             # Launch browser
             browser = p.chromium.launch(
-                headless=False,
+                headless=True,
                 args=BROWSER_ARGS
             )
 
