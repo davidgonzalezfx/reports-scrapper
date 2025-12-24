@@ -52,9 +52,9 @@ SELECTOR_CLASSROOM_GREETING: str = "h2.homepageGreeting.frazHomepageGreeting"
 # Filter selectors
 SELECTOR_DATE_FILTER: str = "#mat-select-0"
 SELECTOR_PRODUCTS_FILTER: str = "#mat-select-2"
-SELECTOR_SKILL_FILTER: str = "#mat-select-6"
-SELECTOR_LANGUAGE_FILTER: str = "#mat-select-8"
-SELECTOR_STATUS_FILTER: str = "#mat-select-10"
+SELECTOR_SKILL_FILTER: str = "#mat-select-38"
+SELECTOR_LANGUAGE_FILTER: str = "#mat-select-26"
+SELECTOR_STATUS_FILTER: str = "#mat-select-28"
 SELECTOR_FILTER_OPTION: str = "mat-option"
 
 # Date input selectors
