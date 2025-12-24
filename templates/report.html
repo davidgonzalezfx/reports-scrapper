@@ -919,11 +919,11 @@
           </div>
 
           <div class="table-container">
-            <div class="table-title">Detalle actividades por escuela</div>
+            <div class="table-title">Detalle actividades por docente</div>
             <table class="data-table">
               <thead>
                 <tr>
-                  <th>School</th>
+                  <th>Docente</th>
                   <th>All Students</th>
                   <th>Students with activity</th>
                   <th>%</th>
@@ -935,22 +935,22 @@
                 </tr>
               </thead>
               <tbody>
-                {% for school in detailed_activities.schools %}
+                {% for teacher in detailed_activities.teachers %}
                 <tr>
-                  <td>{{ school.name }}</td>
-                  <td>{{ school.students }}</td>
-                  <td>{{ school.students_used }}</td>
+                  <td>{{ teacher.name }}</td>
+                  <td>{{ teacher.students }}</td>
+                  <td>{{ teacher.students_used }}</td>
                   <td>
-                    <div>{{ school.usage }}%</div>
+                    <div>{{ teacher.usage }}%</div>
                     <div class="usage-bar">
-                      <div class="usage-fill" style="width: {{ school.usage }}%"></div>
+                      <div class="usage-fill" style="width: {{ teacher.usage }}%"></div>
                     </div>
                   </td>
-                  <td>{{ school.listen }}</td>
-                  <td>{{ school.read }}</td>
-                  <td>{{ school.quiz }}</td>
-                  <td>{{ school.interactivity }}</td>
-                  <td>{{ school.practice_recording }}</td>
+                  <td>{{ teacher.listen }}</td>
+                  <td>{{ teacher.read }}</td>
+                  <td>{{ teacher.quiz }}</td>
+                  <td>{{ teacher.interactivity }}</td>
+                  <td>{{ teacher.practice_recording }}</td>
                 </tr>
                 {% endfor %}
                 <tr class="total-row">
@@ -1634,22 +1634,22 @@
       const detailedChart = new Chart(detailedCtx.getContext('2d'), {
         type: 'bar',
         data: {
-          labels: {{ detailed_activities.schools | map(attribute='name') | list | tojson }},
+          labels: {{ detailed_activities.teachers | map(attribute='name') | list | tojson }},
           datasets: [{
             label: 'Listen',
-            data: {{ detailed_activities.schools | map(attribute='listen') | list | tojson }},
+            data: {{ detailed_activities.teachers | map(attribute='listen') | list | tojson }},
             backgroundColor: '#64B5F6',
             borderColor: '#0f7ec2',
             borderWidth: 1
           }, {
             label: 'Read',
-            data: {{ detailed_activities.schools | map(attribute='read') | list | tojson }},
+            data: {{ detailed_activities.teachers | map(attribute='read') | list | tojson }},
             backgroundColor: '#1976D2',
             borderColor: '#0D47A1',
             borderWidth: 1
           }, {
             label: 'Quiz',
-            data: {{ detailed_activities.schools | map(attribute='quiz') | list | tojson }},
+            data: {{ detailed_activities.teachers | map(attribute='quiz') | list | tojson }},
             backgroundColor: '#0D47A1',
             borderColor: '#000051',
             borderWidth: 1
@@ -1661,7 +1661,7 @@
           plugins: {
             title: {
               display: true,
-              text: 'Actividades por Escuela',
+              text: 'Actividades por Docente',
               font: {
                 size: 18,
                 weight: 'bold'
