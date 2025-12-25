@@ -1039,7 +1039,7 @@
             </div>
 
             <div class="activity-description">
-              <div class="description-title">Top 5 Habilidades</div>
+              <div class="description-title">Top 5</div>
               {% for skill in skills_summary.top_skills %}
               <div class="description-item">
                 <i class="material-icons description-icon">check_circle</i>
@@ -1073,7 +1073,7 @@
             <table class="skills-table">
               <thead>
                 <tr>
-                  <th>Skill</th>
+                  <th>{{ 'Skill' if aggregate_skill_by_filter == 'skill' else ('School' if aggregate_skill_by_filter == 'school' else 'Teacher') }}</th>
                   <th>Correct</th>
                   <th>Total</th>
                   <th>Accuracy</th>
@@ -1129,7 +1129,7 @@
             <table class="skills-table">
               <thead>
                 <tr>
-                  <th>Skill</th>
+                  <th>{{ 'Skill' if aggregate_skill_by_filter == 'skill' else ('School' if aggregate_skill_by_filter == 'school' else 'Teacher') }}</th>
                   <th>Correct</th>
                   <th>Total</th>
                   <th>Accuracy</th>
@@ -1165,7 +1165,7 @@
             <table class="skills-table">
               <thead>
                 <tr>
-                  <th>Skill</th>
+                  <th>{{ 'Skill' if aggregate_skill_by_filter == 'skill' else ('School' if aggregate_skill_by_filter == 'school' else 'Teacher') }}</th>
                   <th>Correct</th>
                   <th>Total</th>
                   <th>Accuracy</th>

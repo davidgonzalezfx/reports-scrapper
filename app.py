@@ -436,7 +436,10 @@ def get_report_data() -> Dict[str, Any]:
         "assignment_reports": assignment_reports if assignment_reports else [],
 
         # Assessment Reports
-        "assessment_reports": assessment_reports if assessment_reports else []
+        "assessment_reports": assessment_reports if assessment_reports else [],
+
+        # Skills aggregate filter type (for dynamic column headers)
+        "aggregate_skill_by_filter": config.aggregate_skill_by_filter
     }
 
 
