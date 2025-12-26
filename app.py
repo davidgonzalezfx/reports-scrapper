@@ -421,7 +421,7 @@ def get_report_data() -> Dict[str, Any]:
 
         # Slide 6: Top Readers
         "top_readers": {
-            "title": "Top Lectores por Aula",
+            "title": "Top Lectores",
             "subtitle": subtitle,
             "classrooms": top_readers if top_readers else []
         },
@@ -652,7 +652,7 @@ def _build_skills_summary(
         "stats": [
             {
                 "number": str(summary.get("total_classrooms", 0)),
-                "label": "Aulas"
+                "label": "Organizaciones"
             },
             {
                 "number": f"{summary.get('overall_accuracy', 0)}%",
