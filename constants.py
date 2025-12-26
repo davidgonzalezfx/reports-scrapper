@@ -54,7 +54,7 @@ SELECTOR_DATE_FILTER: str = "mat-select.js-return-focus-date-filter"
 SELECTOR_PRODUCTS_FILTER: str = "mat-select.admin-reports-subject-filter-mat-select"
 SELECTOR_SKILL_FILTER: str = "mat-select.admin-reports-skill-standard-filter-mat-select"
 SELECTOR_LANGUAGE_FILTER: str = "mat-select.admin-reports-language-filter-mat-select"
-SELECTOR_STATUS_FILTER: str = "mat-select.admin-reports-status-filter-mat-select"
+SELECTOR_STATUS_FILTER: str = "mat-select.admin-reports-inactive-teacher-filter-mat-select"
 SELECTOR_FILTER_OPTION: str = "mat-option"
 
 # Aggregate Skill By selectors
@@ -183,6 +183,15 @@ LEVEL_UP_COL_PROGRESS: int = 7
 STATUS_COL_ACTIVE: int = 1  # Column B (0-indexed as 1)
 STATUS_ROW_ACTIVE: int = 0  # Row 2 (0-indexed as 1)
 STATUS_ROW_INACTIVE: int = 1  # Row 3 (0-indexed as 2)
+
+# Teacher Usage Report Columns
+TEACHER_USAGE_COL_SCHOOL: int = 0          # Column A: Schools
+TEACHER_USAGE_COL_TEACHER: int = 1         # Column B: Teachers
+TEACHER_USAGE_COL_TEXTS: int = 2           # Column C: Texts
+TEACHER_USAGE_COL_INSTRUCTION: int = 3     # Column D: Instruction
+TEACHER_USAGE_COL_PRACTICE: int = 4        # Column E: Practice
+TEACHER_USAGE_COL_QUIZZES: int = 5         # Column F: Quizzes
+TEACHER_USAGE_COL_TOTAL: int = 6           # Column G: Total
 
 
 # ============================================================================

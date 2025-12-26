@@ -26,7 +26,10 @@ from constants import (
     SUMMARY_LABEL_QUIZZES, SUMMARY_LABEL_TOTAL, TIMESTAMP_FORMAT,
     DANGEROUS_FILENAME_PATTERNS, STATUS_COL_ACTIVE, STATUS_ROW_ACTIVE,
     STATUS_ROW_INACTIVE,
-    STUDENT_USAGE_COL_STUDENT_NAME
+    STUDENT_USAGE_COL_STUDENT_NAME, TEACHER_USAGE_COL_SCHOOL,
+    TEACHER_USAGE_COL_TEACHER, TEACHER_USAGE_COL_TEXTS,
+    TEACHER_USAGE_COL_INSTRUCTION, TEACHER_USAGE_COL_PRACTICE,
+    TEACHER_USAGE_COL_QUIZZES, TEACHER_USAGE_COL_TOTAL
 )
 from path_helpers import (
     get_base_path, is_frozen, get_executable_dir,
@@ -1131,6 +1134,156 @@ def get_teacher_summaries(
 
     except Exception as e:
         logger.error(f"Error getting teacher summaries: {e}")
+        return None
+
+
+def get_teacher_usage_summaries(
+    directory: Union[str, Path]
+) -> Optional[List[Dict[str, Any]]]:
+    """Get per-teacher summary data from Teacher Usage reports.
+
+    Reads Teacher Usage Excel files and aggregates data by teacher name.
+    Each row represents a teacher's activity data.
+
+    Args:
+        directory: Path to the reports directory
+
+    Returns:
+        List of teacher summary dictionaries or None if no data found.
+        Each dictionary contains:
+        - name: Teacher name
+        - texts: Total texts count
+        - instruction: Total instruction count
+        - practice: Total practice count
+        - quizzes: Total quizzes count
+        - total: Total activities count
+    """
+    try:
+        reports_directory = _resolve_reports_directory(directory)
+        if not reports_directory:
+            return None
+
+        # Find Teacher Usage files
+        pattern = "*_Teacher Usage_*.xlsx"
+        files = list(reports_directory.glob(pattern))
+
+        if not files:
+            logger.info("No Teacher Usage reports found")
+            return None
+
+        logger.info(
+            f"Found {len(files)} Teacher Usage reports for teacher usage summaries"
+        )
+
+        # Dictionary to accumulate data per teacher
+        teacher_data = {}
+
+        for file_path in sorted(files):
+            try:
+                if not file_path.exists() or file_path.stat().st_size == 0:
+                    logger.warning(
+                        f"File {file_path} is empty or doesn't exist, skipping"
+                    )
+                    continue
+
+                df = pd.read_excel(file_path, engine="openpyxl")
+
+                if df.empty:
+                    logger.warning(
+                        f"Excel file {file_path} contains no data, skipping"
+                    )
+                    continue
+
+                # Process each row in the file
+                for _, row in df.iterrows():
+                    cleaned_row = clean_row_data(list(row))
+
+                    # Extract teacher name from column B (index 1)
+                    teacher_name = cleaned_row[TEACHER_USAGE_COL_TEACHER]
+                    if not teacher_name or str(teacher_name).strip() == "":
+                        logger.warning("Row has empty teacher name, skipping")
+                        continue
+
+                    # Initialize teacher data if not exists
+                    if teacher_name not in teacher_data:
+                        teacher_data[teacher_name] = {
+                            "name": teacher_name,
+                            "texts": 0,
+                            "instruction": 0,
+                            "practice": 0,
+                            "quizzes": 0,
+                            "total": 0
+                        }
+
+                    # Sum texts (column C, index 2)
+                    if (len(cleaned_row) > TEACHER_USAGE_COL_TEXTS and
+                            pd.notna(cleaned_row[TEACHER_USAGE_COL_TEXTS])):
+                        try:
+                            teacher_data[teacher_name]["texts"] += int(
+                                cleaned_row[TEACHER_USAGE_COL_TEXTS]
+                            )
+                        except (ValueError, TypeError):
+                            pass
+
+                    # Sum instruction (column D, index 3)
+                    if (len(cleaned_row) > TEACHER_USAGE_COL_INSTRUCTION and
+                            pd.notna(cleaned_row[TEACHER_USAGE_COL_INSTRUCTION])):
+                        try:
+                            teacher_data[teacher_name]["instruction"] += int(
+                                cleaned_row[TEACHER_USAGE_COL_INSTRUCTION]
+                            )
+                        except (ValueError, TypeError):
+                            pass
+
+                    # Sum practice (column E, index 4)
+                    if (len(cleaned_row) > TEACHER_USAGE_COL_PRACTICE and
+                            pd.notna(cleaned_row[TEACHER_USAGE_COL_PRACTICE])):
+                        try:
+                            teacher_data[teacher_name]["practice"] += int(
+                                cleaned_row[TEACHER_USAGE_COL_PRACTICE]
+                            )
+                        except (ValueError, TypeError):
+                            pass
+
+                    # Sum quizzes (column F, index 5)
+                    if (len(cleaned_row) > TEACHER_USAGE_COL_QUIZZES and
+                            pd.notna(cleaned_row[TEACHER_USAGE_COL_QUIZZES])):
+                        try:
+                            teacher_data[teacher_name]["quizzes"] += int(
+                                cleaned_row[TEACHER_USAGE_COL_QUIZZES]
+                            )
+                        except (ValueError, TypeError):
+                            pass
+
+                    # Sum total (column G, index 6)
+                    if (len(cleaned_row) > TEACHER_USAGE_COL_TOTAL and
+                            pd.notna(cleaned_row[TEACHER_USAGE_COL_TOTAL])):
+                        try:
+                            teacher_data[teacher_name]["total"] += int(
+                                cleaned_row[TEACHER_USAGE_COL_TOTAL]
+                            )
+                        except (ValueError, TypeError):
+                            pass
+
+            except Exception as e:
+                logger.error(f"Error processing file {file_path}: {e}")
+                continue
+
+        if not teacher_data:
+            logger.info("No teacher data found in Teacher Usage reports")
+            return None
+
+        # Convert to list and sort by teacher name
+        teacher_summaries = list(teacher_data.values())
+        teacher_summaries.sort(key=lambda x: x["name"])
+
+        logger.debug(
+            f"Calculated teacher usage summaries for {len(teacher_summaries)} teachers"
+        )
+        return teacher_summaries
+
+    except Exception as e:
+        logger.error(f"Error getting teacher usage summaries: {e}")
         return None
 
 

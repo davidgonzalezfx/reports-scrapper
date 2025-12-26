@@ -42,7 +42,8 @@ from utils import (
     get_report_files, get_school_summary, get_teacher_summaries,
     get_reading_skills_data, get_skills_summary, get_overall_skills_table,
     get_top_readers_per_classroom, get_level_up_progress_data,
-    get_teacher_comparison_data, get_assignment_data, get_assessment_data
+    get_teacher_comparison_data, get_assignment_data, get_assessment_data,
+    get_teacher_usage_summaries
 )
 
 # Setup logging
@@ -380,6 +381,7 @@ def get_report_data() -> Dict[str, Any]:
     # Get summary data from reports
     summary = get_school_summary(REPORTS_DIR)
     teacher_summaries = get_teacher_summaries(REPORTS_DIR)
+    teacher_usage_summaries = get_teacher_usage_summaries(REPORTS_DIR)
     reading_skills = get_reading_skills_data(REPORTS_DIR)
     skills_summary = get_skills_summary(REPORTS_DIR)
     overall_skills_table = get_overall_skills_table(REPORTS_DIR)
@@ -402,6 +404,12 @@ def get_report_data() -> Dict[str, Any]:
         # Slide 3: Detailed Activities
         "detailed_activities": _build_detailed_activities(
             teacher_summaries,
+            subtitle
+        ),
+
+        # Slide 5: Detailed Teachers
+        "detailed_teachers": _build_detailed_teachers(
+            teacher_usage_summaries,
             subtitle
         ),
 
@@ -608,6 +616,79 @@ def _build_detailed_activities(
             "practice_recording": int(
                 sum(s["practice_recording"] for s in teacher_summaries)
             )
+        }
+    }
+
+
+def _build_detailed_teachers(
+    teacher_usage_summaries: Optional[List[Dict[str, Any]]],
+    subtitle: str
+) -> Dict[str, Any]:
+    """Build detailed teachers data for presentation.
+
+    Creates the "Detalle Total Docentes" slide with raw teacher usage data.
+    Shows actual counts without percentages or progress bars.
+
+    Args:
+        teacher_usage_summaries: List of teacher usage summary dictionaries
+        subtitle: Date subtitle string
+
+    Returns:
+        Dictionary with formatted detailed teachers data
+    """
+    if not teacher_usage_summaries:
+        return {
+            "title": "DETALLE TOTAL DOCENTES",
+            "subtitle": subtitle,
+            "activity_summary": [
+                {"icon": "menu_book", "number": "0", "name": "Texts"},
+                {"icon": "school", "number": "0", "name": "Instruction"},
+                {"icon": "edit", "number": "0", "name": "Practice"},
+                {"icon": "quiz", "number": "0", "name": "Quizzes"}
+            ],
+            "teachers": [],
+            "total": {
+                "texts": 0,
+                "instruction": 0,
+                "practice": 0,
+                "quizzes": 0,
+                "total": 0
+            }
+        }
+
+    # Calculate totals
+    total_texts = sum(s["texts"] for s in teacher_usage_summaries)
+    total_instruction = sum(s["instruction"] for s in teacher_usage_summaries)
+    total_practice = sum(s["practice"] for s in teacher_usage_summaries)
+    total_quizzes = sum(s["quizzes"] for s in teacher_usage_summaries)
+    total_all = sum(s["total"] for s in teacher_usage_summaries)
+
+    return {
+        "title": "DETALLE TOTAL DOCENTES",
+        "subtitle": subtitle,
+        "activity_summary": [
+            {"icon": "menu_book", "number": str(total_texts), "name": "Texts"},
+            {"icon": "school", "number": str(total_instruction), "name": "Instruction"},
+            {"icon": "edit", "number": str(total_practice), "name": "Practice"},
+            {"icon": "quiz", "number": str(total_quizzes), "name": "Quizzes"}
+        ],
+        "teachers": [
+            {
+                "name": s["name"],
+                "texts": s["texts"],
+                "instruction": s["instruction"],
+                "practice": s["practice"],
+                "quizzes": s["quizzes"],
+                "total": s["total"]
+            }
+            for s in teacher_usage_summaries
+        ],
+        "total": {
+            "texts": total_texts,
+            "instruction": total_instruction,
+            "practice": total_practice,
+            "quizzes": total_quizzes,
+            "total": total_all
         }
     }
 
