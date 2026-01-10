@@ -40,7 +40,7 @@ from exceptions import ConfigurationError, ValidationError, FileOperationError
 from utils import (
     load_json, save_json, validate_filename, validate_user_data,
     get_report_files, get_school_summary, get_teacher_summaries,
-    get_reading_skills_data, get_skills_summary, get_overall_skills_table,
+    get_skills_summary, get_overall_skills_table,
     get_top_readers_per_classroom, get_level_up_progress_data,
     get_teacher_comparison_data, get_assignment_data, get_assessment_data,
     get_teacher_usage_summaries
@@ -382,7 +382,6 @@ def get_report_data() -> Dict[str, Any]:
     summary = get_school_summary(REPORTS_DIR)
     teacher_summaries = get_teacher_summaries(REPORTS_DIR)
     teacher_usage_summaries = get_teacher_usage_summaries(REPORTS_DIR)
-    reading_skills = get_reading_skills_data(REPORTS_DIR)
     skills_summary = get_skills_summary(REPORTS_DIR)
     overall_skills_table = get_overall_skills_table(REPORTS_DIR)
     level_up_progress = get_level_up_progress_data(REPORTS_DIR)
@@ -396,7 +395,7 @@ def get_report_data() -> Dict[str, Any]:
         "report_title": "REPORTE DE USO",
         "institution": config.institution_name,
         "date_range": date_range,
-        "logos": [{"icon": "school", "text": "b1 tech"}],
+        "logos": [{"text": "b1 tech"}],
 
         # Slide 2: School Overview
         "school_overview": _build_school_overview(summary, subtitle),
@@ -418,9 +417,6 @@ def get_report_data() -> Dict[str, Any]:
 
         # Overall Skills Table (after summary, before per-classroom)
         "overall_skills_table": overall_skills_table if overall_skills_table else [],
-
-        # Slide 4: Reading Skills (per-classroom)
-        "reading_skills": reading_skills if reading_skills else [],
 
         # Slide 5: Level Up Progress
         "level_up_progress": (
