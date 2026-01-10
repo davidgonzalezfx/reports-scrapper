@@ -733,7 +733,7 @@ def _build_skills_summary(
         "stats": [
             {
                 "number": str(summary.get("total_classrooms", 0)),
-                "label": "Organizaciones"
+                "label": "Institución educativa"
             },
             {
                 "number": f"{summary.get('overall_accuracy', 0)}%",
