@@ -19,6 +19,7 @@ from constants import (
     STUDENT_USAGE_COL_SCHOOL, STUDENT_USAGE_COL_CLASSROOM,
     STUDENT_USAGE_COL_SCREEN_NAME, STUDENT_USAGE_COL_TEACHER,
     STUDENT_USAGE_COL_INTERACTIVITY, STUDENT_USAGE_COL_PRACTICE_RECORDING,
+    STUDENT_USAGE_COL_READING_ACTIVITIES,
     SKILL_COL_SKILL_NAME, SKILL_COL_CORRECT, SKILL_COL_TOTAL,
     SKILL_COL_ACCURACY, SKILL_COL_DATA_BAR, LEVEL_UP_COL_STUDENT,
     LEVEL_UP_COL_LEVEL, LEVEL_UP_COL_PROGRESS, SUMMARY_LABEL_TEACHERS,
@@ -1592,14 +1593,31 @@ def get_overall_skills_table(
 
 def get_top_readers_per_classroom(
     directory: Union[str, Path]
-) -> Optional[List[Dict[str, Any]]]:
-    """Get top 3 readers per classroom from Student Usage reports.
+) -> Optional[Dict[str, Any]]:
+    """Get top 3 readers globally and per school from Student Usage reports.
+
+    Returns a dictionary with both global top 3 readers and top 3 readers
+    per school. Uses the Reading Activities column for scoring.
 
     Args:
         directory: Path to the reports directory
 
     Returns:
-        List of classroom dictionaries with top readers or None if no data found
+        Dictionary with global_top and by_school data, or None if no data found.
+        Structure:
+        {
+            "global_top": [
+                {"name": "Student Name", "score": 1234, "school": "School Name"}
+            ],
+            "by_school": [
+                {
+                    "school": "School Name",
+                    "students": [
+                        {"name": "Student Name", "score": 1234}
+                    ]
+                }
+            ]
+        }
     """
     try:
         reports_directory = _resolve_reports_directory(directory)
@@ -1616,8 +1634,8 @@ def get_top_readers_per_classroom(
 
         logger.info(f"Found {len(files)} Student Usage reports for top readers")
 
-        # Dictionary to accumulate students per classroom
-        classroom_students = {}
+        # Accumulate all students across all files
+        all_students = []
 
         for file_path in sorted(files):
             try:
@@ -1626,17 +1644,6 @@ def get_top_readers_per_classroom(
                         f"File {file_path} is empty or doesn't exist, skipping"
                     )
                     continue
-
-                # Extract classroom name from filename
-                filename = file_path.name
-                if "_Student Usage_" in filename:
-                    classroom_name = filename.split("_Student Usage_")[0]
-                else:
-                    logger.warning(
-                        f"Could not extract classroom name from {filename}, "
-                        f"using 'Unknown'"
-                    )
-                    classroom_name = "Unknown"
 
                 df = pd.read_excel(file_path, engine="openpyxl")
 
@@ -1650,43 +1657,43 @@ def get_top_readers_per_classroom(
                 for _, row in df.iterrows():
                     cleaned_row = clean_row_data(list(row))
 
-                    # Extract student name
+                    # Extract school name (column 0)
+                    school_name = (
+                        str(cleaned_row[STUDENT_USAGE_COL_SCHOOL]).strip()
+                        if len(cleaned_row) > STUDENT_USAGE_COL_SCHOOL
+                        else ""
+                    )
+
+                    if not school_name or school_name.lower() == "nan":
+                        continue
+
+                    # Extract student name (column 6)
                     student_name = (
                         str(cleaned_row[STUDENT_USAGE_COL_STUDENT_NAME]).strip()
                         if len(cleaned_row) > STUDENT_USAGE_COL_STUDENT_NAME
                         else ""
                     )
 
-                    if not student_name:
+                    if not student_name or student_name.lower() == "nan":
                         continue
 
-                    # Extract listen and read values
-                    listen = 0
-                    read = 0
-
-                    if (len(cleaned_row) > STUDENT_USAGE_COL_LISTEN and
-                            pd.notna(cleaned_row[STUDENT_USAGE_COL_LISTEN])):
+                    # Extract reading activities score (column 9)
+                    score = 0
+                    if (len(cleaned_row) > STUDENT_USAGE_COL_READING_ACTIVITIES and
+                            pd.notna(cleaned_row[STUDENT_USAGE_COL_READING_ACTIVITIES])):
                         try:
-                            listen = float(cleaned_row[STUDENT_USAGE_COL_LISTEN])
+                            score = float(cleaned_row[STUDENT_USAGE_COL_READING_ACTIVITIES])
                         except (ValueError, TypeError):
-                            pass
+                            continue
 
-                    if (len(cleaned_row) > STUDENT_USAGE_COL_READ and
-                            pd.notna(cleaned_row[STUDENT_USAGE_COL_READ])):
-                        try:
-                            read = float(cleaned_row[STUDENT_USAGE_COL_READ])
-                        except (ValueError, TypeError):
-                            pass
+                    # Skip students with zero score
+                    if score <= 0:
+                        continue
 
-                    score = listen + read
-
-                    # Initialize classroom if not exists
-                    if classroom_name not in classroom_students:
-                        classroom_students[classroom_name] = []
-
-                    # Add student to classroom
-                    classroom_students[classroom_name].append({
+                    # Add to all students list
+                    all_students.append({
                         "name": student_name,
+                        "school": school_name,
                         "score": score
                     })
 
@@ -1694,37 +1701,54 @@ def get_top_readers_per_classroom(
                 logger.error(f"Error processing file {file_path}: {e}")
                 continue
 
-        if not classroom_students:
+        if not all_students:
             logger.info("No student data found in Student Usage reports")
             return None
 
-        # Process each classroom to get top 3 readers
-        top_readers_data = []
+        logger.debug(f"Found {len(all_students)} students with reading activities")
 
-        for classroom_name, students in classroom_students.items():
-            # Filter out students with zero scores
-            valid_students = [s for s in students if s["score"] > 0]
+        # 1. Get global top 3 readers
+        all_students_sorted = sorted(all_students, key=lambda x: x["score"], reverse=True)
+        global_top = all_students_sorted[:3]
 
-            # Skip classroom if all students have zero scores
-            if not valid_students:
-                continue
+        logger.debug(
+            f"Global top readers: {[s['name'] for s in global_top]}"
+        )
 
-            # Sort by score descending and take top 3
-            valid_students.sort(key=lambda x: x["score"], reverse=True)
-            top_students = valid_students[:3]
+        # 2. Get top 3 readers per school
+        # Group students by school
+        school_students = {}
+        for student in all_students:
+            school = student["school"]
+            if school not in school_students:
+                school_students[school] = []
+            school_students[school].append({
+                "name": student["name"],
+                "score": student["score"]
+            })
 
-            top_readers_data.append({
-                "name": classroom_name,
+        # Get top 3 per school
+        by_school = []
+        for school_name, students in school_students.items():
+            students_sorted = sorted(students, key=lambda x: x["score"], reverse=True)
+            top_students = students_sorted[:3]
+
+            by_school.append({
+                "school": school_name,
                 "students": top_students
             })
 
-        # Sort classrooms by name
-        top_readers_data.sort(key=lambda x: x["name"])
+        # Sort schools by name
+        by_school.sort(key=lambda x: x["school"])
 
         logger.debug(
-            f"Calculated top readers for {len(top_readers_data)} classrooms"
+            f"Calculated top readers for {len(by_school)} schools"
         )
-        return top_readers_data
+
+        return {
+            "global_top": global_top,
+            "by_school": by_school
+        }
 
     except Exception as e:
         logger.error(f"Error getting top readers per classroom: {e}")

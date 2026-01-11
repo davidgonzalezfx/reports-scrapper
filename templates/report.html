@@ -695,6 +695,21 @@
       text-align: center;
     }
 
+    /* Global Top 3 Section - Minimal Overrides */
+    .slide-6 .global-section {
+      padding: 20px;
+      border-bottom: 3px solid #e0e0e0;
+    }
+
+    .slide-6 .student-school {
+      font-size: 16px;
+      color: #666;
+      margin: 0 20px;
+      padding: 5px 12px;
+      background-color: #e3f2fd;
+      border-radius: 15px;
+    }
+
     .slide-6 .top-score {
       color: #2e7d32;
       background-color: #e8f5e9;
@@ -1248,20 +1263,44 @@
         <div class="content">
           <div class="table-container">
             <div class="top-readers-table">
+              <!-- Global Top 3 Section -->
               <div class="table-header">
                 <div class="table-title">
-                  <i class="material-icons">emoji_events</i>
-                  Los mejores por organización
+                  <i class="material-icons">public</i>
+                  Top 3 Global
+                </div>
+              </div>
+              <div class="table-content global-section">
+                {% for student in top_readers.global_top %}
+                <div class="student-item global-student">
+                  <div class="student-name">
+                    {{ student.name }}
+                  </div>
+                  <div class="student-school">
+                    {{ student.school }}
+                  </div>
+                  <div class="student-score">
+                    {{ student.score }}
+                  </div>
+                </div>
+                {% endfor %}
+              </div>
+
+              <!-- Per-School Top 3 Section -->
+              <div class="table-header">
+                <div class="table-title">
+                  <i class="material-icons">school</i>
+                  Por Escuela
                 </div>
               </div>
               <div class="table-content">
-                {% for classroom in top_readers.classrooms %}
+                {% for school_data in top_readers.by_school %}
                 <div class="classroom-column">
                   <div class="classroom-name">
-                    <i class="material-icons">school</i>
-                    {{ classroom.name }}
+                    <i class="material-icons">location_city</i>
+                    {{ school_data.school }}
                   </div>
-                  {% for student in classroom.students %}
+                  {% for student in school_data.students %}
                   <div class="student-item">
                     <div class="student-name">
                       {{ student.name }}

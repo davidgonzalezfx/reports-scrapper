@@ -427,7 +427,8 @@ def get_report_data() -> Dict[str, Any]:
         "top_readers": {
             "title": "Top Lectores",
             "subtitle": subtitle,
-            "classrooms": top_readers if top_readers else []
+            "global_top": top_readers["global_top"] if top_readers else [],
+            "by_school": top_readers["by_school"] if top_readers else []
         },
 
         # Slide 7: School Comparison

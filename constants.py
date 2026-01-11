@@ -166,6 +166,7 @@ STUDENT_USAGE_COL_READ: int = 8               # Column I: Read
 STUDENT_USAGE_COL_QUIZ: int = 9               # Column J: Quiz
 STUDENT_USAGE_COL_INTERACTIVITY: int = 10     # Column K: Interactivity/ Game
 STUDENT_USAGE_COL_PRACTICE_RECORDING: int = 11 # Column L: Practice Recording
+STUDENT_USAGE_COL_READING_ACTIVITIES: int = 9  # Column J: Reading Activities
 
 # Skill Report Columns
 SKILL_COL_SKILL_NAME: int = 0
