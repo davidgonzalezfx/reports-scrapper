@@ -162,16 +162,29 @@
 <body class="bg-gray-50 min-h-screen">
 	<div class="max-w-6xl mx-auto px-4 py-8">
 		<!-- Header -->
-		<div class="mb-12 text-center">
-			<div class="inline-flex items-center gap-3 mb-4">
-				<div
-					class="w-16 h-16 bg-gradient-to-r from-blue-600 via-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center shadow-xl">
-					<i class="fas fa-spider text-white text-2xl"></i>
+		<div class="mb-12 flex items-center justify-between">
+			<!-- Left: Title (centered visually) -->
+			<div class="flex-1 text-center">
+				<div class="inline-flex items-center gap-3 mb-4">
+					<div
+						class="w-16 h-16 bg-gradient-to-r from-blue-600 via-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center shadow-xl">
+						<i class="fas fa-spider text-white text-2xl"></i>
+					</div>
+					<div class="text-left">
+						<h1 class="text-4xl font-bold gradient-text">Reports Scraper</h1>
+						<p class="text-lg text-gray-600">Professional Data Collection Dashboard</p>
+					</div>
 				</div>
-				<div class="text-left">
-					<h1 class="text-4xl font-bold gradient-text">Reports Scraper</h1>
-					<p class="text-lg text-gray-600">Professional Data Collection Dashboard</p>
-				</div>
+			</div>
+
+			<!-- Right: Clear All Button -->
+			<div class="flex-shrink-0">
+				<button id="clear-all-btn"
+					class="group relative inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-red-600 to-red-700 text-white font-medium rounded-lg shadow-md hover:from-red-700 hover:to-red-800 focus:outline-none focus:ring-4 focus:ring-red-300 transition-all duration-200">
+					<i class="fas fa-trash-alt"></i>
+					<span>Clear All</span>
+					<div class="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 rounded-lg transition-opacity duration-200"></div>
+				</button>
 			</div>
 		</div>
 
@@ -1374,6 +1387,38 @@
 					})
 					.catch(error => {
 						showMessage('Error deleting reports: ' + error.message, 'error');
+						// Restore button state
+						btn.innerHTML = originalText;
+						btn.disabled = false;
+					});
+			}
+		});
+
+		// Clear all functionality (users and reports)
+		document.getElementById('clear-all-btn').addEventListener('click', function() {
+			if (confirm('This will reset all application data. Continue?')) {
+				// Show loading state
+				const btn = this;
+				const originalText = btn.innerHTML;
+				btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Clearing...</span>';
+				btn.disabled = true;
+
+				fetch('/clear-all', { method: 'POST' })
+					.then(response => response.json())
+					.then(data => {
+						if (data.status === 'ok') {
+							showMessage(`Cleared ${data.files_deleted} reports and all users`, 'success');
+							// Reload page after a short delay
+							setTimeout(() => window.location.reload(), 1500);
+						} else {
+							showMessage(data.error || 'Failed to clear data', 'error');
+							// Restore button state
+							btn.innerHTML = originalText;
+							btn.disabled = false;
+						}
+					})
+					.catch(error => {
+						showMessage('Error clearing data: ' + error.message, 'error');
 						// Restore button state
 						btn.innerHTML = originalText;
 						btn.disabled = false;

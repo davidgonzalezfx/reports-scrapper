@@ -1252,6 +1252,43 @@ def save_users_route():
         return jsonify({"error": "Failed to save users"}), 500
 
 
+@app.route("/clear-all", methods=["POST"])
+def clear_all():
+    """Clear all users and reports.
+
+    Returns:
+        JSON with status, files deleted count, and users cleared confirmation
+    """
+    try:
+        # Clear all reports
+        reports_dir = get_reports_directory(REPORTS_DIR)
+        reports_dir.mkdir(parents=True, exist_ok=True)
+
+        files_deleted = 0
+        for file_path in reports_dir.glob("*"):
+            if file_path.is_file():
+                file_path.unlink()
+                files_deleted += 1
+                logger.info(f"Deleted report file: {file_path.name}")
+
+        # Clear all users
+        save_users([])
+        logger.info("Successfully cleared all users")
+
+        logger.info(f"Successfully cleared {files_deleted} reports and all users")
+        return jsonify({
+            "status": "ok",
+            "files_deleted": files_deleted,
+            "users_cleared": True
+        })
+
+    except Exception as e:
+        logger.error(f"Error clearing all data: {e}")
+        return jsonify({
+            "error": f"Failed to clear data: {str(e)}"
+        }), 500
+
+
 @app.route("/upload-users", methods=["POST"])
 def upload_users():
     """Upload users configuration from JSON file.
@@ -1420,7 +1457,7 @@ def cleanup_on_startup() -> None:
     # Clean up users
     try:
         logger.info("Clearing all configured users on startup")
-        # save_users([])
+        save_users([])
         logger.info("Successfully cleared all users")
     except FileOperationError as e:
         logger.error(f"Failed to clear users during startup: {e}")
