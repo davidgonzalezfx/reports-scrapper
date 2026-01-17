@@ -428,7 +428,7 @@ def get_report_data() -> Dict[str, Any]:
             "title": "Top Lectores",
             "subtitle": subtitle,
             "global_top": top_readers["global_top"] if top_readers else [],
-            "by_school": top_readers["by_school"] if top_readers else []
+            "by_teacher": top_readers["by_teacher"] if top_readers else []
         },
 
         # Slide 7: School Comparison
@@ -1500,7 +1500,7 @@ if __name__ == "__main__":
         os.getenv("AUTO_OPEN_BROWSER", "true").lower() == "true"
     )
 
-    cleanup_on_startup()
+    # cleanup_on_startup()
     clear_log_file("app.log")
     logger.info("Cleared app.log file")
     logger.info("Starting Flask application")

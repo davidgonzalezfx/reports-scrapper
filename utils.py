@@ -1594,24 +1594,24 @@ def get_overall_skills_table(
 def get_top_readers_per_classroom(
     directory: Union[str, Path]
 ) -> Optional[Dict[str, Any]]:
-    """Get top 3 readers globally and per school from Student Usage reports.
+    """Get top 3 readers globally and per teacher from Student Usage reports.
 
     Returns a dictionary with both global top 3 readers and top 3 readers
-    per school. Uses the Reading Activities column for scoring.
+    per teacher. Uses the Reading Activities column for scoring.
 
     Args:
         directory: Path to the reports directory
 
     Returns:
-        Dictionary with global_top and by_school data, or None if no data found.
+        Dictionary with global_top and by_teacher data, or None if no data found.
         Structure:
         {
             "global_top": [
-                {"name": "Student Name", "score": 1234, "school": "School Name"}
+                {"name": "Student Name", "score": 1234, "teacher": "Teacher Name"}
             ],
-            "by_school": [
+            "by_teacher": [
                 {
-                    "school": "School Name",
+                    "teacher": "Teacher Name",
                     "students": [
                         {"name": "Student Name", "score": 1234}
                     ]
@@ -1667,6 +1667,16 @@ def get_top_readers_per_classroom(
                     if not school_name or school_name.lower() == "nan":
                         continue
 
+                    # Extract teacher name (column 5)
+                    teacher_name = (
+                        str(cleaned_row[STUDENT_USAGE_COL_TEACHER]).strip()
+                        if len(cleaned_row) > STUDENT_USAGE_COL_TEACHER
+                        else ""
+                    )
+
+                    if not teacher_name or teacher_name.lower() == "nan":
+                        continue
+
                     # Extract student name (column 6)
                     student_name = (
                         str(cleaned_row[STUDENT_USAGE_COL_STUDENT_NAME]).strip()
@@ -1694,6 +1704,7 @@ def get_top_readers_per_classroom(
                     all_students.append({
                         "name": student_name,
                         "school": school_name,
+                        "teacher": teacher_name,
                         "score": score
                     })
 
@@ -1715,39 +1726,39 @@ def get_top_readers_per_classroom(
             f"Global top readers: {[s['name'] for s in global_top]}"
         )
 
-        # 2. Get top 3 readers per school
-        # Group students by school
-        school_students = {}
+        # 2. Get top 3 readers per teacher
+        # Group students by teacher
+        teacher_students = {}
         for student in all_students:
-            school = student["school"]
-            if school not in school_students:
-                school_students[school] = []
-            school_students[school].append({
+            teacher = student["teacher"]
+            if teacher not in teacher_students:
+                teacher_students[teacher] = []
+            teacher_students[teacher].append({
                 "name": student["name"],
                 "score": student["score"]
             })
 
-        # Get top 3 per school
-        by_school = []
-        for school_name, students in school_students.items():
+        # Get top 3 per teacher
+        by_teacher = []
+        for teacher_name, students in teacher_students.items():
             students_sorted = sorted(students, key=lambda x: x["score"], reverse=True)
             top_students = students_sorted[:3]
 
-            by_school.append({
-                "school": school_name,
+            by_teacher.append({
+                "teacher": teacher_name,
                 "students": top_students
             })
 
-        # Sort schools by name
-        by_school.sort(key=lambda x: x["school"])
+        # Sort teachers by name
+        by_teacher.sort(key=lambda x: x["teacher"])
 
         logger.debug(
-            f"Calculated top readers for {len(by_school)} schools"
+            f"Calculated top readers for {len(by_teacher)} teachers"
         )
 
         return {
             "global_top": global_top,
-            "by_school": by_school
+            "by_teacher": by_teacher
         }
 
     except Exception as e:

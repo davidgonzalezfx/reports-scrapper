@@ -1252,77 +1252,7 @@
     </div>
     {% endfor %}
 
-    <!-- Slide 6: Top Readers -->
-    <div class="slide slide-6">
-      <div class="slide-content">
-        <div class="header">
-          <div class="title">{{ top_readers.title }}</div>
-          <div class="subtitle">{{ top_readers.subtitle }}</div>
-          <img src="templates/images/logo-b1-tech-white.png" alt="B1 Tech Logo" class="header-logo">
-        </div>
-        <div class="content">
-          <div class="table-container">
-            <div class="top-readers-table">
-              <!-- Global Top 3 Section -->
-              <div class="table-header">
-                <div class="table-title">
-                  <i class="material-icons">public</i>
-                  Top 3 Global
-                </div>
-              </div>
-              <div class="table-content global-section">
-                {% for student in top_readers.global_top %}
-                <div class="student-item global-student">
-                  <div class="student-name">
-                    {{ student.name }}
-                  </div>
-                  <div class="student-school">
-                    {{ student.school }}
-                  </div>
-                  <div class="student-score">
-                    {{ student.score }}
-                  </div>
-                </div>
-                {% endfor %}
-              </div>
-
-              <!-- Per-School Top 3 Section -->
-              <div class="table-header">
-                <div class="table-title">
-                  <i class="material-icons">school</i>
-                  Por Escuela
-                </div>
-              </div>
-              <div class="table-content">
-                {% for school_data in top_readers.by_school %}
-                <div class="classroom-column">
-                  <div class="classroom-name">
-                    <i class="material-icons">location_city</i>
-                    {{ school_data.school }}
-                  </div>
-                  {% for student in school_data.students %}
-                  <div class="student-item">
-                    <div class="student-name">
-                      {{ student.name }}
-                    </div>
-                    <div class="student-score">
-                      {{ student.score }}
-                    </div>
-                  </div>
-                  {% endfor %}
-                </div>
-                {% endfor %}
-              </div>
-            </div>
-          </div>
-          <div class="date-info">
-            <i class="material-icons">date_range</i>
-            Período: {{ top_readers.subtitle }}
-          </div>
-        </div>
-      </div>
-    </div>
-
+    
     <!-- Assignment Reports Slides (Dynamic - one per classroom) -->
     {% for classroom_data in assignment_reports %}
     <div class="slide slide-5">
@@ -1410,6 +1340,77 @@
       </div>
     </div>
     {% endfor %}
+
+    <!-- Slide 6: Top Readers -->
+    <div class="slide slide-6">
+      <div class="slide-content">
+        <div class="header">
+          <div class="title">{{ top_readers.title }}</div>
+          <div class="subtitle">{{ top_readers.subtitle }}</div>
+          <img src="templates/images/logo-b1-tech-white.png" alt="B1 Tech Logo" class="header-logo">
+        </div>
+        <div class="content">
+          <div class="table-container">
+            <div class="top-readers-table">
+              <!-- Global Top 3 Section -->
+              <div class="table-header">
+                <div class="table-title">
+                  <i class="material-icons">public</i>
+                  Top 3 Global
+                </div>
+              </div>
+              <div class="table-content global-section">
+                {% for student in top_readers.global_top %}
+                <div class="student-item global-student">
+                  <div class="student-name">
+                    {{ student.name }}
+                  </div>
+                  <div class="student-school">
+                    {{ student.school }}
+                  </div>
+                  <div class="student-score">
+                    {{ student.score }}
+                  </div>
+                </div>
+                {% endfor %}
+              </div>
+
+              <!-- Per-Teacher Top 3 Section -->
+              <div class="table-header">
+                <div class="table-title">
+                  <i class="material-icons">class</i>
+                  Por Aula
+                </div>
+              </div>
+              <div class="table-content">
+                {% for teacher_data in top_readers.by_teacher %}
+                <div class="classroom-column">
+                  <div class="classroom-name">
+                    <i class="material-icons">person</i>
+                    {{ teacher_data.teacher }}
+                  </div>
+                  {% for student in teacher_data.students %}
+                  <div class="student-item">
+                    <div class="student-name">
+                      {{ student.name }}
+                    </div>
+                    <div class="student-score">
+                      {{ student.score }}
+                    </div>
+                  </div>
+                  {% endfor %}
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+          <div class="date-info">
+            <i class="material-icons">date_range</i>
+            Período: {{ top_readers.subtitle }}
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script>
