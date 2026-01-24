@@ -55,6 +55,40 @@ app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = FLASK_MAX_CONTENT_LENGTH
 
 
+# Custom Jinja2 filters for skills filtering
+def filter_non_standard_skills(skills_list):
+    """Filter out skills starting with RI or RL (reading standards).
+
+    Args:
+        skills_list: List of skill dictionaries
+
+    Returns:
+        List of skills not starting with RI or RL
+    """
+    if not skills_list:
+        return []
+    return [s for s in skills_list if not s["name"].startswith(("RI.", "RL."))]
+
+
+def filter_standard_skills(skills_list):
+    """Filter only skills starting with RI or RL (reading standards).
+
+    Args:
+        skills_list: List of skill dictionaries
+
+    Returns:
+        List of skills starting with RI or RL
+    """
+    if not skills_list:
+        return []
+    return [s for s in skills_list if s["name"].startswith(("RI.", "RL."))]
+
+
+# Register custom filters with Jinja2
+app.jinja_env.filters["non_standard_skills"] = filter_non_standard_skills
+app.jinja_env.filters["standard_skills"] = filter_standard_skills
+
+
 class AppState:
     """Thread-safe application state management."""
 
@@ -1500,7 +1534,7 @@ if __name__ == "__main__":
         os.getenv("AUTO_OPEN_BROWSER", "true").lower() == "true"
     )
 
-    # cleanup_on_startup()
+    cleanup_on_startup()
     clear_log_file("app.log")
     logger.info("Cleared app.log file")
     logger.info("Starting Flask application")
