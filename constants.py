@@ -260,6 +260,7 @@ ALLOWED_FILE_EXTENSIONS: List[str] = ['.xlsx', '.csv', '.json']
 
 FLASK_MAX_CONTENT_LENGTH: int = 16 * 1024 * 1024  # 16MB
 DEFAULT_INSTITUTION_NAME: str = "Unidad Educativa"
+DEFAULT_PROGRAM_NAME: str = "Raz-Plus"
 
 
 # ============================================================================

@@ -428,6 +428,7 @@ def get_report_data() -> Dict[str, Any]:
         # Slide 1: Title
         "report_title": "REPORTE DE USO",
         "institution": config.institution_name,
+        "program_name": config.program_name,
         "date_range": date_range,
         "logos": [{"text": "b1 tech"}],
 
@@ -861,6 +862,7 @@ def index():
             tabs=TABS,
             selected_tabs=config.tabs.to_dict(),
             selected_institution_name=config.institution_name,
+            selected_program_name=config.program_name,
             users=users
         )
 
@@ -994,6 +996,14 @@ def set_filter():
         ).strip()
         if institution_name:
             config.institution_name = institution_name
+
+        # Update program name
+        program_name = request.form.get(
+            "program_name",
+            config.program_name
+        ).strip()
+        if program_name:
+            config.program_name = program_name
 
         save_config(config)
         logger.info(

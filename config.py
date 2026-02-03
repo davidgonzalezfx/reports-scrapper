@@ -19,6 +19,7 @@ from constants import (
     STATUS_FILTERS,
     TABS,
     DEFAULT_INSTITUTION_NAME,
+    DEFAULT_PROGRAM_NAME,
     DATE_RANGE_MAX_CUSTOM
 )
 
@@ -85,6 +86,7 @@ class ScraperConfig:
     status_filter: str = "All"
     tabs: TabsConfig = field(default_factory=TabsConfig)
     institution_name: str = DEFAULT_INSTITUTION_NAME
+    program_name: str = DEFAULT_PROGRAM_NAME
 
     def __post_init__(self) -> None:
         """Validate configuration after initialization."""
@@ -176,6 +178,9 @@ class ScraperConfig:
             tabs=tabs_config,
             institution_name=data.get(
                 "institution_name", DEFAULT_INSTITUTION_NAME
+            ),
+            program_name=data.get(
+                "program_name", DEFAULT_PROGRAM_NAME
             )
         )
 
@@ -193,7 +198,8 @@ class ScraperConfig:
             "skill_filter": self.skill_filter,
             "aggregate_skill_by_filter": self.aggregate_skill_by_filter,
             "tabs": self.tabs.to_dict(),
-            "institution_name": self.institution_name
+            "institution_name": self.institution_name,
+            "program_name": self.program_name
         }
 
 
@@ -212,7 +218,8 @@ def get_default_config() -> ScraperConfig:
         skill_filter=SKILL_FILTERS[0],
         aggregate_skill_by_filter=AGGREGATE_SKILL_BY_FILTERS[0],
         tabs=TabsConfig.from_dict(tabs_dict),
-        institution_name=DEFAULT_INSTITUTION_NAME
+        institution_name=DEFAULT_INSTITUTION_NAME,
+        program_name=DEFAULT_PROGRAM_NAME
     )
 
 

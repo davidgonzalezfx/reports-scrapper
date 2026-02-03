@@ -350,220 +350,177 @@
 
 			<form id="filter-form" method="post" action="/set-filter">
 				<!-- Main Configuration Grid -->
-				<div class="bg-blue-50 rounded-xl p-6 mb-6 border border-blue-100">
-					<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-						<!-- Date Filter Section -->
-						<div class="space-y-3">
-							<div class="flex items-center gap-2 mb-3">
-								<div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-									<i class="fas fa-calendar-alt text-white text-sm"></i>
-								</div>
-								<label for="date_filter" class="text-sm font-semibold text-gray-900">
-									Date Range Filter
-								</label>
+				<div class="space-y-6 mb-6">
+					<!-- 1. Timeframe Settings -->
+					<div class="bg-blue-50 rounded-xl p-6 border border-blue-100">
+						<div class="flex items-center gap-2 mb-4">
+							<div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+								<i class="fas fa-clock text-white text-sm"></i>
 							</div>
-							<select id="date_filter" name="date_filter"
-								class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 font-medium focus:outline-none focus:ring-4 focus:ring-blue-300 focus:border-blue-500 transition-all duration-200 shadow-sm hover:shadow-md">
-								{% for option in date_filters %}
-								<option value="{{ option }}" {% if option==selected_date_filter %}selected{% endif %}>{{
-									option }}</option>
-								{% endfor %}
-							</select>
-							<p class="text-xs text-gray-600">Choose the time period for data collection</p>
+							<h3 class="text-lg font-semibold text-gray-900">1. Timeframe Settings</h3>
 						</div>
-
-						<!-- Products Filter Section -->
-						<div class="space-y-3">
-							<div class="flex items-center gap-2 mb-3">
-								<div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-									<i class="fas fa-cube text-white text-sm"></i>
-								</div>
-								<label for="products_filter" class="text-sm font-semibold text-gray-900">
-									Products Filter
-								</label>
-							</div>
-							<select id="products_filter" name="products_filter"
-								class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 font-medium focus:outline-none focus:ring-4 focus:ring-blue-300 focus:border-blue-500 transition-all duration-200 shadow-sm hover:shadow-md">
-								{% for option in products_filters %}
-								<option value="{{ option }}" {% if option==selected_products_filter %}selected{% endif %}>{{
-									option }}</option>
-								{% endfor %}
-							</select>
-							<p class="text-xs text-gray-600">Choose the product for data collection</p>
-						</div>
-
-						<!-- Skill Filter Section -->
-						<div class="space-y-3">
-							<div class="flex items-center gap-2 mb-3">
-								<div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-									<i class="fas fa-graduation-cap text-white text-sm"></i>
-								</div>
-								<label for="skill_filter" class="text-sm font-semibold text-gray-900">
-									Skill Filter
-								</label>
-							</div>
-							<select id="skill_filter" name="skill_filter"
-								class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 font-medium focus:outline-none focus:ring-4 focus:ring-blue-300 focus:border-blue-500 transition-all duration-200 shadow-sm hover:shadow-md">
-								{% for option in skill_filters %}
-								<option value="{{ option }}" {% if option==selected_skill_filter %}selected{% endif %}>{{
-									option }}</option>
-								{% endfor %}
-							</select>
-							<p class="text-xs text-gray-600">Filter skills for the Student Skills report tab</p>
-						</div>
-
-						<!-- Aggregate Skill By Section -->
-						<div class="space-y-3">
-							<div class="flex items-center gap-2 mb-3">
-								<div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-									<i class="fas fa-layer-group text-white text-sm"></i>
-								</div>
-								<label for="aggregate_skill_by_filter" class="text-sm font-semibold text-gray-900">
-									Skills By
-								</label>
-							</div>
-							<select id="aggregate_skill_by_filter" name="aggregate_skill_by_filter"
-								class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 font-medium focus:outline-none focus:ring-4 focus:ring-blue-300 focus:border-blue-500 transition-all duration-200 shadow-sm hover:shadow-md">
-								{% for option in aggregate_skill_by_filters %}
-								<option value="{{ option }}" {% if option==selected_aggregate_skill_by_filter %}selected{% endif %}>{{
-									option|capitalize }}</option>
-								{% endfor %}
-							</select>
-							<p class="text-xs text-gray-600">Aggregate skills by skill, school, or teacher</p>
-						</div>
-
-						<!-- Language Filter Section -->
-						<div class="space-y-3">
-							<div class="flex items-center gap-2 mb-3">
-								<div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-									<i class="fas fa-language text-white text-sm"></i>
-								</div>
-								<label for="language_filter" class="text-sm font-semibold text-gray-900">
-									Language Filter
-								</label>
-							</div>
-							<select id="language_filter" name="language_filter"
-								class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 font-medium focus:outline-none focus:ring-4 focus:ring-blue-300 focus:border-blue-500 transition-all duration-200 shadow-sm hover:shadow-md">
-								{% for option in language_filters %}
-								<option value="{{ option }}" {% if option==selected_language_filter %}selected{% endif %}>{{
-									option }}</option>
-								{% endfor %}
-							</select>
-							<p class="text-xs text-gray-600">Filter language for the Teacher Usage report tab</p>
-						</div>
-
-						<!-- Status Filter Section -->
-						<div class="space-y-3">
-							<div class="flex items-center gap-2 mb-3">
-								<div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-									<i class="fas fa-user-check text-white text-sm"></i>
-								</div>
-								<label for="status_filter" class="text-sm font-semibold text-gray-900">
-									Status Filter
-								</label>
-							</div>
-							<select id="status_filter" name="status_filter"
-								class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 font-medium focus:outline-none focus:ring-4 focus:ring-blue-300 focus:border-blue-500 transition-all duration-200 shadow-sm hover:shadow-md">
-								{% for option in status_filters %}
-								<option value="{{ option }}" {% if option==selected_status_filter %}selected{% endif %}>{{
-									option }}</option>
-								{% endfor %}
-							</select>
-							<p class="text-xs text-gray-600">Filter teacher status for the Teacher Usage report tab</p>
-						</div>
-
-						<!-- Institution Name Section -->
-						<div class="space-y-3">
-							<div class="flex items-center gap-2 mb-3">
-								<div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-									<i class="fas fa-school text-white text-sm"></i>
-								</div>
-								<label for="institution_name" class="text-sm font-semibold text-gray-900">
-									Institution Name
-								</label>
-							</div>
-							<input type="text" id="institution_name" name="institution_name"
-								value="{{ selected_institution_name }}"
-								class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 font-medium focus:outline-none focus:ring-4 focus:ring-blue-300 focus:border-blue-500 transition-all duration-200 shadow-sm hover:shadow-md"
-								placeholder="Enter institution name">
-							<p class="text-xs text-gray-600">Name of the educational institution for reports</p>
-						</div>
-
-						<!-- Quick Selection Section -->
-						<div class="space-y-3">
-							<div class="flex items-center gap-2 mb-3">
-								<div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-									<i class="fas fa-magic text-white text-sm"></i>
-								</div>
-								<label class="text-sm font-semibold text-gray-900">
-									Quick Actions
-								</label>
-							</div>
-							<div class="bg-white rounded-lg p-4 border border-gray-200 shadow-sm">
-								<label
-									class="group flex items-center gap-3 cursor-pointer hover:bg-gray-50 rounded-lg p-2 transition-colors">
-									<div class="relative">
-										<input type="checkbox" id="select-all" class="sr-only" onchange="toggleAll(this.checked)">
-										<div
-											class="w-5 h-5 border-2 border-gray-300 rounded group-hover:border-blue-500 transition-colors flex items-center justify-center bg-white">
-											<i class="fas fa-check text-white text-xs opacity-0" id="select-all-icon"></i>
-										</div>
+						<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+							<div class="space-y-3">
+								<div class="flex items-center gap-2 mb-3">
+									<div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+										<i class="fas fa-calendar-alt text-white text-sm"></i>
 									</div>
-									<span class="text-sm font-medium text-gray-700 group-hover:text-gray-900">Select
-										All Report Types</span>
-								</label>
+									<label for="date_filter" class="text-sm font-semibold text-gray-900">
+										Date Range Filter
+									</label>
+								</div>
+								<select id="date_filter" name="date_filter"
+									class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 font-medium focus:outline-none focus:ring-4 focus:ring-blue-300 focus:border-blue-500 transition-all duration-200 shadow-sm hover:shadow-md">
+									{% for option in date_filters %}
+									<option value="{{ option }}" {% if option==selected_date_filter %}selected{% endif %}>{{
+										option }}</option>
+									{% endfor %}
+								</select>
+								<p class="text-xs text-gray-600">Choose the time period for data collection</p>
 							</div>
-							<p class="text-xs text-gray-600">Toggle all report types at once</p>
+
+							<!-- Custom Date Inputs (shown when Custom is selected) -->
+							<div id="custom-date-inputs" class="{% if selected_date_filter != 'Custom' %}hidden{% endif %} space-y-3 animate-slide-up">
+								<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+									<div class="space-y-2">
+										<label for="custom_start_date" class="block text-xs font-semibold text-gray-700 uppercase">Start Date</label>
+										<input type="date" id="custom_start_date" name="custom_start_date" value="{{ custom_start_date }}"
+											class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500">
+									</div>
+									<div class="space-y-2">
+										<label for="custom_end_date" class="block text-xs font-semibold text-gray-700 uppercase">End Date</label>
+										<input type="date" id="custom_end_date" name="custom_end_date" value="{{ custom_end_date }}"
+											class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500">
+									</div>
+								</div>
+								<p class="text-xs text-yellow-700 bg-yellow-50 p-2 rounded border border-yellow-100">
+									<i class="fas fa-info-circle mr-1"></i>Max 365 days range allowed.
+								</p>
+							</div>
 						</div>
 					</div>
 
-					<!-- Custom Date Inputs (full width when shown) -->
-					<div id="custom-date-inputs" class="{% if selected_date_filter != 'Custom' %}hidden{% endif %} mt-6 animate-slide-up">
-						<div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-6 border border-blue-200">
-							<div class="flex items-center gap-3 mb-4">
-								<div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-									<i class="fas fa-calendar-day text-white text-lg"></i>
-								</div>
-								<div>
-									<h3 class="text-lg font-semibold text-gray-900">Custom Date Range</h3>
-									<p class="text-sm text-gray-600">Specify your exact date range for data collection</p>
-								</div>
+					<!-- 2. Data Scope Settings -->
+					<div class="bg-indigo-50 rounded-xl p-6 border border-indigo-100">
+						<div class="flex items-center gap-2 mb-4">
+							<div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+								<i class="fas fa-filter text-white text-sm"></i>
 							</div>
-							<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-								<div class="space-y-2">
-									<label for="custom_start_date" class="block text-sm font-semibold text-gray-700">
-										<i class="fas fa-calendar-day mr-1"></i>Start Date
-									</label>
-									<input type="date" id="custom_start_date" name="custom_start_date"
-										value="{{ custom_start_date }}"
-										class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 font-medium focus:outline-none focus:ring-4 focus:ring-blue-300 focus:border-blue-500 transition-all duration-200 shadow-sm hover:shadow-md"
-										placeholder="MM/DD/YYYY">
-									<p class="text-xs text-gray-600">Start date for custom range</p>
-								</div>
-								<div class="space-y-2">
-									<label for="custom_end_date" class="block text-sm font-semibold text-gray-700">
-										<i class="fas fa-calendar-check mr-1"></i>End Date
-									</label>
-									<input type="date" id="custom_end_date" name="custom_end_date"
-										value="{{ custom_end_date }}"
-										class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 font-medium focus:outline-none focus:ring-4 focus:ring-blue-300 focus:border-blue-500 transition-all duration-200 shadow-sm hover:shadow-md"
-										placeholder="MM/DD/YYYY">
-									<p class="text-xs text-gray-600">End date for custom range (max 365 days)</p>
-								</div>
-								<div class="space-y-2 md:col-span-2 lg:col-span-1">
-									<label class="block text-sm font-semibold text-gray-700">
-										<i class="fas fa-info-circle mr-1"></i>Range Info
-									</label>
-									<div class="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-										<div class="flex items-start gap-2">
-											<i class="fas fa-info-circle text-yellow-600 mt-0.5"></i>
-											<div class="text-xs text-yellow-800">
-												<p class="font-medium">Important Notes</p>
-												<p class="mt-1">The date range cannot exceed 365 days. Ensure both dates are valid and the start date is before the end date.</p>
-											</div>
-										</div>
+							<h3 class="text-lg font-semibold text-gray-900">2. Data Scope Settings</h3>
+						</div>
+						<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+							<!-- Products Filter -->
+							<div class="space-y-3">
+								<div class="flex items-center gap-2 mb-3">
+									<div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+										<i class="fas fa-cube text-white text-sm"></i>
 									</div>
+									<label for="products_filter" class="text-sm font-semibold text-gray-900">Products Filter</label>
 								</div>
+								<select id="products_filter" name="products_filter"
+									class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 font-medium focus:ring-4 focus:ring-indigo-300 transition-all duration-200">
+									{% for option in products_filters %}
+									<option value="{{ option }}" {% if option==selected_products_filter %}selected{% endif %}>{{ option }}</option>
+									{% endfor %}
+								</select>
+							</div>
+
+							<!-- Skill Filter -->
+							<div class="space-y-3">
+								<div class="flex items-center gap-2 mb-3">
+									<div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+										<i class="fas fa-graduation-cap text-white text-sm"></i>
+									</div>
+									<label for="skill_filter" class="text-sm font-semibold text-gray-900">Skill Filter</label>
+								</div>
+								<select id="skill_filter" name="skill_filter"
+									class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 font-medium focus:ring-4 focus:ring-indigo-300 transition-all duration-200">
+									{% for option in skill_filters %}
+									<option value="{{ option }}" {% if option==selected_skill_filter %}selected{% endif %}>{{ option }}</option>
+									{% endfor %}
+								</select>
+							</div>
+
+							<!-- Skills By -->
+							<div class="space-y-3">
+								<div class="flex items-center gap-2 mb-3">
+									<div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+										<i class="fas fa-layer-group text-white text-sm"></i>
+									</div>
+									<label for="aggregate_skill_by_filter" class="text-sm font-semibold text-gray-900">Skills By</label>
+								</div>
+								<select id="aggregate_skill_by_filter" name="aggregate_skill_by_filter"
+									class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 font-medium focus:ring-4 focus:ring-indigo-300 transition-all duration-200">
+									{% for option in aggregate_skill_by_filters %}
+									<option value="{{ option }}" {% if option==selected_aggregate_skill_by_filter %}selected{% endif %}>{{ option|capitalize }}</option>
+									{% endfor %}
+								</select>
+							</div>
+
+							<!-- Language Filter -->
+							<div class="space-y-3">
+								<div class="flex items-center gap-2 mb-3">
+									<div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+										<i class="fas fa-language text-white text-sm"></i>
+									</div>
+									<label for="language_filter" class="text-sm font-semibold text-gray-900">Language Filter</label>
+								</div>
+								<select id="language_filter" name="language_filter"
+									class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 font-medium focus:ring-4 focus:ring-indigo-300 transition-all duration-200">
+									{% for option in language_filters %}
+									<option value="{{ option }}" {% if option==selected_language_filter %}selected{% endif %}>{{ option }}</option>
+									{% endfor %}
+								</select>
+							</div>
+
+							<!-- Status Filter -->
+							<div class="space-y-3">
+								<div class="flex items-center gap-2 mb-3">
+									<div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+										<i class="fas fa-user-check text-white text-sm"></i>
+									</div>
+									<label for="status_filter" class="text-sm font-semibold text-gray-900">Status Filter</label>
+								</div>
+								<select id="status_filter" name="status_filter"
+									class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 font-medium focus:ring-4 focus:ring-indigo-300 transition-all duration-200">
+									{% for option in status_filters %}
+									<option value="{{ option }}" {% if option==selected_status_filter %}selected{% endif %}>{{ option }}</option>
+									{% endfor %}
+								</select>
+							</div>
+						</div>
+					</div>
+
+					<!-- 3. Report Metadata -->
+					<div class="bg-gray-50 rounded-xl p-6 border border-gray-200">
+						<div class="flex items-center gap-2 mb-4">
+							<div class="w-8 h-8 bg-gray-600 rounded-lg flex items-center justify-center">
+								<i class="fas fa-info-circle text-white text-sm"></i>
+							</div>
+							<h3 class="text-lg font-semibold text-gray-900">3. Report Metadata</h3>
+						</div>
+						<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+							<div class="space-y-3">
+								<div class="flex items-center gap-2 mb-3">
+									<div class="w-8 h-8 bg-gray-600 rounded-lg flex items-center justify-center">
+										<i class="fas fa-school text-white text-sm"></i>
+									</div>
+									<label for="institution_name" class="text-sm font-semibold text-gray-900">Institution Name</label>
+								</div>
+								<input type="text" id="institution_name" name="institution_name" value="{{ selected_institution_name }}"
+									class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 font-medium focus:ring-4 focus:ring-gray-300 transition-all duration-200"
+									placeholder="Enter institution name">
+							</div>
+							<div class="space-y-3">
+								<div class="flex items-center gap-2 mb-3">
+									<div class="w-8 h-8 bg-gray-600 rounded-lg flex items-center justify-center">
+										<i class="fas fa-book text-white text-sm"></i>
+									</div>
+									<label for="program_name" class="text-sm font-semibold text-gray-900">Program Name</label>
+								</div>
+								<input type="text" id="program_name" name="program_name" value="{{ selected_program_name }}"
+									class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 font-medium focus:ring-4 focus:ring-gray-300 transition-all duration-200"
+									placeholder="Enter program name">
 							</div>
 						</div>
 					</div>
@@ -571,29 +528,44 @@
 
 				<!-- Tabs Selection -->
 				<div class="mb-6">
-					<div class="flex items-center gap-2 mb-4">
-						<div
-							class="w-8 h-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
-							<i class="fas fa-th-large text-white text-sm"></i>
+					<div class="flex items-center justify-between mb-4">
+						<div class="flex items-center gap-2">
+							<div class="w-8 h-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
+								<i class="fas fa-th-large text-white text-sm"></i>
+							</div>
+							<h3 class="text-lg font-semibold text-gray-900">Report Types</h3>
 						</div>
-						<h3 class="text-lg font-semibold text-gray-900">Report Types</h3>
+						
+						<!-- Quick Actions -->
+						<div class="flex items-center gap-3">
+							<label class="group flex items-center gap-2 cursor-pointer bg-white px-3 py-1.5 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors shadow-sm">
+								<input type="checkbox" id="select-all" class="sr-only" onchange="toggleAll(this.checked)">
+								<div class="w-4 h-4 border-2 border-gray-300 rounded flex items-center justify-center bg-white transition-all" id="select-all-visual">
+									<i class="fas fa-check text-white text-[10px] opacity-0" id="select-all-icon"></i>
+								</div>
+								<span class="text-xs font-semibold text-gray-600 group-hover:text-gray-900">Select All</span>
+							</label>
+						</div>
 					</div>
-					<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3">
+
+					<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
 						{% for tab in tabs %}
 						<div class="group">
-							<label
-								class="relative block p-4 bg-white border-2 border-gray-200 rounded-xl cursor-pointer hover:border-blue-300 hover:shadow-md transition-all duration-200 tab-card">
+							<label class="relative block h-full p-5 bg-white border-2 border-gray-200 rounded-2xl cursor-pointer hover:border-blue-400 hover:shadow-xl transition-all duration-300 tab-card overflow-hidden">
 								<input type="checkbox" id="tab-{{ loop.index }}" name="tabs" value="{{ tab.name }}"
 									class="sr-only tab-checkbox" {% if selected_tabs.get(tab.name, tab.default) %}checked{% endif %}>
-								<div class="flex flex-col items-center text-center space-y-2">
-									<div
-										class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center group-hover:bg-blue-100 transition-colors">
-										<i class="fas fa-chart-bar text-gray-600 group-hover:text-blue-600 transition-colors"></i>
+								
+								<!-- Background Decoration -->
+								<div class="absolute -right-4 -bottom-4 w-16 h-16 bg-gray-50 rounded-full group-hover:bg-blue-50 transition-colors duration-300"></div>
+								
+								<div class="relative flex flex-col items-center text-center space-y-3">
+									<div class="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center group-hover:bg-blue-600 group-hover:scale-110 transition-all duration-300 shadow-inner">
+										<i class="fas fa-chart-pie text-gray-500 group-hover:text-white transition-colors"></i>
 									</div>
-									<span class="text-sm font-medium text-gray-700 group-hover:text-gray-900">{{
-										tab.name }}</span>
-									<div
-										class="absolute top-2 right-2 w-5 h-5 border-2 border-gray-300 rounded bg-white tab-checkbox-visual flex items-center justify-center">
+									<span class="text-sm font-bold text-gray-700 group-hover:text-blue-700 transition-colors leading-tight">{{ tab.name }}</span>
+									
+									<!-- Custom Checkbox Visual -->
+									<div class="w-6 h-6 border-2 border-gray-300 rounded-lg bg-white tab-checkbox-visual flex items-center justify-center transition-all duration-300 shadow-sm">
 										<i class="fas fa-check text-white text-xs opacity-0 tab-check-icon"></i>
 									</div>
 								</div>
@@ -918,7 +890,7 @@
 			const checkboxes = document.querySelectorAll('.tab-checkbox');
 			const selectAllIcon = document.getElementById('select-all-icon');
 			const selectAllCheckbox = document.getElementById('select-all');
-			const selectAllVisual = selectAllIcon.parentElement; // The div containing the visual checkbox
+			const selectAllVisual = document.getElementById('select-all-visual');
 
 			checkboxes.forEach(checkbox => {
 				checkbox.checked = checked;
@@ -944,19 +916,33 @@
 			const card = checkbox.closest('.tab-card');
 			const icon = card.querySelector('.tab-check-icon');
 			const visual = card.querySelector('.tab-checkbox-visual');
+			const iconContainer = card.querySelector('.w-12.h-12');
+			const iconElement = iconContainer.querySelector('i');
 
 			if (checkbox.checked) {
-				card.style.borderColor = '#2563eb';
-				card.style.backgroundColor = '#f3f4f6';
-				visual.style.backgroundColor = '#2563eb';
-				visual.style.borderColor = '#2563eb';
+				card.classList.add('border-blue-500', 'bg-blue-50');
+				card.classList.remove('border-gray-200', 'bg-white');
+				visual.classList.add('bg-blue-600', 'border-blue-600');
+				visual.classList.remove('bg-white', 'border-gray-300');
 				icon.style.opacity = '1';
+				
+				// Icon container active state
+				iconContainer.classList.add('bg-blue-600');
+				iconContainer.classList.remove('bg-gray-100');
+				iconElement.classList.add('text-white');
+				iconElement.classList.remove('text-gray-500');
 			} else {
-				card.style.borderColor = '#e5e7eb';
-				card.style.backgroundColor = 'white';
-				visual.style.backgroundColor = 'white';
-				visual.style.borderColor = '#d1d5db';
+				card.classList.remove('border-blue-500', 'bg-blue-50');
+				card.classList.add('border-gray-200', 'bg-white');
+				visual.classList.remove('bg-blue-600', 'border-blue-600');
+				visual.classList.add('bg-white', 'border-gray-300');
 				icon.style.opacity = '0';
+				
+				// Icon container inactive state
+				iconContainer.classList.remove('bg-blue-600');
+				iconContainer.classList.add('bg-gray-100');
+				iconElement.classList.remove('text-white');
+				iconElement.classList.add('text-gray-500');
 			}
 		}
 
@@ -966,7 +952,7 @@
 			const allChecked = Array.from(checkboxes).every(cb => cb.checked);
 			const selectAllCheckbox = document.getElementById('select-all');
 			const selectAllIcon = document.getElementById('select-all-icon');
-			const selectAllVisual = selectAllIcon.parentElement;
+			const selectAllVisual = document.getElementById('select-all-visual');
 
 			selectAllCheckbox.checked = allChecked;
 
@@ -1015,6 +1001,20 @@
 					updateSelectAllState(); // Update select-all state when individual items change
 				});
 			});
+
+			// Date filter change handler
+			const dateFilter = document.getElementById('date_filter');
+			const customDateInputs = document.getElementById('custom-date-inputs');
+			
+			if (dateFilter && customDateInputs) {
+				dateFilter.addEventListener('change', function() {
+					if (this.value === 'Custom') {
+						customDateInputs.classList.remove('hidden');
+					} else {
+						customDateInputs.classList.add('hidden');
+					}
+				});
+			}
 
 			// Add products filter change listener
 			const productsFilter = document.getElementById('products_filter');
