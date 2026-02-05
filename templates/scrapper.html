@@ -12,17 +12,29 @@
 			theme: {
 				extend: {
 					colors: {
-						primary: {
-							50: '#f0f9ff',
-							100: '#e0f2fe',
-							200: '#bae6fd',
-							300: '#7dd3fc',
-							400: '#38bdf8',
-							500: '#0ea5e9',
-							600: '#0284c7',
-							700: '#0369a1',
-							800: '#075985',
-							900: '#0c4a6e',
+						blue: {
+							50: '#f0f4f8',
+							100: '#d9e2ec',
+							200: '#bcccdc',
+							300: '#9fb3c8',
+							400: '#829ab1',
+							500: '#627d98',
+							600: '#486581',
+							700: '#334e68',
+							800: '#243b53',
+							900: '#012840',
+						},
+						indigo: {
+							50: '#f0f4f8',
+							100: '#d9e2ec',
+							200: '#bcccdc',
+							300: '#9fb3c8',
+							400: '#829ab1',
+							500: '#627d98',
+							600: '#486581',
+							700: '#334e68',
+							800: '#243b53',
+							900: '#012840',
 						}
 					}
 				}
@@ -117,7 +129,7 @@
 
 		/* Gradient text effect */
 		.gradient-text {
-			background: linear-gradient(135deg, #667eea 0%, #8c9ed7 100%);
+			background: linear-gradient(135deg, #012840 0%, #334e68 100%);
 			-webkit-background-clip: text;
 			-webkit-text-fill-color: transparent;
 			background-clip: text;
@@ -167,7 +179,7 @@
 			<div class="flex-1 text-center">
 				<div class="inline-flex items-center gap-3 mb-4">
 					<div
-						class="w-16 h-16 bg-gradient-to-r from-blue-600 via-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center shadow-xl">
+						class="w-16 h-16 bg-gradient-to-r from-blue-900 via-blue-800 to-blue-900 rounded-2xl flex items-center justify-center shadow-xl">
 						<i class="fas fa-spider text-white text-2xl"></i>
 					</div>
 					<div class="text-left">
@@ -191,11 +203,11 @@
 		<!-- Authentication Section (with User Management) -->
 		<div class="bg-white rounded-lg shadow-lg p-6 mb-6 border border-gray-100 animate-slide-up">
 			<h2 class="text-xl font-semibold text-gray-800 mb-6">
-				<i class="fas fa-users mr-2 text-primary-600"></i>Authentication Management
+				<i class="fas fa-users mr-2 text-blue-600"></i>Authentication Management
 			</h2>
 
 			<!-- File Upload Section -->
-			<div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 mb-6 border border-blue-100">
+			<div class="bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl p-6 mb-6 border border-blue-100">
 				<div class="flex items-start gap-4 mb-4">
 					<div class="flex-shrink-0">
 						<div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
@@ -238,7 +250,7 @@
 						<!-- Upload Button -->
 						<div class="flex justify-end">
 							<button type="submit" id="upload-btn"
-								class="group relative inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium rounded-lg shadow-lg hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
+								class="group relative inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-800 to-blue-900 text-white font-medium rounded-lg shadow-lg hover:from-blue-900 hover:to-blue-950 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
 								<i class="fas fa-cloud-upload-alt text-lg"></i>
 								<span>Import Configuration</span>
 								<div
@@ -283,7 +295,7 @@
 								</div>
 								<div class="flex justify-center md:justify-end">
 									<button type="button"
-										class="group/remove relative inline-flex items-center gap-2 px-4 py-2 bg-red-500 text-white font-medium rounded-lg shadow-md hover:from-red-600 hover:to-indigo-600 focus:outline-none focus:ring-4 focus:ring-red-300 transform transition-all duration-200 remove-user">
+										class="group/remove relative inline-flex items-center gap-2 px-4 py-2 bg-red-500 text-white font-medium rounded-lg shadow-md hover:from-red-600 hover:to-red-700 focus:outline-none focus:ring-4 focus:ring-red-300 transform transition-all duration-200 remove-user">
 										<i class="fas fa-trash-alt"></i>
 										<span class="text-sm">Remove</span>
 										<div
@@ -304,7 +316,7 @@
 						<h3 class="text-lg font-semibold text-gray-900 mb-2">No Users Yet</h3>
 						<p class="text-gray-600 mb-4">Add your first user account to get started with scraping</p>
 						<button type="button" id="add-first-user"
-							class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium rounded-lg shadow-lg hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-all duration-200">
+							class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-800 to-blue-900 text-white font-medium rounded-lg shadow-lg hover:from-blue-900 hover:to-blue-950 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-all duration-200">
 							<i class="fas fa-plus"></i>
 							<span>Add First User</span>
 						</button>
@@ -322,7 +334,7 @@
 						</button>
 
 						<button type="submit"
-							class="group relative inline-flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium rounded-lg shadow-lg hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-all duration-200">
+							class="group relative inline-flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-blue-800 to-blue-900 text-white font-medium rounded-lg shadow-lg hover:from-blue-900 hover:to-blue-950 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-all duration-200">
 							<i class="fas fa-save"></i>
 							<span>Save All Users</span>
 							<div
@@ -339,7 +351,7 @@
 		<!-- Filter and Configuration Form -->
 		<div class="bg-white rounded-lg shadow-lg p-6 mb-6 border border-gray-100 animate-slide-up">
 			<div class="flex items-center gap-3 mb-6">
-				<div class="w-10 h-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
+				<div class="w-10 h-10 bg-gradient-to-r from-blue-800 to-blue-900 rounded-lg flex items-center justify-center">
 					<i class="fas fa-sliders-h text-white text-lg"></i>
 				</div>
 				<div>
@@ -354,7 +366,7 @@
 					<!-- 1. Timeframe Settings -->
 					<div class="bg-blue-50 rounded-xl p-6 border border-blue-100">
 						<div class="flex items-center gap-2 mb-4">
-							<div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+							<div class="w-8 h-8 bg-blue-800 rounded-lg flex items-center justify-center">
 								<i class="fas fa-clock text-white text-sm"></i>
 							</div>
 							<h3 class="text-lg font-semibold text-gray-900">1. Timeframe Settings</h3>
@@ -362,7 +374,7 @@
 						<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 							<div class="space-y-3">
 								<div class="flex items-center gap-2 mb-3">
-									<div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+									<div class="w-8 h-8 bg-blue-800 rounded-lg flex items-center justify-center">
 										<i class="fas fa-calendar-alt text-white text-sm"></i>
 									</div>
 									<label for="date_filter" class="text-sm font-semibold text-gray-900">
@@ -401,9 +413,9 @@
 					</div>
 
 					<!-- 2. Data Scope Settings -->
-					<div class="bg-indigo-50 rounded-xl p-6 border border-indigo-100">
+					<div class="bg-blue-50 rounded-xl p-6 border border-blue-100">
 						<div class="flex items-center gap-2 mb-4">
-							<div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+							<div class="w-8 h-8 bg-blue-800 rounded-lg flex items-center justify-center">
 								<i class="fas fa-filter text-white text-sm"></i>
 							</div>
 							<h3 class="text-lg font-semibold text-gray-900">2. Data Scope Settings</h3>
@@ -412,13 +424,13 @@
 							<!-- Products Filter -->
 							<div class="space-y-3">
 								<div class="flex items-center gap-2 mb-3">
-									<div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+									<div class="w-8 h-8 bg-blue-800 rounded-lg flex items-center justify-center">
 										<i class="fas fa-cube text-white text-sm"></i>
 									</div>
 									<label for="products_filter" class="text-sm font-semibold text-gray-900">Products Filter</label>
 								</div>
 								<select id="products_filter" name="products_filter"
-									class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 font-medium focus:ring-4 focus:ring-indigo-300 transition-all duration-200">
+									class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 font-medium focus:ring-4 focus:ring-blue-300 transition-all duration-200">
 									{% for option in products_filters %}
 									<option value="{{ option }}" {% if option==selected_products_filter %}selected{% endif %}>{{ option }}</option>
 									{% endfor %}
@@ -428,13 +440,13 @@
 							<!-- Skill Filter -->
 							<div class="space-y-3">
 								<div class="flex items-center gap-2 mb-3">
-									<div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+									<div class="w-8 h-8 bg-blue-800 rounded-lg flex items-center justify-center">
 										<i class="fas fa-graduation-cap text-white text-sm"></i>
 									</div>
 									<label for="skill_filter" class="text-sm font-semibold text-gray-900">Skill Filter</label>
 								</div>
 								<select id="skill_filter" name="skill_filter"
-									class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 font-medium focus:ring-4 focus:ring-indigo-300 transition-all duration-200">
+									class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 font-medium focus:ring-4 focus:ring-blue-300 transition-all duration-200">
 									{% for option in skill_filters %}
 									<option value="{{ option }}" {% if option==selected_skill_filter %}selected{% endif %}>{{ option }}</option>
 									{% endfor %}
@@ -444,13 +456,13 @@
 							<!-- Skills By -->
 							<div class="space-y-3">
 								<div class="flex items-center gap-2 mb-3">
-									<div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+									<div class="w-8 h-8 bg-blue-800 rounded-lg flex items-center justify-center">
 										<i class="fas fa-layer-group text-white text-sm"></i>
 									</div>
 									<label for="aggregate_skill_by_filter" class="text-sm font-semibold text-gray-900">Skills By</label>
 								</div>
 								<select id="aggregate_skill_by_filter" name="aggregate_skill_by_filter"
-									class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 font-medium focus:ring-4 focus:ring-indigo-300 transition-all duration-200">
+									class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 font-medium focus:ring-4 focus:ring-blue-300 transition-all duration-200">
 									{% for option in aggregate_skill_by_filters %}
 									<option value="{{ option }}" {% if option==selected_aggregate_skill_by_filter %}selected{% endif %}>{{ option|capitalize }}</option>
 									{% endfor %}
@@ -460,13 +472,13 @@
 							<!-- Language Filter -->
 							<div class="space-y-3">
 								<div class="flex items-center gap-2 mb-3">
-									<div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+									<div class="w-8 h-8 bg-blue-800 rounded-lg flex items-center justify-center">
 										<i class="fas fa-language text-white text-sm"></i>
 									</div>
 									<label for="language_filter" class="text-sm font-semibold text-gray-900">Language Filter</label>
 								</div>
 								<select id="language_filter" name="language_filter"
-									class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 font-medium focus:ring-4 focus:ring-indigo-300 transition-all duration-200">
+									class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 font-medium focus:ring-4 focus:ring-blue-300 transition-all duration-200">
 									{% for option in language_filters %}
 									<option value="{{ option }}" {% if option==selected_language_filter %}selected{% endif %}>{{ option }}</option>
 									{% endfor %}
@@ -476,13 +488,13 @@
 							<!-- Status Filter -->
 							<div class="space-y-3">
 								<div class="flex items-center gap-2 mb-3">
-									<div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+									<div class="w-8 h-8 bg-blue-800 rounded-lg flex items-center justify-center">
 										<i class="fas fa-user-check text-white text-sm"></i>
 									</div>
 									<label for="status_filter" class="text-sm font-semibold text-gray-900">Status Filter</label>
 								</div>
 								<select id="status_filter" name="status_filter"
-									class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 font-medium focus:ring-4 focus:ring-indigo-300 transition-all duration-200">
+									class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 font-medium focus:ring-4 focus:ring-blue-300 transition-all duration-200">
 									{% for option in status_filters %}
 									<option value="{{ option }}" {% if option==selected_status_filter %}selected{% endif %}>{{ option }}</option>
 									{% endfor %}
@@ -494,7 +506,7 @@
 					<!-- 3. Report Metadata -->
 					<div class="bg-gray-50 rounded-xl p-6 border border-gray-200">
 						<div class="flex items-center gap-2 mb-4">
-							<div class="w-8 h-8 bg-gray-600 rounded-lg flex items-center justify-center">
+							<div class="w-8 h-8 bg-blue-800 rounded-lg flex items-center justify-center">
 								<i class="fas fa-info-circle text-white text-sm"></i>
 							</div>
 							<h3 class="text-lg font-semibold text-gray-900">3. Report Metadata</h3>
@@ -530,7 +542,7 @@
 				<div class="mb-6">
 					<div class="flex items-center justify-between mb-4">
 						<div class="flex items-center gap-2">
-							<div class="w-8 h-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
+							<div class="w-8 h-8 bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
 								<i class="fas fa-th-large text-white text-sm"></i>
 							</div>
 							<h3 class="text-lg font-semibold text-gray-900">Report Types</h3>
@@ -582,7 +594,7 @@
 						Changes will be applied to your next scraping session
 					</div>
 					<button type="submit"
-						class="group relative inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium rounded-lg shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-300 transition-all duration-200">
+						class="group relative inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-800 to-blue-900 text-white font-medium rounded-lg shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-300 transition-all duration-200">
 						<i class="fas fa-save text-lg"></i>
 						<span>Save Configuration</span>
 						<div
@@ -750,7 +762,7 @@
 					</button>
 
 					<a href="/report"
-						class="group relative inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-medium rounded-lg shadow-md hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-4 focus:ring-indigo-300 transition-all duration-200">
+						class="group relative inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-800 to-blue-900 text-white font-medium rounded-lg shadow-md hover:from-blue-900 hover:to-blue-950 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-all duration-200">
 						<i class="fas fa-chart-line"></i>
 						<span>View Report</span>
 						<div class="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 rounded-lg transition-opacity duration-200"></div>
@@ -761,9 +773,9 @@
 
 			{% if combined_report %}
 			<!-- Combined Report Highlight -->
-			<div class="mb-6 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl p-6 border border-purple-200">
+			<div class="mb-6 bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl p-6 border border-blue-200">
 				<div class="flex items-start gap-4">
-					<div class="w-12 h-12 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+					<div class="w-12 h-12 bg-gradient-to-r from-blue-800 to-blue-900 rounded-xl flex items-center justify-center shadow-lg">
 						<i class="fas fa-layer-group text-white text-xl"></i>
 					</div>
 					<div class="flex-1">
@@ -774,21 +786,21 @@
 						</p>
 						<div class="flex items-center gap-6 text-sm text-gray-500">
 							<span class="flex items-center gap-2">
-								<i class="fas fa-file-excel text-purple-600"></i>
+								<i class="fas fa-file-excel text-blue-600"></i>
 								{{ combined_report.filename }}
 							</span>
 							<span class="flex items-center gap-2">
-								<i class="fas fa-calendar-alt text-purple-600"></i>
+								<i class="fas fa-calendar-alt text-blue-600"></i>
 								{{ combined_report.modified.strftime('%Y-%m-%d %H:%M') }}
 							</span>
 							<span class="flex items-center gap-2">
-								<i class="fas fa-database text-purple-600"></i>
+								<i class="fas fa-database text-blue-600"></i>
 								{{ (combined_report.size / 1024)|round(1) }} KB
 							</span>
 						</div>
 					</div>
 					<a href="/download-combined-reports"
-						class="group relative inline-flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold rounded-lg shadow-lg hover:from-purple-700 hover:to-indigo-700 focus:outline-none focus:ring-4 focus:ring-purple-300 transition-all duration-200">
+						class="group relative inline-flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-blue-800 to-blue-900 text-white font-semibold rounded-lg shadow-lg hover:from-blue-900 hover:to-blue-950 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-all duration-200">
 						<i class="fas fa-download"></i>
 						<span>Download</span>
 						<div class="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 rounded-lg transition-opacity duration-200"></div>
@@ -900,8 +912,8 @@
 			// Update select all visual
 			if (checked) {
 				selectAllIcon.style.opacity = '1';
-				selectAllVisual.style.backgroundColor = '#2563eb';
-				selectAllVisual.style.borderColor = '#2563eb';
+				selectAllVisual.style.backgroundColor = '#012840';
+				selectAllVisual.style.borderColor = '#012840';
 				selectAllCheckbox.checked = true;
 			} else {
 				selectAllIcon.style.opacity = '0';
@@ -958,8 +970,8 @@
 
 			if (allChecked) {
 				selectAllIcon.style.opacity = '1';
-				selectAllVisual.style.backgroundColor = '#2563eb';
-				selectAllVisual.style.borderColor = '#2563eb';
+				selectAllVisual.style.backgroundColor = '#012840';
+				selectAllVisual.style.borderColor = '#012840';
 			} else {
 				selectAllIcon.style.opacity = '0';
 				selectAllVisual.style.backgroundColor = 'white';
@@ -1067,7 +1079,7 @@
                     </div>
                     <div class="flex justify-center md:justify-end">
                         <button type="button"
-                            class="group/remove relative inline-flex items-center gap-2 px-4 py-2 bg-red-500 text-white font-medium rounded-lg shadow-md hover:from-red-600 hover:to-indigo-600 focus:outline-none focus:ring-4 focus:ring-red-300 transform transition-all duration-200 remove-user">
+                            class="group/remove relative inline-flex items-center gap-2 px-4 py-2 bg-red-500 text-white font-medium rounded-lg shadow-md hover:from-red-600 hover:to-red-700 focus:outline-none focus:ring-4 focus:ring-red-300 transform transition-all duration-200 remove-user">
                             <i class="fas fa-trash-alt"></i>
                             <span class="text-sm">Remove</span>
                             <div class="absolute inset-0 bg-white opacity-0 group-hover/remove:opacity-20 rounded-lg transition-opacity duration-200"></div>
