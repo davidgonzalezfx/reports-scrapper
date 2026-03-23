@@ -117,7 +117,8 @@ PRODUCTS_FILTERS: List[str] = [
     "Raz-Plus",
     "Science A-Z",
     "Vocabulary A-Z",
-    "Foundations A-Z"
+    "Foundations A-Z",
+    "Español"
 ]
 
 SKILL_FILTERS: List[str] = [
