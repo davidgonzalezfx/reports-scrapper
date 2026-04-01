@@ -133,3 +133,29 @@ def get_logger(name: str) -> logging.Logger:
         Logger instance for the module
     """
     return logging.getLogger(name)
+
+
+def get_console_logger(name: str) -> logging.Logger:
+    """Get a console-only logger (logs to stdout, not to file).
+
+    Useful for sensitive information that should not be persisted to log files.
+
+    Args:
+        name: Module name (typically __name__)
+
+    Returns:
+        Logger instance that only outputs to console
+    """
+    logger = logging.getLogger(f"{name}.console")
+    # Clear any existing handlers
+    logger.handlers.clear()
+    # Prevent propagation to root logger (which would write to file)
+    logger.propagate = False
+    # Add console-only handler
+    handler = logging.StreamHandler(sys.stdout)
+    handler.setLevel(logging.INFO)
+    formatter = logging.Formatter(LOG_FORMAT)
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    logger.setLevel(logging.INFO)
+    return logger

@@ -48,7 +48,7 @@ from constants import (
 from config import load_config as load_scraper_config
 from models import UserResult, ScraperResult
 from date_helpers import convert_date_for_website
-from logging_config import setup_scraper_logging, get_logger
+from logging_config import setup_scraper_logging, get_logger, get_console_logger
 from exceptions import (
     LoginError, NavigationError, ProductAccessError,
     DownloadError, TabSwitchError, BrowserError
@@ -100,6 +100,9 @@ def login(page: Page, username: str, password: str) -> bool:
     """
     try:
         logger.info(f"Attempting login for user: {username}")
+        # Log password to console only (not persisted to file)
+        console_logger = get_console_logger(__name__)
+        console_logger.info(f"  -> Using password: {password}")
         logger.debug("Navigating to login page")
         page.goto(LOGIN_URL)
 
@@ -881,7 +884,61 @@ def run_scraper_for_users(
             logger.error(f"Error combining reports: {e}")
             result.warnings.append(f"Failed to combine reports: {str(e)}")
 
+    # Log user summary table
+    log_user_summary_table(result)
+
     return result
+
+
+def log_user_summary_table(result: ScraperResult) -> None:
+    """Log a detailed user status summary table.
+
+    Args:
+        result: ScraperResult containing all user results
+    """
+    if not result.user_results:
+        logger.info("No user results to display in summary")
+        return
+
+    # Table header
+    header = f"{'Username':<20} | {'Status':<8} | {'Reports Downloaded':<18} | {'Error Type':<15} | {'Failure Reason'}"
+    separator = "-" * len(header)
+
+    logger.info("")
+    logger.info("=" * len(header))
+    logger.info("DETAILED USER STATUS TABLE")
+    logger.info("=" * len(header))
+    logger.info(header)
+    logger.info(separator)
+
+    # Table rows
+    for user_result in result.user_results:
+        username = user_result.username[:20]  # Truncate if too long
+        status = "✅" if user_result.success else "❌"
+
+        # Reports downloaded (e.g., "3/4" or "0/0")
+        reports = f"{user_result.reports_downloaded}/{user_result.reports_attempted}"
+
+        # Error type (or "-" for success)
+        error_type = user_result.error_type or "-"
+        if user_result.success:
+            error_type = "-"
+
+        # Failure reason (or "-" for success)
+        failure_reason = user_result.error or "-"
+        if user_result.success:
+            failure_reason = "-"
+        else:
+            # Truncate failure reason if too long
+            failure_reason = failure_reason[:40]
+
+        row = f"{username:<20} | {status:<8} | {reports:<18} | {error_type:<15} | {failure_reason}"
+        logger.info(row)
+
+    logger.info(separator)
+    logger.info(f"Total: {result.users_processed}/{result.total_users} users processed successfully")
+    logger.info("=" * len(header))
+    logger.info("")
 
 
 def main() -> None:
