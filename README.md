@@ -4,20 +4,24 @@ This project scrapes reports from a website, converts them to XLSX, and serves t
 
 ## Features
 - Automates login and report download using Playwright
+- Admin Reports access with enhanced filtering
 - Converts CSV reports to XLSX
 - Simple Flask web app to view/download reports
-- Manual and scheduled scraping (weekly)
 
 ## Setup
 1. Install dependencies:
    ```bash
    pip install -r requirements.txt
-   playwright install
+   PLAYWRIGHT_BROWSERS_PATH=playwright-browsers playwright install chromium
    ```
-2. Configure your credentials in a `.env` file
-   ```bash
-   SCRAPER_USERNAME=your_username
-   SCRAPER_PASSWORD=your_password
+2. Configure your credentials in `users.json`:
+   ```json
+   [
+     {
+       "username": "your_username",
+       "password": "your_password"
+     }
+   ]
    ```
 
 ## Usage
@@ -30,12 +34,6 @@ python scraper.py
 ### Start the Web App
 ```bash
 python app.py
-```
-
-### Schedule Weekly Scraping
-The scheduler is integrated; just run:
-```bash
-python scheduler.py
 ```
 
 ## Notes
