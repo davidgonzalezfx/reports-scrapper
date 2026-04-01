@@ -51,6 +51,8 @@ def setup_logging(
     if file_output and log_file:
         log_path = get_log_file_path(log_file)
         try:
+            # Ensure parent directory exists before creating log file
+            log_path.parent.mkdir(parents=True, exist_ok=True)
             file_handler = logging.FileHandler(log_path, encoding='utf-8')
             file_handler.setLevel(level)
             file_handler.setFormatter(formatter)
@@ -110,6 +112,8 @@ def clear_log_file(log_file: str) -> bool:
     log_path = get_log_file_path(log_file)
 
     try:
+        # Ensure parent directory exists before clearing log file
+        log_path.parent.mkdir(parents=True, exist_ok=True)
         with open(log_path, 'w', encoding='utf-8') as f:
             f.write('')
         logging.info(f"Cleared log file: {log_path}")

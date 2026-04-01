@@ -219,6 +219,8 @@ def get_log_file_path(log_filename: str) -> Path:
     For frozen apps, logs go next to the executable.
     For development, logs go in the current directory.
 
+    The parent directory is created if it doesn't exist.
+
     Args:
         log_filename: Name of the log file
 
@@ -227,10 +229,18 @@ def get_log_file_path(log_filename: str) -> Path:
     """
     if is_frozen():
         # Logs next to executable for easy access
-        return get_executable_dir() / log_filename
+        log_path = get_executable_dir() / log_filename
     else:
         # Development - current directory
-        return Path(log_filename)
+        log_path = Path(log_filename)
+
+    # Ensure parent directory exists
+    try:
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+    except OSError as e:
+        logger.warning(f"Could not create log directory '{log_path.parent}': {e}")
+
+    return log_path
 
 
 def ensure_directory_exists(directory: Union[str, Path]) -> Path:

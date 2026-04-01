@@ -1228,12 +1228,38 @@ def get_app_logs():
     Returns:
         Plain text log contents or JSON error
     """
+    return _get_log_contents("app.log")
+
+
+@app.route("/logs/scraper")
+def get_scraper_logs():
+    """Get the contents of scraper.log file.
+
+    Returns:
+        Plain text log contents or JSON error
+    """
+    return _get_log_contents("scraper.log")
+
+
+def _get_log_contents(log_filename: str):
+    """Helper function to read and return log file contents.
+
+    Args:
+        log_filename: Name of the log file to read
+
+    Returns:
+        Plain text log contents or JSON error
+    """
     try:
-        log_file_path = get_log_file_path("app.log")
+        log_file_path = get_log_file_path(log_filename)
+
+        # Ensure parent directory exists
+        log_file_path.parent.mkdir(parents=True, exist_ok=True)
 
         if not os.path.exists(log_file_path):
-            logger.warning(f"app.log file not found at {log_file_path}")
-            return jsonify({"error": "Log file not found"}), 404
+            logger.warning(f"{log_filename} file not found at {log_file_path}")
+            # Return empty content instead of 404 - file might not exist yet
+            return "", 200, {"Content-Type": "text/plain; charset=utf-8"}
 
         with open(log_file_path, "r", encoding="utf-8") as f:
             log_content = f.read()
@@ -1241,7 +1267,7 @@ def get_app_logs():
         return log_content, 200, {"Content-Type": "text/plain; charset=utf-8"}
 
     except Exception as e:
-        logger.error(f"Error reading app.log: {e}")
+        logger.error(f"Error reading {log_filename}: {e}")
         return jsonify({"error": "Failed to read log file"}), 500
 
 
