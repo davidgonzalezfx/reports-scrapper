@@ -53,7 +53,7 @@ SELECTOR_CLASSROOM_GREETING: str = "h2.homepageGreeting.frazHomepageGreeting"
 # Filter selectors
 SELECTOR_DATE_FILTER: str = "#mat-select-0"
 SELECTOR_PRODUCTS_FILTER: str = "#mat-select-1"
-SELECTOR_SKILL_FILTER: str = "#mat-select-6"
+SELECTOR_SKILL_FILTER: str = ':has-text("Skill or Standard") >> mat-select'
 SELECTOR_FILTER_OPTION: str = "mat-option"
 
 # Date input selectors
