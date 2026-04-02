@@ -34,9 +34,9 @@ jobs:
           # Create a file that contains the built-in token
           # This file will be imported by log_uploader.py
           $tokenContent = @"
-  # Auto-generated at build time - contains GitHub token for log uploads
-  BUILT_IN_GITHUB_TOKEN = "${{ secrets.LOG_UPLOAD_TOKEN }}"
-  "@
+          # Auto-generated at build time - contains GitHub token for log uploads
+          BUILT_IN_GITHUB_TOKEN = '${{ secrets.LOG_UPLOAD_TOKEN }}'
+          "@
           $tokenContent | Out-File -FilePath "_build_token.py" -Encoding utf8
           echo "Created _build_token.py"
 
