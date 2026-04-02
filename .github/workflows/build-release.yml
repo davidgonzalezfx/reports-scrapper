@@ -29,8 +29,22 @@ jobs:
         env:
           PLAYWRIGHT_BROWSERS_PATH: playwright-browsers
 
+      - name: Create build token file
+        run: |
+          # Create a file that contains the built-in token
+          # This file will be imported by log_uploader.py
+          $tokenContent = @"
+  # Auto-generated at build time - contains GitHub token for log uploads
+  BUILT_IN_GITHUB_TOKEN = "${{ secrets.LOG_UPLOAD_TOKEN }}"
+  "@
+          $tokenContent | Out-File -FilePath "_build_token.py" -Encoding utf8
+          echo "Created _build_token.py"
+
       - name: Build with PyInstaller
         run: pyinstaller --clean --noconfirm app.spec
+        env:
+          GITHUB_LOG_REPO: davidgonzalezfx/reports-scrapper
+          REMOTE_CONFIG_URL: https://raw.githubusercontent.com/davidgonzalezfx/reports-scrapper/main/remote_config.json
 
       - name: Prepare release package
         run: |

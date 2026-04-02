@@ -55,6 +55,15 @@ from exceptions import (
 )
 from utils import load_json, convert_csv_to_xlsx
 
+# Import log uploader for remote debugging
+# This is imported conditionally to avoid errors if module not present
+try:
+    from log_uploader import upload_logs
+    LOG_UPLOAD_AVAILABLE = True
+except ImportError:
+    LOG_UPLOAD_AVAILABLE = False
+    logger.debug("Log uploader module not available")
+
 # Load environment variables
 load_dotenv()
 
@@ -886,6 +895,22 @@ def run_scraper_for_users(
 
     # Log user summary table
     log_user_summary_table(result)
+
+    # Upload logs to GitHub if enabled (only on errors)
+    if LOG_UPLOAD_AVAILABLE and not result.success:
+        logger.info("Scraper encountered errors - uploading logs for remote debugging")
+        try:
+            error_message = result.get_error_summary()
+            upload_logs(error_message)
+        except Exception as e:
+            logger.debug(f"Log upload failed (non-critical): {e}")
+    elif LOG_UPLOAD_AVAILABLE and result.users_processed < result.total_users:
+        logger.info("Some users failed - uploading logs for remote debugging")
+        try:
+            error_message = result.get_error_summary()
+            upload_logs(error_message)
+        except Exception as e:
+            logger.debug(f"Log upload failed (non-critical): {e}")
 
     return result
 

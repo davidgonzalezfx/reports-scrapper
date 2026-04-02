@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "log_sharing_enabled": true,
+  "features": {
+    "auto_update": false
+  },
+  "_comment": "Set log_sharing_enabled to true to enable automatic log upload to GitHub on errors"
+}

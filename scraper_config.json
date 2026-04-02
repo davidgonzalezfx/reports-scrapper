@@ -7,9 +7,9 @@
   "tabs": {
     "Student Usage": true,
     "Skill": true,
-    "Assignment": false,
-    "Assessment": false,
-    "Level Up Progress": false
+    "Assignment": true,
+    "Assessment": true,
+    "Level Up Progress": true
   },
   "institution_name": "Colegio Patagonia"
 }

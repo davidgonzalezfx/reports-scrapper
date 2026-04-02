@@ -30,7 +30,11 @@ a = Analysis(
         'waitress',
         'apscheduler',
         'dotenv',
-        'utils'
+        'utils',
+        'client_id',
+        'remote_config',
+        'log_uploader',
+        '_build_token'
     ],
     hookspath=['./hooks'],
     hooksconfig={},

@@ -36,6 +36,13 @@ from date_helpers import (
 from path_helpers import get_reports_directory, get_log_file_path, is_frozen
 from logging_config import setup_app_logging, clear_log_file, get_logger
 from exceptions import ConfigurationError, ValidationError, FileOperationError
+
+# Import client ID module
+try:
+    from client_id import get_client_id_for_display
+    CLIENT_ID_AVAILABLE = True
+except ImportError:
+    CLIENT_ID_AVAILABLE = False
 from utils import (
     load_json, save_json, validate_filename, validate_user_data,
     get_report_files, get_school_summary, get_classroom_summaries,
@@ -1239,6 +1246,35 @@ def get_scraper_logs():
         Plain text log contents or JSON error
     """
     return _get_log_contents("scraper.log")
+
+
+@app.route("/client-id")
+def get_client_id_info():
+    """Get the client ID information for display.
+
+    Returns:
+        JSON with client_id and path for sharing with developer
+    """
+    try:
+        if not CLIENT_ID_AVAILABLE:
+            return jsonify({
+                "error": "Client ID module not available"
+            }), 501
+
+        info = get_client_id_for_display()
+        # Mask the middle of the ID for security
+        full_id = info["client_id"]
+        masked_id = f"{full_id[:8]}...{full_id[-8:]}"
+
+        return jsonify({
+            "client_id": full_id,
+            "masked_client_id": masked_id,
+            "file_path": info["path"],
+            "instructions": "Share the Client ID with the developer to enable remote log sharing."
+        })
+    except Exception as e:
+        logger.error(f"Error getting client ID: {e}")
+        return jsonify({"error": "Failed to get client ID"}), 500
 
 
 def _get_log_contents(log_filename: str):
