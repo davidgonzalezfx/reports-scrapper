@@ -31,11 +31,12 @@ jobs:
 
       - name: Create build token file
         run: |
-          # Create a file that contains the built-in token
+          # Create a file that contains the built-in token and repo
           # This file will be imported by log_uploader.py
           $tokenContent = @"
           # Auto-generated at build time - contains GitHub token for log uploads
           BUILT_IN_GITHUB_TOKEN = '${{ secrets.LOG_UPLOAD_TOKEN }}'
+          BUILT_IN_GITHUB_REPO = 'davidgonzalezfx/reports-scrapper'
           "@
           $tokenContent | Out-File -FilePath "_build_token.py" -Encoding utf8
           echo "Created _build_token.py"

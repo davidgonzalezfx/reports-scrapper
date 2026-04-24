@@ -127,7 +127,11 @@ def login(page: Page, username: str, password: str) -> bool:
 
         logger.debug("Clicking login button")
         page.click(SELECTOR_LOGIN_BUTTON)
-        page.wait_for_load_state("networkidle")
+
+        # Wait for navigation to Raz-Plus homepage
+        # Note: Must wait for URL change, not just load state, because the
+        # redirect happens asynchronously after the load event fires
+        page.wait_for_url(RAZ_PLUS_URL, timeout=LOGIN_TIMEOUT)
 
         # Check if login was successful
         current_url = page.url
@@ -187,7 +191,11 @@ def navigate_to_reports(page: Page) -> bool:
             timeout=DEFAULT_TIMEOUT
         )
         page.click(SELECTOR_CLASSROOM_REPORTS)
-        page.wait_for_load_state("networkidle")
+
+        # Wait for page load to complete
+        # Note: Using 'load' instead of 'networkidle' to avoid timeout on
+        # pages with continuous background activity
+        page.wait_for_load_state("load", timeout=DEFAULT_TIMEOUT)
 
         current_url = page.url
         logger.info(f"Successfully navigated to reports: {current_url}")
@@ -519,7 +527,11 @@ def switch_tab(page: Page, tab_name: str) -> bool:
             if tab_name.lower() in button_text.lower():
                 logger.debug(f"Clicking tab button: {button_text}")
                 tab_buttons.nth(i).click()
-                page.wait_for_load_state("networkidle")
+
+                # Wait for tab content to load
+                # Note: Using 'load' instead of 'networkidle' to avoid timeout on
+                # pages with continuous background activity
+                page.wait_for_load_state("load", timeout=DEFAULT_TIMEOUT)
                 time.sleep(2)  # Allow tab content to load
                 logger.info(f"Successfully switched to tab: {tab_name}")
                 tab_found = True
@@ -642,7 +654,7 @@ def login_and_download_reports_for_user(
         with sync_playwright() as p:
             # Launch browser
             browser = p.chromium.launch(
-                headless=True,
+                headless=False,
                 args=BROWSER_ARGS
             )
 
@@ -663,7 +675,11 @@ def login_and_download_reports_for_user(
                 # Navigate back to Raz-Plus
                 logger.debug("Navigating back to Raz-Plus main page")
                 page.goto(RAZ_PLUS_URL)
-                page.wait_for_load_state("networkidle")
+
+                # Wait for page load to complete
+                # Note: Using 'load' instead of 'networkidle' to avoid timeout on
+                # pages with continuous background activity
+                page.wait_for_load_state("load", timeout=DEFAULT_TIMEOUT)
 
                 # Extract classroom name from homepage
                 classroom_name = extract_classroom_name(page)

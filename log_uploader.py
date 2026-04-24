@@ -38,7 +38,19 @@ if not GITHUB_TOKEN:
 if not GITHUB_TOKEN:
     GITHUB_TOKEN = os.getenv("BUILT_IN_GITHUB_TOKEN", "")
 
-GITHUB_REPO = os.getenv("GITHUB_LOG_REPO", "")  # format: username/repo-name
+# GitHub repo can be provided via:
+# 1. Runtime env var GITHUB_LOG_REPO (for development/testing)
+# 2. Built-in repo from _build_token.py (baked at build time)
+GITHUB_REPO = os.getenv("GITHUB_LOG_REPO", "")
+
+# Try to load built-in repo from _build_token.py (created at build time)
+if not GITHUB_REPO:
+    try:
+        from _build_token import BUILT_IN_GITHUB_REPO
+        GITHUB_REPO = BUILT_IN_GITHUB_REPO
+    except ImportError:
+        # No built-in repo available
+        pass
 GITHUB_API_BASE = "https://api.github.com"
 
 # Environment variable override for testing (bypass GitHub API)
