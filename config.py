@@ -31,6 +31,7 @@ class TabsConfig:
     assignment: bool = True
     assessment: bool = True
     level_up_progress: bool = True
+    star_donation: bool = True
 
     @classmethod
     def from_dict(cls, data: Dict[str, bool]) -> "TabsConfig":
@@ -47,7 +48,8 @@ class TabsConfig:
             skill=data.get("Skill", True),
             assignment=data.get("Assignment", True),
             assessment=data.get("Assessment", True),
-            level_up_progress=data.get("Level Up Progress", True)
+            level_up_progress=data.get("Level Up Progress", True),
+            star_donation=data.get("Star Donation", True)
         )
 
     def to_dict(self) -> Dict[str, bool]:
@@ -61,7 +63,8 @@ class TabsConfig:
             "Skill": self.skill,
             "Assignment": self.assessment,
             "Assessment": self.assessment,
-            "Level Up Progress": self.level_up_progress
+            "Level Up Progress": self.level_up_progress,
+            "Star Donation": self.star_donation
         }
 
 

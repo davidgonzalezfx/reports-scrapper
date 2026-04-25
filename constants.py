@@ -76,7 +76,8 @@ REPORT_TYPES: List[str] = [
     "Skill",
     "Assignment",
     "Assessment",
-    "Level Up Progress"
+    "Level Up Progress",
+    "Star Donation"
 ]
 
 TABS: List[Dict[str, Any]] = [
@@ -85,6 +86,7 @@ TABS: List[Dict[str, Any]] = [
     {"name": "Assignment", "default": True},
     {"name": "Assessment", "default": True},
     {"name": "Level Up Progress", "default": True},
+    {"name": "Star Donation", "default": True},
 ]
 
 
@@ -253,7 +255,8 @@ LEGACY_REPORT_PREFIXES: List[str] = [
     'Skill',
     'Assignment',
     'Assessment',
-    'Level Up Progress'
+    'Level Up Progress',
+    'Star Donation'
 ]
 
 COMBINED_REPORT_PREFIX: str = "Combined_All_Reports_"

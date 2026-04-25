@@ -5,11 +5,12 @@
   "products_filter": "All",
   "skill_filter": "All",
   "tabs": {
-    "Student Usage": true,
-    "Skill": true,
-    "Assignment": true,
-    "Assessment": true,
-    "Level Up Progress": true
+    "Student Usage": false,
+    "Skill": false,
+    "Assignment": false,
+    "Assessment": false,
+    "Level Up Progress": false,
+    "Star Donation": true
   },
   "institution_name": "Colegio Patagonia"
 }
