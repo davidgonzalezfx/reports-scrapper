@@ -654,7 +654,7 @@ def login_and_download_reports_for_user(
         with sync_playwright() as p:
             # Launch browser
             browser = p.chromium.launch(
-                headless=False,
+                headless=True,
                 args=BROWSER_ARGS
             )
 
