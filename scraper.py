@@ -39,7 +39,7 @@ from constants import (
     SELECTOR_MENU_BUTTON, SELECTOR_CLASSROOM_REPORTS,
     SELECTOR_CLASSROOM_GREETING,
     SELECTOR_DATE_FILTER, SELECTOR_PRODUCTS_FILTER, SELECTOR_SKILL_FILTER,
-    SELECTOR_FILTER_OPTION,
+    SELECTOR_ASSIGNMENT_FILTER, SELECTOR_FILTER_PANEL, SELECTOR_FILTER_OPTION,
     SELECTOR_START_DATE_INPUT, SELECTOR_END_DATE_INPUT,
     SELECTOR_REPORT_TAB, SELECTOR_ELLIPSIS_BUTTON, SELECTOR_CSV_DOWNLOAD,
     SELECTOR_NO_RESULTS, TABS, BROWSER_ARGS, BROWSER_USER_AGENT,
@@ -444,6 +444,52 @@ def select_skill_filter(page: Page, label: str) -> bool:
         return False
 
 
+def select_assignment_filter(page: Page, label: str) -> bool:
+    """Select an assignment filter option from the dropdown.
+
+    Args:
+        page: Playwright page object
+        label: Assignment filter label to select
+
+    Returns:
+        True if selection successful, False otherwise
+    """
+    try:
+        logger.debug(f"Selecting assignment filter: {label}")
+
+        # Click on the assignment filter dropdown
+        page.wait_for_selector(SELECTOR_ASSIGNMENT_FILTER, timeout=DEFAULT_TIMEOUT)
+        page.click(SELECTOR_ASSIGNMENT_FILTER)
+        time.sleep(1)
+
+        time.sleep(1)
+        page.wait_for_selector(SELECTOR_ASSIGNMENT_FILTER, timeout=DEFAULT_TIMEOUT)
+        page.click(SELECTOR_ASSIGNMENT_FILTER)
+        time.sleep(1)
+
+        # Wait for options and select
+        page.wait_for_selector(SELECTOR_FILTER_OPTION, timeout=DEFAULT_TIMEOUT)
+        options = page.locator(SELECTOR_FILTER_OPTION)
+
+        for i in range(options.count()):
+            option_text = options.nth(i).inner_text().strip()
+            if option_text == label:
+                options.nth(i).click()
+                logger.info(f"Selected assignment filter: {label}")
+                time.sleep(2)  # Allow filter to apply
+                return True
+
+        logger.warning(f"Assignment filter option '{label}' not found")
+        return False
+
+    except PlaywrightTimeoutError as e:
+        logger.error(f"Timeout selecting assignment filter '{label}': {e}")
+        return False
+    except Exception as e:
+        logger.error(f"Error selecting assignment filter '{label}': {e}")
+        return False
+
+
 def download_report(page: Page, username: str, classroom_name: str) -> bool:
     """Download the current report as CSV and convert to XLSX.
 
@@ -613,6 +659,14 @@ def process_user_reports(
                             f"Failed to apply skill filter '{skill_filter}'"
                         )
 
+                # Apply assignment filter for Assignment tab
+                if tab_name == "Assignment":
+                    assignment_filter = config.get("assignment_filter", "All")
+                    if not select_assignment_filter(page, assignment_filter):
+                        logger.warning(
+                            f"Failed to apply assignment filter '{assignment_filter}'"
+                        )
+
                 # Special handling for Level Up Progress
                 if tab_name == "Level Up Progress":
                     products_filter = config.get("products_filter", "All")
@@ -654,7 +708,7 @@ def login_and_download_reports_for_user(
         with sync_playwright() as p:
             # Launch browser
             browser = p.chromium.launch(
-                headless=True,
+                headless=False,
                 args=BROWSER_ARGS
             )
 

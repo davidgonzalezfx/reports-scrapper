@@ -54,6 +54,8 @@ SELECTOR_CLASSROOM_GREETING: str = "h2.homepageGreeting.frazHomepageGreeting"
 SELECTOR_DATE_FILTER: str = "#mat-select-0"
 SELECTOR_PRODUCTS_FILTER: str = "#mat-select-1"
 SELECTOR_SKILL_FILTER: str = 'class-reports-skill-type-filter mat-select'
+SELECTOR_ASSIGNMENT_FILTER: str = 'class-reports-assignment-name-filter mat-select'
+SELECTOR_FILTER_PANEL: str = "div.mat-select-panel"
 SELECTOR_FILTER_OPTION: str = "mat-option"
 
 # Date input selectors
@@ -120,6 +122,12 @@ SKILL_FILTERS: List[str] = [
     "Foundational Skills",
     "Grammar & Mechanics",
     "Vocabulary & Word Work"
+]
+
+ASSIGNMENT_FILTERS: List[str] = [
+    "All",
+    "Level Up",
+    "Subir de Nivel"
 ]
 
 # ============================================================================

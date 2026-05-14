@@ -21,7 +21,7 @@ from waitress import serve
 # Import new helper modules
 from constants import (
     USERS_FILE, REPORTS_DIR, DATE_FILTERS, PRODUCTS_FILTERS, SKILL_FILTERS,
-    TABS, FLASK_MAX_CONTENT_LENGTH, LEGACY_REPORT_PREFIXES,
+    ASSIGNMENT_FILTERS, TABS, FLASK_MAX_CONTENT_LENGTH, LEGACY_REPORT_PREFIXES,
     COMBINED_REPORT_PREFIX
 )
 from config import load_config, save_config, ScraperConfig
@@ -727,6 +727,8 @@ def index():
             selected_products_filter=config.products_filter,
             skill_filters=SKILL_FILTERS,
             selected_skill_filter=config.skill_filter,
+            assignment_filters=ASSIGNMENT_FILTERS,
+            selected_assignment_filter=config.assignment_filter,
             tabs=TABS,
             selected_tabs=config.tabs.to_dict(),
             selected_institution_name=config.institution_name,
@@ -811,6 +813,18 @@ def set_filter():
             skill_filter = SKILL_FILTERS[0]
         config.skill_filter = skill_filter
 
+        # Update assignment filter
+        assignment_filter = request.form.get(
+            "assignment_filter",
+            ASSIGNMENT_FILTERS[0]
+        )
+        if assignment_filter not in ASSIGNMENT_FILTERS:
+            logger.warning(
+                f"Invalid assignment filter received: {assignment_filter}"
+            )
+            assignment_filter = ASSIGNMENT_FILTERS[0]
+        config.assignment_filter = assignment_filter
+
         # Update tabs selection
         selected_tabs = request.form.getlist("tabs")
         tabs_dict = {
@@ -832,6 +846,7 @@ def set_filter():
         logger.info(
             f"Filter configuration updated: date={date_filter}, "
             f"products={products_filter}, skill={skill_filter}, "
+            f"assignment={assignment_filter}, "
             f"tabs={selected_tabs}, institution={institution_name}"
         )
 

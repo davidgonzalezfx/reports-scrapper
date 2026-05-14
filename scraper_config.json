@@ -3,14 +3,15 @@
   "custom_start_date": "",
   "custom_end_date": "",
   "products_filter": "All",
-  "skill_filter": "All",
+  "skill_filter": "Comprehension",
+  "assignment_filter": "Level Up",
   "tabs": {
     "Student Usage": false,
     "Skill": false,
-    "Assignment": false,
+    "Assignment": true,
     "Assessment": false,
     "Level Up Progress": false,
-    "Star Donation": true
+    "Star Donation": false
   },
   "institution_name": "Colegio Patagonia"
 }

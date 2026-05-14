@@ -14,6 +14,7 @@ from constants import (
     DATE_FILTERS,
     PRODUCTS_FILTERS,
     SKILL_FILTERS,
+    ASSIGNMENT_FILTERS,
     TABS,
     DEFAULT_INSTITUTION_NAME,
     DATE_RANGE_MAX_CUSTOM
@@ -61,7 +62,7 @@ class TabsConfig:
         return {
             "Student Usage": self.student_usage,
             "Skill": self.skill,
-            "Assignment": self.assessment,
+            "Assignment": self.assignment,
             "Assessment": self.assessment,
             "Level Up Progress": self.level_up_progress,
             "Star Donation": self.star_donation
@@ -77,6 +78,7 @@ class ScraperConfig:
     custom_end_date: str = ""
     products_filter: str = "All"
     skill_filter: str = "All"
+    assignment_filter: str = "All"
     tabs: TabsConfig = field(default_factory=TabsConfig)
     institution_name: str = DEFAULT_INSTITUTION_NAME
 
@@ -114,6 +116,14 @@ class ScraperConfig:
             )
             self.skill_filter = "All"
 
+        # Validate assignment filter
+        if self.assignment_filter not in ASSIGNMENT_FILTERS:
+            logger.warning(
+                f"Invalid assignment filter '{self.assignment_filter}', "
+                f"using default 'All'"
+            )
+            self.assignment_filter = "All"
+
         # Validate custom dates if Custom filter is selected
         if self.date_filter == "Custom":
             if not self.custom_start_date or not self.custom_end_date:
@@ -142,6 +152,7 @@ class ScraperConfig:
             custom_end_date=data.get("custom_end_date", ""),
             products_filter=data.get("products_filter", "All"),
             skill_filter=data.get("skill_filter", "All"),
+            assignment_filter=data.get("assignment_filter", "All"),
             tabs=tabs_config,
             institution_name=data.get(
                 "institution_name", DEFAULT_INSTITUTION_NAME
@@ -160,6 +171,7 @@ class ScraperConfig:
             "custom_end_date": self.custom_end_date,
             "products_filter": self.products_filter,
             "skill_filter": self.skill_filter,
+            "assignment_filter": self.assignment_filter,
             "tabs": self.tabs.to_dict(),
             "institution_name": self.institution_name
         }
@@ -178,6 +190,7 @@ def get_default_config() -> ScraperConfig:
         custom_end_date="",
         products_filter=PRODUCTS_FILTERS[0],
         skill_filter=SKILL_FILTERS[0],
+        assignment_filter=ASSIGNMENT_FILTERS[0],
         tabs=TabsConfig.from_dict(tabs_dict),
         institution_name=DEFAULT_INSTITUTION_NAME
     )

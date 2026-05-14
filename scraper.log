@@ -1,0 +1,349 @@
+2026-05-02 22:39:18,884 - scraper - INFO - Starting scraper execution
+2026-05-02 22:39:18,885 - scraper - INFO - Loaded 1 users from users.json
+2026-05-02 22:39:18,885 - scraper - INFO - Found 1 users to process
+2026-05-02 22:39:18,885 - scraper - INFO - Processing user 1/1: AnaCDemo2
+2026-05-02 22:39:18,886 - scraper - INFO - Starting report download process for user: AnaCDemo2
+2026-05-02 22:39:25,777 - scraper - INFO - Attempting login for user: AnaCDemo2
+2026-05-02 22:39:31,465 - scraper - INFO - Login successful for user: AnaCDemo2
+2026-05-02 22:39:32,761 - scraper - INFO - Extracted classroom name: Ana!
+2026-05-02 22:39:32,762 - scraper - INFO - Using classroom name 'Ana' for AnaCDemo2
+2026-05-02 22:39:38,880 - scraper - INFO - Successfully navigated to reports: https://www.kidsa-z.com/main/reports#!/student-usage
+2026-05-02 22:39:41,885 - config - INFO - Configuration loaded successfully
+2026-05-02 22:39:41,885 - scraper - INFO - Using date filter: Last 90 Days
+2026-05-02 22:39:41,886 - scraper - INFO - Using products filter: All
+2026-05-02 22:39:43,146 - scraper - INFO - Selected products filter: All
+2026-05-02 22:39:46,277 - scraper - INFO - Selected date filter: Last 90 Days
+2026-05-02 22:39:48,281 - scraper - INFO - Skipping Student Usage report (not selected)
+2026-05-02 22:39:48,281 - scraper - INFO - Skipping Skill report (not selected)
+2026-05-02 22:39:48,282 - scraper - INFO - Skipping Assignment report (not selected)
+2026-05-02 22:39:48,282 - scraper - INFO - Skipping Assessment report (not selected)
+2026-05-02 22:39:48,282 - scraper - INFO - Skipping Level Up Progress report (not selected)
+2026-05-02 22:39:48,282 - scraper - INFO - Processing Star Donation report
+2026-05-02 22:39:50,404 - scraper - INFO - Successfully switched to tab: Star Donation
+2026-05-02 22:39:51,593 - scraper - INFO - Downloaded CSV report: Ana_Star Donation Report_All_Spring 2026.csv
+2026-05-02 22:39:51,639 - utils - INFO - Successfully converted to XLSX: Ana_Star Donation Report_All_Spring 2026.xlsx
+2026-05-02 22:39:51,640 - scraper - INFO - Successfully downloaded Star Donation report
+2026-05-02 22:39:51,640 - scraper - INFO - Completed report download for AnaCDemo2: 1/1 successful
+2026-05-02 22:39:51,781 - scraper - INFO - Successfully processed user: AnaCDemo2
+2026-05-02 22:39:51,782 - scraper - INFO - Scraper completed: 1/1 users processed successfully
+2026-05-02 22:39:51,782 - scraper - INFO - Attempting to combine all reports by type...
+2026-05-02 22:39:51,784 - utils - INFO - No reports found to combine
+2026-05-02 22:39:51,784 - scraper - INFO - No reports to combine or combination failed
+2026-05-02 22:39:51,784 - scraper - INFO - 
+2026-05-02 22:39:51,784 - scraper - INFO - =======================================================================================
+2026-05-02 22:39:51,784 - scraper - INFO - DETAILED USER STATUS TABLE
+2026-05-02 22:39:51,784 - scraper - INFO - =======================================================================================
+2026-05-02 22:39:51,784 - scraper - INFO - Username             | Status   | Reports Downloaded | Error Type      | Failure Reason
+2026-05-02 22:39:51,784 - scraper - INFO - ---------------------------------------------------------------------------------------
+2026-05-02 22:39:51,784 - scraper - INFO - AnaCDemo2            | ✅        | 1/1                | -               | -
+2026-05-02 22:39:51,784 - scraper - INFO - ---------------------------------------------------------------------------------------
+2026-05-02 22:39:51,784 - scraper - INFO - Total: 1/1 users processed successfully
+2026-05-02 22:39:51,784 - scraper - INFO - =======================================================================================
+2026-05-02 22:39:51,784 - scraper - INFO - 
+2026-05-02 22:39:51,784 - __main__ - INFO - Scraper completed successfully
+2026-05-02 22:39:51,784 - __main__ - INFO - Added notification: success - All 1 users processed successfully
+2026-05-02 22:39:51,785 - __main__ - INFO - Scraper process finished
+2026-05-02 22:39:53,480 - config - INFO - Configuration loaded successfully
+2026-05-02 22:39:53,482 - __main__ - INFO - Loaded 1 users successfully
+2026-05-02 22:40:06,191 - __main__ - INFO - Deleted report file: Ana_Star Donation Report_All_Spring 2026.xlsx
+2026-05-02 22:40:06,191 - __main__ - INFO - Successfully deleted 1 report files
+2026-05-02 22:40:07,730 - config - INFO - Configuration loaded successfully
+2026-05-02 22:40:07,731 - __main__ - INFO - Loaded 1 users successfully
+2026-05-02 22:40:21,281 - config - INFO - Configuration loaded successfully
+2026-05-02 22:40:21,284 - config - INFO - Configuration saved successfully
+2026-05-02 22:40:21,284 - __main__ - INFO - Filter configuration updated: date=Last 90 Days, products=All, skill=Comprehension, tabs=['Skill'], institution=Colegio Patagonia
+2026-05-02 22:40:21,295 - config - INFO - Configuration loaded successfully
+2026-05-02 22:40:21,297 - __main__ - INFO - Loaded 1 users successfully
+2026-05-02 22:40:23,234 - __main__ - INFO - Starting new scrape job
+2026-05-02 22:40:23,235 - __main__ - INFO - Cleared all notifications
+2026-05-02 22:40:23,235 - __main__ - INFO - Starting scraper process
+2026-05-02 22:40:23,237 - __main__ - INFO - Loaded 1 users successfully
+2026-05-02 22:40:23,237 - scraper - INFO - Starting scraper execution
+2026-05-02 22:40:23,238 - scraper - INFO - Loaded 1 users from users.json
+2026-05-02 22:40:23,239 - scraper - INFO - Found 1 users to process
+2026-05-02 22:40:23,239 - scraper - INFO - Processing user 1/1: AnaCDemo2
+2026-05-02 22:40:23,239 - scraper - INFO - Starting report download process for user: AnaCDemo2
+2026-05-02 22:40:25,088 - scraper - INFO - Attempting login for user: AnaCDemo2
+2026-05-02 22:40:30,700 - scraper - INFO - Login successful for user: AnaCDemo2
+2026-05-02 22:40:32,025 - scraper - INFO - Extracted classroom name: Ana!
+2026-05-02 22:40:32,025 - scraper - INFO - Using classroom name 'Ana' for AnaCDemo2
+2026-05-02 22:40:37,864 - scraper - INFO - Successfully navigated to reports: https://www.kidsa-z.com/main/reports#!/student-usage
+2026-05-02 22:40:40,868 - config - INFO - Configuration loaded successfully
+2026-05-02 22:40:40,869 - scraper - INFO - Using date filter: Last 90 Days
+2026-05-02 22:40:40,869 - scraper - INFO - Using products filter: All
+2026-05-02 22:40:42,030 - scraper - INFO - Selected products filter: All
+2026-05-02 22:40:45,153 - scraper - INFO - Selected date filter: Last 90 Days
+2026-05-02 22:40:47,157 - scraper - INFO - Skipping Student Usage report (not selected)
+2026-05-02 22:40:47,157 - scraper - INFO - Processing Skill report
+2026-05-02 22:40:49,266 - scraper - INFO - Successfully switched to tab: Skill
+2026-05-02 22:40:50,352 - scraper - WARNING - Skill filter option 'Comprehension' not found
+2026-05-02 22:40:50,352 - scraper - WARNING - Failed to apply skill filter 'Comprehension'
+2026-05-02 22:41:21,480 - scraper - ERROR - Failed to download report: Page.click: Target page, context or browser has been closed
+Call log:
+  - waiting for locator("#report-menu-options-0-csv-report-download-btn")
+
+2026-05-02 22:41:21,481 - scraper - WARNING - Failed to download Skill report
+2026-05-02 22:41:21,481 - scraper - INFO - Skipping Assignment report (not selected)
+2026-05-02 22:41:21,481 - scraper - INFO - Skipping Assessment report (not selected)
+2026-05-02 22:41:21,481 - scraper - INFO - Skipping Level Up Progress report (not selected)
+2026-05-02 22:41:21,481 - scraper - INFO - Skipping Star Donation report (not selected)
+2026-05-02 22:41:21,481 - scraper - INFO - Completed report download for AnaCDemo2: 0/1 successful
+2026-05-02 22:41:21,646 - scraper - ERROR - Failed to process user: AnaCDemo2 - No reports could be downloaded (0/1 successful)
+2026-05-02 22:41:21,646 - scraper - INFO - Scraper completed: 0/1 users processed successfully
+2026-05-02 22:41:21,646 - scraper - INFO - Error summary: Download error for: AnaCDemo2
+2026-05-02 22:41:21,646 - scraper - INFO - 
+2026-05-02 22:41:21,646 - scraper - INFO - =======================================================================================
+2026-05-02 22:41:21,646 - scraper - INFO - DETAILED USER STATUS TABLE
+2026-05-02 22:41:21,646 - scraper - INFO - =======================================================================================
+2026-05-02 22:41:21,646 - scraper - INFO - Username             | Status   | Reports Downloaded | Error Type      | Failure Reason
+2026-05-02 22:41:21,646 - scraper - INFO - ---------------------------------------------------------------------------------------
+2026-05-02 22:41:21,646 - scraper - INFO - AnaCDemo2            | ❌        | 0/1                | download        | No reports could be downloaded (0/1 succ
+2026-05-02 22:41:21,646 - scraper - INFO - ---------------------------------------------------------------------------------------
+2026-05-02 22:41:21,646 - scraper - INFO - Total: 0/1 users processed successfully
+2026-05-02 22:41:21,647 - scraper - INFO - =======================================================================================
+2026-05-02 22:41:21,647 - scraper - INFO - 
+2026-05-02 22:41:21,647 - scraper - INFO - Scraper encountered errors - uploading logs for remote debugging
+2026-05-02 22:41:21,858 - remote_config - INFO - Successfully fetched remote config
+2026-05-02 22:41:21,859 - remote_config - INFO - Log sharing globally enabled: True
+2026-05-02 22:41:21,859 - log_uploader - WARNING - GitHub logging not configured (missing GITHUB_LOG_TOKEN or GITHUB_LOG_REPO)
+2026-05-02 22:41:21,859 - __main__ - ERROR - Scraper failed - no users processed successfully
+2026-05-02 22:41:21,860 - __main__ - INFO - Added notification: error - Download error for: AnaCDemo2
+2026-05-02 22:41:21,860 - __main__ - INFO - Scraper process finished
+2026-05-02 22:42:39,810 - __main__ - INFO - Starting scraper execution
+2026-05-02 22:42:39,812 - __main__ - INFO - Loaded 1 users from users.json
+2026-05-02 22:42:39,812 - __main__ - INFO - Found 1 users to process
+2026-05-02 22:42:39,812 - __main__ - INFO - Processing user 1/1: AnaCDemo2
+2026-05-02 22:42:39,812 - __main__ - INFO - Starting report download process for user: AnaCDemo2
+2026-05-02 22:42:42,207 - __main__ - INFO - Attempting login for user: AnaCDemo2
+2026-05-02 22:42:47,652 - __main__ - INFO - Login successful for user: AnaCDemo2
+2026-05-02 22:42:48,851 - __main__ - INFO - Extracted classroom name: Ana!
+2026-05-02 22:42:48,851 - __main__ - INFO - Using classroom name 'Ana' for AnaCDemo2
+2026-05-02 22:42:54,153 - __main__ - INFO - Successfully navigated to reports: https://www.kidsa-z.com/main/reports#!/student-usage
+2026-05-02 22:42:57,158 - config - INFO - Configuration loaded successfully
+2026-05-02 22:42:57,158 - __main__ - INFO - Using date filter: Last 90 Days
+2026-05-02 22:42:57,159 - __main__ - INFO - Using products filter: All
+2026-05-02 22:42:58,318 - __main__ - INFO - Selected products filter: All
+2026-05-02 22:43:01,445 - __main__ - INFO - Selected date filter: Last 90 Days
+2026-05-02 22:43:03,451 - __main__ - INFO - Skipping Student Usage report (not selected)
+2026-05-02 22:43:03,451 - __main__ - INFO - Processing Skill report
+2026-05-02 22:43:05,539 - __main__ - INFO - Successfully switched to tab: Skill
+2026-05-02 22:43:06,629 - __main__ - WARNING - Skill filter option 'Comprehension' not found
+2026-05-02 22:43:06,629 - __main__ - WARNING - Failed to apply skill filter 'Comprehension'
+2026-05-02 22:43:36,654 - __main__ - ERROR - Timeout during report download: Page.click: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator("button[tid=\"class-reports-ellipsis-tooltip\"]")
+    - locator resolved to <button type="button" aria-controls="" basic-tooltip="" title="Toggle Open" aria-haspopup="true" aria-expanded="false" ng-blur="$ctrl.blur()" ng-focus="$ctrl.focus()" set-focus="$ctrl.hasFocus" ng-if="$ctrl.getHasBasicTooltip()" ng-keydown="$ctrl.keyDown($event)" ng-attr-set-focus="$ctrl.hasFocus" ng-click="$ctrl.toggleOpen($event)" ng-attr-role="{{$ctrl.buttonRole}}" ng-attr-aria-label="{{$ctrl.label}}" tid="class-reports-ellipsis-tooltip" ng-attr-aria-labelledby="{{$ctrl.labelledBy}}" ng-attr-aria-d…>…</button>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is visible, enabled and stable
+      - scrolling into view if needed
+      - done scrolling
+      - <div class="cdk-overlay-backdrop cdk-overlay-transparent-backdrop cdk-overlay-backdrop-showing"></div> from <class-reports-filters>…</class-reports-filters> subtree intercepts pointer events
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is visible, enabled and stable
+      - scrolling into view if needed
+      - done scrolling
+      - <div class="cdk-overlay-backdrop cdk-overlay-transparent-backdrop cdk-overlay-backdrop-showing"></div> from <class-reports-filters>…</class-reports-filters> subtree intercepts pointer events
+    - retrying click action
+      - waiting 100ms
+    58 × waiting for element to be visible, enabled and stable
+       - element is visible, enabled and stable
+       - scrolling into view if needed
+       - done scrolling
+       - <div class="cdk-overlay-backdrop cdk-overlay-transparent-backdrop cdk-overlay-backdrop-showing"></div> from <class-reports-filters>…</class-reports-filters> subtree intercepts pointer events
+     - retrying click action
+       - waiting 500ms
+
+2026-05-02 22:43:36,654 - __main__ - WARNING - Failed to download Skill report
+2026-05-02 22:43:36,654 - __main__ - INFO - Skipping Assignment report (not selected)
+2026-05-02 22:43:36,654 - __main__ - INFO - Skipping Assessment report (not selected)
+2026-05-02 22:43:36,655 - __main__ - INFO - Skipping Level Up Progress report (not selected)
+2026-05-02 22:43:36,655 - __main__ - INFO - Skipping Star Donation report (not selected)
+2026-05-02 22:43:36,655 - __main__ - INFO - Completed report download for AnaCDemo2: 0/1 successful
+2026-05-02 22:43:36,719 - __main__ - ERROR - Failed to process user: AnaCDemo2 - No reports could be downloaded (0/1 successful)
+2026-05-02 22:43:36,719 - __main__ - INFO - Scraper completed: 0/1 users processed successfully
+2026-05-02 22:43:36,719 - __main__ - INFO - Error summary: Download error for: AnaCDemo2
+2026-05-02 22:43:36,719 - __main__ - INFO - 
+2026-05-02 22:43:36,719 - __main__ - INFO - =======================================================================================
+2026-05-02 22:43:36,719 - __main__ - INFO - DETAILED USER STATUS TABLE
+2026-05-02 22:43:36,719 - __main__ - INFO - =======================================================================================
+2026-05-02 22:43:36,720 - __main__ - INFO - Username             | Status   | Reports Downloaded | Error Type      | Failure Reason
+2026-05-02 22:43:36,720 - __main__ - INFO - ---------------------------------------------------------------------------------------
+2026-05-02 22:43:36,720 - __main__ - INFO - AnaCDemo2            | ❌        | 0/1                | download        | No reports could be downloaded (0/1 succ
+2026-05-02 22:43:36,720 - __main__ - INFO - ---------------------------------------------------------------------------------------
+2026-05-02 22:43:36,720 - __main__ - INFO - Total: 0/1 users processed successfully
+2026-05-02 22:43:36,720 - __main__ - INFO - =======================================================================================
+2026-05-02 22:43:36,720 - __main__ - INFO - 
+2026-05-02 22:43:36,720 - __main__ - INFO - Scraper encountered errors - uploading logs for remote debugging
+2026-05-02 22:43:36,723 - remote_config - INFO - Log sharing globally enabled: True
+2026-05-02 22:43:36,723 - log_uploader - WARNING - GitHub logging not configured (missing GITHUB_LOG_TOKEN or GITHUB_LOG_REPO)
+2026-05-02 22:58:11,043 - __main__ - INFO - Starting scraper execution
+2026-05-02 22:58:11,046 - __main__ - INFO - Loaded 1 users from users.json
+2026-05-02 22:58:11,046 - __main__ - INFO - Found 1 users to process
+2026-05-02 22:58:11,046 - __main__ - INFO - Processing user 1/1: AnaCDemo2
+2026-05-02 22:58:11,046 - __main__ - INFO - Starting report download process for user: AnaCDemo2
+2026-05-02 22:58:12,330 - __main__ - INFO - Attempting login for user: AnaCDemo2
+2026-05-02 22:58:18,208 - __main__ - INFO - Login successful for user: AnaCDemo2
+2026-05-02 22:58:19,366 - __main__ - INFO - Extracted classroom name: Ana!
+2026-05-02 22:58:19,366 - __main__ - INFO - Using classroom name 'Ana' for AnaCDemo2
+2026-05-02 22:58:24,506 - __main__ - INFO - Successfully navigated to reports: https://www.kidsa-z.com/main/reports#!/student-usage
+2026-05-02 22:58:27,515 - config - INFO - Configuration loaded successfully
+2026-05-02 22:58:27,516 - __main__ - INFO - Using date filter: Last 90 Days
+2026-05-02 22:58:27,516 - __main__ - INFO - Using products filter: All
+2026-05-02 22:58:28,691 - __main__ - INFO - Selected products filter: All
+2026-05-02 22:58:31,803 - __main__ - INFO - Selected date filter: Last 90 Days
+2026-05-02 22:58:33,808 - __main__ - INFO - Skipping Student Usage report (not selected)
+2026-05-02 22:58:33,809 - __main__ - INFO - Processing Skill report
+2026-05-02 22:58:35,895 - __main__ - INFO - Successfully switched to tab: Skill
+2026-05-02 22:58:37,009 - __main__ - INFO - Selected skill filter: Comprehension
+2026-05-02 22:58:40,142 - __main__ - INFO - Downloaded CSV report: Ana_Skill_All_2026-02-02_2026-05-02.csv
+2026-05-02 22:58:40,182 - utils - INFO - Successfully converted to XLSX: Ana_Skill_All_2026-02-02_2026-05-02.xlsx
+2026-05-02 22:58:40,183 - __main__ - INFO - Successfully downloaded Skill report
+2026-05-02 22:58:40,183 - __main__ - INFO - Skipping Assignment report (not selected)
+2026-05-02 22:58:40,183 - __main__ - INFO - Skipping Assessment report (not selected)
+2026-05-02 22:58:40,183 - __main__ - INFO - Skipping Level Up Progress report (not selected)
+2026-05-02 22:58:40,183 - __main__ - INFO - Skipping Star Donation report (not selected)
+2026-05-02 22:58:40,183 - __main__ - INFO - Completed report download for AnaCDemo2: 1/1 successful
+2026-05-02 22:58:40,232 - __main__ - INFO - Successfully processed user: AnaCDemo2
+2026-05-02 22:58:40,232 - __main__ - INFO - Scraper completed: 1/1 users processed successfully
+2026-05-02 22:58:40,232 - __main__ - INFO - Attempting to combine all reports by type...
+2026-05-02 22:58:40,233 - utils - INFO - Found 1 Skill reports
+2026-05-02 22:58:40,250 - utils - INFO - Successfully created combined report: Combined_All_Reports_20260502_225840.xlsx
+2026-05-02 22:58:40,250 - utils - INFO - Combined 1 report type sheets into single file
+2026-05-02 22:58:40,250 - __main__ - INFO - Successfully created combined reports: /Users/david.gonzalez01/Personal/reports-scrapper/reports/Combined_All_Reports_20260502_225840.xlsx
+2026-05-02 22:58:40,250 - __main__ - INFO - 
+2026-05-02 22:58:40,250 - __main__ - INFO - =======================================================================================
+2026-05-02 22:58:40,250 - __main__ - INFO - DETAILED USER STATUS TABLE
+2026-05-02 22:58:40,250 - __main__ - INFO - =======================================================================================
+2026-05-02 22:58:40,250 - __main__ - INFO - Username             | Status   | Reports Downloaded | Error Type      | Failure Reason
+2026-05-02 22:58:40,250 - __main__ - INFO - ---------------------------------------------------------------------------------------
+2026-05-02 22:58:40,250 - __main__ - INFO - AnaCDemo2            | ✅        | 1/1                | -               | -
+2026-05-02 22:58:40,250 - __main__ - INFO - ---------------------------------------------------------------------------------------
+2026-05-02 22:58:40,250 - __main__ - INFO - Total: 1/1 users processed successfully
+2026-05-02 22:58:40,250 - __main__ - INFO - =======================================================================================
+2026-05-02 22:58:40,250 - __main__ - INFO - 
+2026-05-02 23:47:07,833 - scraper - INFO - Starting scraper execution
+2026-05-02 23:47:07,834 - scraper - INFO - Loaded 1 users from users.json
+2026-05-02 23:47:07,834 - scraper - INFO - Found 1 users to process
+2026-05-02 23:47:07,835 - scraper - INFO - Processing user 1/1: AnaCDemo2
+2026-05-02 23:47:07,835 - scraper - INFO - Starting report download process for user: AnaCDemo2
+2026-05-02 23:47:09,344 - scraper - INFO - Attempting login for user: AnaCDemo2
+2026-05-02 23:47:15,125 - scraper - INFO - Login successful for user: AnaCDemo2
+2026-05-02 23:47:16,275 - scraper - INFO - Extracted classroom name: Ana!
+2026-05-02 23:47:16,275 - scraper - INFO - Using classroom name 'Ana' for AnaCDemo2
+2026-05-02 23:47:22,121 - scraper - INFO - Successfully navigated to reports: https://www.kidsa-z.com/main/reports#!/student-usage
+2026-05-02 23:47:25,125 - config - INFO - Configuration loaded successfully
+2026-05-02 23:47:25,125 - scraper - INFO - Using date filter: Last 90 Days
+2026-05-02 23:47:25,125 - scraper - INFO - Using products filter: All
+2026-05-02 23:47:26,305 - scraper - INFO - Selected products filter: All
+2026-05-02 23:47:29,436 - scraper - INFO - Selected date filter: Last 90 Days
+2026-05-02 23:47:31,442 - scraper - INFO - Skipping Student Usage report (not selected)
+2026-05-02 23:47:31,443 - scraper - INFO - Skipping Skill report (not selected)
+2026-05-02 23:47:31,443 - scraper - INFO - Skipping Assignment report (not selected)
+2026-05-02 23:47:31,443 - scraper - INFO - Skipping Assessment report (not selected)
+2026-05-02 23:47:31,444 - scraper - INFO - Skipping Level Up Progress report (not selected)
+2026-05-02 23:47:31,444 - scraper - INFO - Skipping Star Donation report (not selected)
+2026-05-02 23:47:31,444 - scraper - INFO - Completed report download for AnaCDemo2: 0/0 successful
+2026-05-02 23:47:31,512 - scraper - ERROR - Failed to process user: AnaCDemo2 - No reports could be downloaded (0/0 successful)
+2026-05-02 23:47:31,512 - scraper - INFO - Scraper completed: 0/1 users processed successfully
+2026-05-02 23:47:31,512 - scraper - INFO - Error summary: Download error for: AnaCDemo2
+2026-05-02 23:47:31,512 - scraper - INFO - 
+2026-05-02 23:47:31,512 - scraper - INFO - =======================================================================================
+2026-05-02 23:47:31,512 - scraper - INFO - DETAILED USER STATUS TABLE
+2026-05-02 23:47:31,512 - scraper - INFO - =======================================================================================
+2026-05-02 23:47:31,512 - scraper - INFO - Username             | Status   | Reports Downloaded | Error Type      | Failure Reason
+2026-05-02 23:47:31,512 - scraper - INFO - ---------------------------------------------------------------------------------------
+2026-05-02 23:47:31,512 - scraper - INFO - AnaCDemo2            | ❌        | 0/0                | download        | No reports could be downloaded (0/0 succ
+2026-05-02 23:47:31,513 - scraper - INFO - ---------------------------------------------------------------------------------------
+2026-05-02 23:47:31,513 - scraper - INFO - Total: 0/1 users processed successfully
+2026-05-02 23:47:31,513 - scraper - INFO - =======================================================================================
+2026-05-02 23:47:31,513 - scraper - INFO - 
+2026-05-02 23:47:31,513 - scraper - INFO - Scraper encountered errors - uploading logs for remote debugging
+2026-05-02 23:47:31,672 - remote_config - INFO - Successfully fetched remote config
+2026-05-02 23:47:31,675 - remote_config - INFO - Log sharing globally enabled: True
+2026-05-02 23:47:31,675 - log_uploader - WARNING - GitHub logging not configured (missing GITHUB_LOG_TOKEN or GITHUB_LOG_REPO)
+2026-05-02 23:47:31,675 - __main__ - ERROR - Scraper failed - no users processed successfully
+2026-05-02 23:47:31,675 - __main__ - INFO - Added notification: error - Download error for: AnaCDemo2
+2026-05-02 23:47:31,675 - __main__ - INFO - Scraper process finished
+2026-05-02 23:47:32,853 - config - INFO - Configuration loaded successfully
+2026-05-02 23:47:32,858 - __main__ - INFO - Loaded 1 users successfully
+2026-05-02 23:48:00,771 - __main__ - INFO - Starting scraper execution
+2026-05-02 23:48:00,773 - __main__ - INFO - Loaded 1 users from users.json
+2026-05-02 23:48:00,773 - __main__ - INFO - Found 1 users to process
+2026-05-02 23:48:00,773 - __main__ - INFO - Processing user 1/1: AnaCDemo2
+2026-05-02 23:48:00,773 - __main__ - INFO - Starting report download process for user: AnaCDemo2
+2026-05-02 23:48:02,859 - __main__ - INFO - Attempting login for user: AnaCDemo2
+2026-05-02 23:48:08,197 - __main__ - INFO - Login successful for user: AnaCDemo2
+2026-05-02 23:48:09,414 - __main__ - INFO - Extracted classroom name: Ana!
+2026-05-02 23:48:09,414 - __main__ - INFO - Using classroom name 'Ana' for AnaCDemo2
+2026-05-02 23:48:15,508 - __main__ - INFO - Successfully navigated to reports: https://www.kidsa-z.com/main/reports#!/student-usage
+2026-05-02 23:48:18,515 - config - INFO - Configuration loaded successfully
+2026-05-02 23:48:18,516 - __main__ - INFO - Using date filter: Last 90 Days
+2026-05-02 23:48:18,516 - __main__ - INFO - Using products filter: All
+2026-05-02 23:48:19,709 - __main__ - INFO - Selected products filter: All
+2026-05-02 23:48:22,840 - __main__ - INFO - Selected date filter: Last 90 Days
+2026-05-02 23:48:24,845 - __main__ - INFO - Skipping Student Usage report (not selected)
+2026-05-02 23:48:24,845 - __main__ - INFO - Skipping Skill report (not selected)
+2026-05-02 23:48:24,845 - __main__ - INFO - Skipping Assignment report (not selected)
+2026-05-02 23:48:24,846 - __main__ - INFO - Skipping Assessment report (not selected)
+2026-05-02 23:48:24,846 - __main__ - INFO - Skipping Level Up Progress report (not selected)
+2026-05-02 23:48:24,846 - __main__ - INFO - Skipping Star Donation report (not selected)
+2026-05-02 23:48:24,846 - __main__ - INFO - Completed report download for AnaCDemo2: 0/0 successful
+2026-05-02 23:48:24,993 - __main__ - ERROR - Failed to process user: AnaCDemo2 - No reports could be downloaded (0/0 successful)
+2026-05-02 23:48:24,993 - __main__ - INFO - Scraper completed: 0/1 users processed successfully
+2026-05-02 23:48:24,994 - __main__ - INFO - Error summary: Download error for: AnaCDemo2
+2026-05-02 23:48:24,994 - __main__ - INFO - 
+2026-05-02 23:48:24,994 - __main__ - INFO - =======================================================================================
+2026-05-02 23:48:24,994 - __main__ - INFO - DETAILED USER STATUS TABLE
+2026-05-02 23:48:24,994 - __main__ - INFO - =======================================================================================
+2026-05-02 23:48:24,994 - __main__ - INFO - Username             | Status   | Reports Downloaded | Error Type      | Failure Reason
+2026-05-02 23:48:24,994 - __main__ - INFO - ---------------------------------------------------------------------------------------
+2026-05-02 23:48:24,994 - __main__ - INFO - AnaCDemo2            | ❌        | 0/0                | download        | No reports could be downloaded (0/0 succ
+2026-05-02 23:48:24,994 - __main__ - INFO - ---------------------------------------------------------------------------------------
+2026-05-02 23:48:24,994 - __main__ - INFO - Total: 0/1 users processed successfully
+2026-05-02 23:48:24,994 - __main__ - INFO - =======================================================================================
+2026-05-02 23:48:24,994 - __main__ - INFO - 
+2026-05-02 23:48:24,994 - __main__ - INFO - Scraper encountered errors - uploading logs for remote debugging
+2026-05-02 23:48:24,997 - remote_config - INFO - Log sharing globally enabled: True
+2026-05-02 23:48:24,997 - log_uploader - WARNING - GitHub logging not configured (missing GITHUB_LOG_TOKEN or GITHUB_LOG_REPO)
+2026-05-02 23:49:17,437 - __main__ - INFO - Starting scraper execution
+2026-05-02 23:49:17,439 - __main__ - INFO - Loaded 1 users from users.json
+2026-05-02 23:49:17,439 - __main__ - INFO - Found 1 users to process
+2026-05-02 23:49:17,439 - __main__ - INFO - Processing user 1/1: AnaCDemo2
+2026-05-02 23:49:17,439 - __main__ - INFO - Starting report download process for user: AnaCDemo2
+2026-05-02 23:49:19,594 - __main__ - INFO - Attempting login for user: AnaCDemo2
+2026-05-02 23:49:25,052 - __main__ - INFO - Login successful for user: AnaCDemo2
+2026-05-02 23:49:26,280 - __main__ - INFO - Extracted classroom name: Ana!
+2026-05-02 23:49:26,280 - __main__ - INFO - Using classroom name 'Ana' for AnaCDemo2
+2026-05-02 23:49:32,411 - __main__ - INFO - Successfully navigated to reports: https://www.kidsa-z.com/main/reports#!/student-usage
+2026-05-02 23:49:35,421 - config - INFO - Configuration loaded successfully
+2026-05-02 23:49:35,421 - __main__ - INFO - Using date filter: Last 90 Days
+2026-05-02 23:49:35,421 - __main__ - INFO - Using products filter: All
+2026-05-02 23:49:36,613 - __main__ - INFO - Selected products filter: All
+2026-05-02 23:49:39,730 - __main__ - INFO - Selected date filter: Last 90 Days
+2026-05-02 23:49:41,735 - __main__ - INFO - Skipping Student Usage report (not selected)
+2026-05-02 23:49:41,736 - __main__ - INFO - Skipping Skill report (not selected)
+2026-05-02 23:49:41,736 - __main__ - INFO - Skipping Assignment report (not selected)
+2026-05-02 23:49:41,736 - __main__ - INFO - Skipping Assessment report (not selected)
+2026-05-02 23:49:41,736 - __main__ - INFO - Skipping Level Up Progress report (not selected)
+2026-05-02 23:49:41,736 - __main__ - INFO - Skipping Star Donation report (not selected)
+2026-05-02 23:49:41,737 - __main__ - INFO - Completed report download for AnaCDemo2: 0/0 successful
+2026-05-02 23:49:41,886 - __main__ - ERROR - Failed to process user: AnaCDemo2 - No reports could be downloaded (0/0 successful)
+2026-05-02 23:49:41,886 - __main__ - INFO - Scraper completed: 0/1 users processed successfully
+2026-05-02 23:49:41,886 - __main__ - INFO - Error summary: Download error for: AnaCDemo2
+2026-05-02 23:49:41,886 - __main__ - INFO - 
+2026-05-02 23:49:41,886 - __main__ - INFO - =======================================================================================
+2026-05-02 23:49:41,886 - __main__ - INFO - DETAILED USER STATUS TABLE
+2026-05-02 23:49:41,886 - __main__ - INFO - =======================================================================================
+2026-05-02 23:49:41,886 - __main__ - INFO - Username             | Status   | Reports Downloaded | Error Type      | Failure Reason
+2026-05-02 23:49:41,886 - __main__ - INFO - ---------------------------------------------------------------------------------------
+2026-05-02 23:49:41,886 - __main__ - INFO - AnaCDemo2            | ❌        | 0/0                | download        | No reports could be downloaded (0/0 succ
+2026-05-02 23:49:41,886 - __main__ - INFO - ---------------------------------------------------------------------------------------
+2026-05-02 23:49:41,886 - __main__ - INFO - Total: 0/1 users processed successfully
+2026-05-02 23:49:41,886 - __main__ - INFO - =======================================================================================
+2026-05-02 23:49:41,887 - __main__ - INFO - 
+2026-05-02 23:49:41,887 - __main__ - INFO - Scraper encountered errors - uploading logs for remote debugging
+2026-05-02 23:49:41,890 - remote_config - INFO - Log sharing globally enabled: True
+2026-05-02 23:49:41,890 - log_uploader - WARNING - GitHub logging not configured (missing GITHUB_LOG_TOKEN or GITHUB_LOG_REPO)
